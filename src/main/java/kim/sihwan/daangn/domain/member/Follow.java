@@ -1,4 +1,4 @@
-package kim.sihwan.daangn.domain;
+package kim.sihwan.daangn.domain.member;
 
 
 import lombok.AllArgsConstructor;
