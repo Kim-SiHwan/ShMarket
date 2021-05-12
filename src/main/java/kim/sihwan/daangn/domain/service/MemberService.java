@@ -10,6 +10,7 @@ import kim.sihwan.daangn.dto.member.LoginRequestDto;
 import kim.sihwan.daangn.dto.member.LoginResponseDto;
 import kim.sihwan.daangn.dto.member.MemberResponseDto;
 
+import kim.sihwan.daangn.exception.customException.UsernameDuplicatedException;
 import kim.sihwan.daangn.repository.area.AreaRepository;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
