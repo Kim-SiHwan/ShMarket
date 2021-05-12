@@ -1,7 +1,7 @@
 package kim.sihwan.daangn.config.jwt;
 
 import io.jsonwebtoken.*;
-import kim.sihwan.daangn.service.MemberService;
+import kim.sihwan.daangn.service.member.MemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
