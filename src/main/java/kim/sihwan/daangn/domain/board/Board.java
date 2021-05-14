@@ -56,10 +56,11 @@ public class Board {
     }
 
     @Builder
-    public Board(String title, String content, LocalDateTime createDate, int read, String area, String category, String thumbnail) {
+    public Board(String title, String content, int read, String area, String category, String thumbnail) {
         this.title = title;
         this.content = content;
-        this.createDate = createDate;
+        this.createDate = LocalDateTime.now();
+        this.updateDate = LocalDateTime.now();
         this.area = area;
         this.category = category;
         this.thumbnail = thumbnail;
