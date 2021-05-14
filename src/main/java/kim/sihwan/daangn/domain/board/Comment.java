@@ -22,15 +22,22 @@ public class Comment {
     private String nickname;
     private String content;
     private LocalDateTime createDate;
+    private LocalDateTime updateDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
+
+    public void changeComment(String content){
+        this.content = content;
+        this.updateDate = LocalDateTime.now();
+    }
 
     @Builder
     public Comment (String nickname, String content){
         this.nickname = nickname;
         this.content = content;
         this.createDate = LocalDateTime.now();
+        this.updateDate = LocalDateTime.now();
     }
 
     public void addBoard(Board board){
