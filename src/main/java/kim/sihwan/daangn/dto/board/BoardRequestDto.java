@@ -22,7 +22,8 @@ public class BoardRequestDto {
         return Board.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
-
+                .area(requestDto.getArea())
+                .category(requestDto.getCategory())
                 .createDate(LocalDateTime.now())
                 .build();
     }
