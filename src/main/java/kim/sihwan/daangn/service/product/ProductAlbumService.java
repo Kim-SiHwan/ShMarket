@@ -20,7 +20,7 @@ public class ProductAlbumService {
     @Transactional
     public Product addProductAlbums(ProductRequestDto productRequestDto){
         Product product = productRequestDto.toEntity(productRequestDto);
-        String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnClone\\src\\main\\resources\\static\\images\\";
+        String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\";
         String saveUrl = "http://localhost:8080/api/product/download?fileName=";
         try{
             for(MultipartFile file : productRequestDto.getFiles()){
