@@ -39,6 +39,7 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MemberService implements UserDetailsService {
+
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManagerBuilder managerBuilder;
     private final MemberRepository memberRepository;
