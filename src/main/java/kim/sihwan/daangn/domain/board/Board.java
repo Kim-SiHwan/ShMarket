@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Entity
@@ -24,13 +24,19 @@ public class Board {
     private Long id;
     private String title;
     private String content;
+    private String area;
+    private String category;
+    private String thumbnail;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     private int read;
 
 
     @OneToMany(mappedBy = "board")
-    private List<Comment> comments = new ArrayList<>();
+    private Set<Comment> comments = new HashSet<>();
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    private Set<BoardAlbum> boardAlbums = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
@@ -45,17 +51,25 @@ public class Board {
         this.updateDate = LocalDateTime.now();
     }
 
+    public void addThumbnail(String thumbnail){
+        this.thumbnail = thumbnail;
+    }
+
     @Builder
-    public Board(String title, String content, LocalDateTime createDate, int read) {
+    public Board(String title, String content, LocalDateTime createDate, int read, String area, String category, String thumbnail) {
         this.title = title;
         this.content = content;
         this.createDate = createDate;
+        this.area = area;
+        this.category = category;
+        this.thumbnail = thumbnail;
         this.read = read;
     }
 
     public void addMember(Member member) {
         this.member = member;
     }
+
 
 
 }

@@ -2,6 +2,7 @@ package kim.sihwan.daangn.domain.board;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -22,4 +23,15 @@ public class BoardAlbum {
 
     @ManyToOne
     private Board board;
+
+    @Builder
+    public BoardAlbum(String url, String filename) {
+        this.url = url;
+        this.filename = filename;
+    }
+
+    public void addBoard(Board board) {
+        this.board = board;
+        this.board.getBoardAlbums().add(this);
+    }
 }
