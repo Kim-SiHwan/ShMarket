@@ -2,13 +2,16 @@
 package kim.sihwan.daangn.config;
 
 import kim.sihwan.daangn.domain.area.Area;
+import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.repository.area.AreaRepository;
+import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.io.InputStream;
@@ -19,9 +22,20 @@ import java.io.InputStreamReader;
 class AppRunnerConfig implements ApplicationRunner {
 
     private final AreaRepository areaRepository;
+    private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
+        Member member = Member.builder()
+                .username("admin")
+                .nickname("admin")
+                .password(passwordEncoder.encode("admin"))
+                .area("만수3동")
+                .role("ROLE_ADMIN")
+                .build();
+        memberRepository.save(member);
+
         try {
             JSONParser jsonParser = new JSONParser();
             InputStream in5 = this.getClass().getResourceAsStream("/places.json");
