@@ -21,26 +21,23 @@ public class Qna {
     private String title;
     private String content;
     private String answer;
-    private boolean visited;
     private boolean answered;
     private LocalDateTime createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    public void visitedQna(){
-        this.visited=true;
+
+    public void answeredQna(String answer) {
+        this.answered = true;
+        this.answer = answer;
     }
 
-    public void answeredQna(){
-        this.answered=true;
-    }
 
     @Builder
     public Qna(String title, String content) {
         this.title = title;
         this.content = content;
-        this.visited = false;
         this.answer = "";
         this.answered = false;
         this.createDate = LocalDateTime.now();

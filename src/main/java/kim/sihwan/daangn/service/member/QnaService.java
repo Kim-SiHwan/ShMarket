@@ -42,13 +42,6 @@ public class QnaService {
 
     public QnaResponseDto findById(Long qnaId){
         Qna qna = qnaRepository.findById(qnaId).orElseThrow(NoSuchElementException::new);
-        boolean isAdmin = false;
-        if(SecurityContextHolder.getContext().getAuthentication().getAuthorities().contains("ROLE_ADMIN")){
-            isAdmin=true;
-        }
-        if(isAdmin){
-            qna.visitedQna();
-        }
         return QnaResponseDto.toDto(qna);
     }
 
