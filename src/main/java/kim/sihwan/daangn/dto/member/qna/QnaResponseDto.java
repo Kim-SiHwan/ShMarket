@@ -12,7 +12,6 @@ public class QnaResponseDto {
     private String nickname;
     private String title;
     private String content;
-    private boolean visited;
     private boolean answered;
     private String answer;
     private String createDate;
@@ -23,7 +22,6 @@ public class QnaResponseDto {
                 .nickname(qna.getMember().getNickname())
                 .title(qna.getTitle())
                 .content(qna.getContent())
-                .visited(qna.isVisited())
                 .answered(qna.isAnswered())
                 .answer(qna.getAnswer())
                 .createDate(qna.getCreateDate().toString())
