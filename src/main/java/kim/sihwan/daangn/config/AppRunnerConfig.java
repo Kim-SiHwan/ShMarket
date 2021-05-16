@@ -31,7 +31,7 @@ class AppRunnerConfig implements ApplicationRunner {
                 .username("admin")
                 .nickname("admin")
                 .password(passwordEncoder.encode("admin"))
-                .area("만수3동")
+                .area("인천광역시 남동구 만수3동")
                 .role("ROLE_ADMIN")
                 .build();
         memberRepository.save(member);
