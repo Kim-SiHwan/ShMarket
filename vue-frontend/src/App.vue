@@ -40,6 +40,15 @@
     <v-main>
       <router-view></router-view>
     </v-main>
+
+    <v-snackbar
+        v-model="snackBarInfo.open"
+        :color="snackBarInfo.color"
+        :timeout="snackBarInfo.timeout"
+        top>
+      {{snackBarInfo.text}}
+    </v-snackbar>
+
   </v-app>
 </template>
 
@@ -50,7 +59,11 @@ export default {
 
   components: {
   },
-
+  computed: {
+    snackBarInfo() {
+      return this.$store.state.commonStore.snackBar;
+    }
+  },
   data: () => ({
     //
   }),
