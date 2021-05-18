@@ -3,8 +3,7 @@ const instance = axios.create();
 
 instance.interceptors.request.use(
     async config=>{
-        const token = localStorage.getItem("access_token");
-        console.log(token);
+        const token = sessionStorage.getItem("access_token");
         config.headers={'Authorization' : token}
         return config;
     },
