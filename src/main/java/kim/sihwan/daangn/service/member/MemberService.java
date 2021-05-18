@@ -65,7 +65,7 @@ public class MemberService implements UserDetailsService {
 
         String jwt = tokenProvider.createToken(auth);
 
-        return new LoginResponseDto(member.getId(),jwt, member.getUsername(), member.getNickname());
+        return new LoginResponseDto(member.getId(),jwt, member.getUsername(), member.getNickname(), member.getArea().split(" ")[2]);
     }
 
     @Transactional
