@@ -17,7 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
-import java.util.ArrayList;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -84,6 +85,11 @@ public class ProductService {
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
 
+        List<String> getCategories = categories.stream()
+                .map(m-> URLDecoder.decode(m, StandardCharsets.UTF_8))
+                .collect(Collectors.toList());
+
+        System.out.println(getCategories);
         Long memberId = member.getId();
 
         List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
@@ -92,7 +98,7 @@ public class ProductService {
 
         List<ProductListResponseDto> result = productRepository.findAll()
                 .stream()
-                .filter(product -> al.contains(product.getArea()) && categories.contains(product.getCategory()))
+                .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()))
                 .map(m -> {
                     if (isInterested(interestedList, memberId, m.getId())) {
                         return ProductListResponseDto.toDto(m, true);

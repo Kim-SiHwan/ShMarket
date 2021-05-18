@@ -22,22 +22,23 @@ public class ProductAlbumService {
         Product product = productRequestDto.toEntity(productRequestDto);
         String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\";
         String saveUrl = "http://localhost:8080/api/product/download?fileName=";
+        String addUrl = "";
         try{
             for(MultipartFile file : productRequestDto.getFiles()){
                 String newFilename = createNewFilename(file.getOriginalFilename());
-                saveUrl = saveUrl + newFilename;
+                addUrl = saveUrl + newFilename;
                 File dest = new File(fileUrl + newFilename);
                 file.transferTo(dest);
 
                 ProductAlbum productAlbum = ProductAlbum
                         .builder()
                         .filename(file.getOriginalFilename())
-                        .url(saveUrl + newFilename)
+                        .url(addUrl)
                         .build();
                 productAlbum.addProduct(product);
 
             }
-            product.addThumbnail(saveUrl);
+            product.addThumbnail(addUrl);
         }catch (Exception e){
             e.printStackTrace();
         }

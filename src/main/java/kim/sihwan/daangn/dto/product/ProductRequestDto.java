@@ -18,12 +18,14 @@ public class ProductRequestDto {
     private String username;
     private String nickname;
     private String category;
+    private String price;
     private List<MultipartFile> files;
     private Set<String> tags;
 
     public Product toEntity(ProductRequestDto requestDto){
         return Product.builder()
                 .area(requestDto.getArea())
+                .price(requestDto.getPrice())
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
                 .username(requestDto.getUsername())

@@ -29,6 +29,7 @@ public class Product {
     private String nickname;
     private String thumbnail;
     private String category;
+    private String price;
     private int read;
     private LocalDateTime createDate;
 
@@ -49,10 +50,11 @@ public class Product {
 
 
     @Builder
-    public Product(String area, String username,String nickname, String thumbnail, String title, String content, String category) {
+    public Product(String area,String price, String username,String nickname, String thumbnail, String title, String content, String category) {
         this.area = area;
         this.username = username;
         this.nickname = nickname;
+        this.price = price;
         this.thumbnail = thumbnail;
         this.title = title;
         this.content = content;

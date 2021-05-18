@@ -16,6 +16,7 @@ public class ProductListResponseDto {
     private final String title;
     private final String content;
     private final String username;
+    private final String nickname;
     private final String createDate;
     private final String thumbnail;
     private final String category;
@@ -30,6 +31,7 @@ public class ProductListResponseDto {
                 .id(product.getId())
                 .area(product.getArea())
                 .username(product.getMember().getUsername())
+                .nickname(product.getMember().getNickname())
                 .title(product.getTitle())
                 .content(product.getContent())
                 .createDate(product.getCreateDate().toString())
