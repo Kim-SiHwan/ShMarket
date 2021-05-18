@@ -4,21 +4,23 @@ import router from "@/routes/index";
 
 const memberStore={
     state:{
-        token:localStorage.getItem('access_token'),
+        token:sessionStorage.getItem('access_token'),
         authenticated:false,
         username:'',
         nickname:'',
+        area:''
     },
     getters:{
       isAuthenticated(state){
-          return !!(state.token && state.authenticated && state.username);
+          return !!(state.token && state.authenticated && state.nickname);
       }
     },
     mutations:{
         LOGIN(state,payload){
             auth.setStorage(payload);
-            state.token=localStorage.getItem('access_token');
-            state.username=localStorage.getItem('username')
+            state.token=sessionStorage.getItem('access_token');
+            state.nickname=sessionStorage.getItem('nickname');
+            state.area=sessionStorage.getItem('area');
             state.authenticated=true;
         },
         LOGOUT(state){
@@ -45,7 +47,7 @@ const memberStore={
                 context.commit('SET_SNACK_BAR',{
                     msg:loginResponse.data.username+'님 반갑습니다.',color:'success'
                 });
-                router.push('/main');
+                // router.push('/main');
             }
         },
         async REQUEST_LOGOUT(context){
