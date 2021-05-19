@@ -2,33 +2,30 @@ package kim.sihwan.daangn.product;
 
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
+import kim.sihwan.daangn.domain.product.ProductInterested;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
+import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import kim.sihwan.daangn.service.product.ProductAlbumService;
+import kim.sihwan.daangn.service.product.ProductInterestedService;
 import kim.sihwan.daangn.service.product.ProductService;
 import kim.sihwan.daangn.service.product.ProductTagService;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.test.context.support.WithSecurityContext;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -55,8 +52,15 @@ public class ProductServiceTest {
     @Mock
     ProductRequestDto productRequestDto;
 
+    @Mock
+    ProductResponseDto productResponseDto;
+
+    @Mock
+    ProductInterestedService interestedService;
+
     @InjectMocks
     ProductService productService;
+
 
 
     private Product product = Product.builder()
@@ -97,14 +101,15 @@ public class ProductServiceTest {
     public void 단일상품_조회_테스트 (){
 
         //given
+        List<ProductInterested> list = new ArrayList<>();
         given(productRepository.findById(anyLong())).willReturn(Optional.ofNullable(product));
-
+        given(interestedService.findAll()).willReturn(list);
         //when
-        Product getProduct = productService.findById(anyLong());
+        productResponseDto = productService.findById(anyLong());
 
         //then
         verify(productRepository,times(1)).findById(anyLong());
-        assertEquals(product.getNickname(),getProduct.getNickname());
+        assertEquals(product.getNickname(),productResponseDto.getNickname());
 
 
     }
@@ -116,7 +121,7 @@ public class ProductServiceTest {
         given(productRepository.findById(anyLong())).willReturn(Optional.empty());
 
         //when
-        Product getProduct = productService.findById(anyLong());
+        productResponseDto = productService.findById(anyLong());
 
         //then
 
@@ -129,10 +134,10 @@ public class ProductServiceTest {
         given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
 
         //when
-        Product getProduct = productService.findById(anyLong());
+        productResponseDto = productService.findById(anyLong());
 
         //then
-        assertEquals(1,getProduct.getRead());
+        assertEquals(1,productResponseDto.getReadCount());
     }
 
 
