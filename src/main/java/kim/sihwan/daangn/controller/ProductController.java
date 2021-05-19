@@ -42,8 +42,7 @@ public class ProductController {
 
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
-        ProductResponseDto productResponseDto = ProductResponseDto.toDto(productService.findById(productId));
-        return new ResponseEntity(productResponseDto, HttpStatus.OK);
+        return new ResponseEntity(productService.findById(productId), HttpStatus.OK);
     }
 
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)

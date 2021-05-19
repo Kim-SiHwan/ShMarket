@@ -20,17 +20,19 @@ public class ProductResponseDto {
     private final String nickname;
     private final String category;
     private final String createDate;
+    private boolean like;
     private final int readCount;
     private final List<ProductAlbumResponseDto> productAlbums;
     private final List<TagResponseDto> tags;
 
-    public static ProductResponseDto toDto(Product product){
+    public static ProductResponseDto toDto(Product product, boolean like){
         return ProductResponseDto
                 .builder()
                 .id(product.getId())
                 .area(product.getArea())
                 .username(product.getMember().getUsername())
                 .nickname(product.getMember().getNickname())
+                .like(like)
                 .title(product.getTitle())
                 .content(product.getContent())
                 .category(product.getCategory())

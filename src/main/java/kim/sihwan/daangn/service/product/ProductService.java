@@ -6,6 +6,7 @@ import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductInterested;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
+import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
@@ -69,18 +70,23 @@ public class ProductService {
         }
         return "상품의 상태가 변경되었습니다.";
     }
-    public Product findById(Long productId) {
+
+    public ProductResponseDto findById(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
         addRead(productId);
-        return product;
+        List<ProductInterested> interestedList = interestedService.findAll();
+        if(isInterested(interestedList,findMemberByUsername().getId(),productId)){
+            return ProductResponseDto.toDto(product,true);
+        }
+        return ProductResponseDto.toDto(product,false);
+
     }
 
     public List<ProductListResponseDto> findAllProductsByCategory(List<String> categories) {
 
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        Member member = memberRepository.findMemberByUsername(username);
+        Member member = findMemberByUsername();
         SelectedArea selectedArea = selectedAreaRepository.findByMemberId(member.getId());
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
@@ -133,6 +139,12 @@ public class ProductService {
             }
         }
         return flag;
+    }
+
+    @Transactional
+    public Member findMemberByUsername(){
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findMemberByUsername(username);
     }
 
 }

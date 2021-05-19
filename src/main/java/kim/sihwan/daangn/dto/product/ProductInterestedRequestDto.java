@@ -6,6 +6,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ProductInterestedRequestDto {
-    private Long memberId;
     private Long productId;
 }

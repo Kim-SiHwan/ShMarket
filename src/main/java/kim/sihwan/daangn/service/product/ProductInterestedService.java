@@ -26,11 +26,11 @@ public class ProductInterestedService {
 
     @Transactional
     public String pushInterest(Long productId){
-        String msg= "존재하지 않는 값이라 추가했음";
+        String msg= "관심상품에 등록되었습니다.";
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username,productId);
         if(interested != null){
-            msg="이미 존재하는 값이라 삭제했음";
+            msg="관심상품에서 삭제되었습니다.";
             removeInterest(interested.getId());
             return msg;
         }
