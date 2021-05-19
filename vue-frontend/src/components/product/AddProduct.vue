@@ -11,7 +11,7 @@
 
           </v-text-field>
           <v-text-field
-              label="판매 상품의 가격을 입력해주세요."
+              label="판매 상품의 가격을 입력해주세요 ( 선택사항 )"
               v-model="requestData.price">
 
           </v-text-field>
@@ -28,9 +28,8 @@
           <v-textarea
               no-resize
               v-model="requestData.content"
-              label="판매글의 내용을 입력해주세요.">
-
-          </v-textarea>
+              v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'"
+          ></v-textarea>
           <v-file-input
               chips
               multiple

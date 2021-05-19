@@ -8,28 +8,27 @@
           style="list-style: none">
         <li id="listDiv">
           <div class="p-5 mb-5 rounded float-left"
-               style="width: 500px; height: 600px; border: 1px solid cornflowerblue">
-            <div class="card-body" style="margin-top: 20px">
-              <span><strong>&lt;&nbsp; {{ list.title }} &gt;&nbsp;</strong></span>
+               style="width: 300px; height: 400px; border: 2px solid orange">
+            <div class="card-body">
+              <span style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
-              <span class="float-right card-subtitle">
-              <span class="float-right mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span>
+              <span class="float-left card-subtitle">
+              <span class="float-left mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span>
               <br>
-              <span class="float-right mt-1 mr-3"> <small>작성일 : {{
+              <span class="float-left mt-1 mr-3"> <small>작성일 : {{
                   list.createDate.substring(0, 10)
                 }}</small></span>
               <br>
-              <span class="float-right mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
+              <span class="float-left mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
               </span>
               <br>
 
               <div id="imgDiv" style="height: 100%; width: 100%">
-                <router-link :to="{path:'/reviewDetail',query:{reviewId:list.id}}">
+                <router-link :to="{path:'/productDetail',query:{productId:list.id}}">
                   <v-img
                       :src="list.thumbnail"
-                      aspect-ratio="1"
                       class="mt-15 mr-3 ml-13 grey lighten-3"
-                      width="400"
+                      width="200"
                   >
 
                   </v-img>
@@ -57,6 +56,22 @@
                     mdi-image-multiple
                   </v-icon>
                   {{ list.productAlbumCount }}
+                  <v-btn
+                      v-if="list.like"
+                      dark
+                      icon
+                      @click="pushLike(list.id)"
+                      color="pink">
+                    <v-icon dark>mdi-heart</v-icon>
+                  </v-btn>
+                  <v-btn
+                      v-else
+                      dark
+                      icon
+                      @click="pushLike(list.id)"
+                      color="grey">
+                    <v-icon dark>mdi-heart</v-icon>
+                  </v-btn>
                 </div>
               </div>
             </div>
@@ -91,6 +106,11 @@ export default {
     },
     clickTag(tag) {
       this.$store.dispatch('REQUEST_GET_ALL_REVIEWS_BY_TAG', tag);
+    },
+    pushLike(productId){
+      console.log(productId);
+      this.$store.dispatch('REQUEST_PUSH_INTEREST',productId);
+      // like 가져와서 관심상품 추가 및 해제
     }
 
   },
@@ -98,9 +118,7 @@ export default {
     productList() {
       return this.$store.state.productStore.productList;
     },
-    productDetail() {
-      return this.$store.state.productStore.productDetail;
-    },
+
     categories(){
       return this.$store.getters.GET_CATEGORIES;
     }

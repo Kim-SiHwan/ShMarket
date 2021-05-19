@@ -36,23 +36,15 @@ const productStore={
         },
 
         async REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES(context,payload){
-            console.log(payload);
             let tempCategory = JSON.parse(payload);
-            let category = new FormData;
-            let c = [];
-            console.log(tempCategory);
-            for(let key in tempCategory){
-                if(tempCategory[key]){
-                    category.append('list',key);
-                    c.push(key);
+            let category = [];
+            for(let key in tempCategory) {
+                if (tempCategory[key]) {
+                    category.push(key);
                 }
             }
-            for(let f of category.entries()){
-                console.log(f[0]+" "+f[1]);
-            }
-            console.log(category.list);
-            console.log("리스트 : " +c)
-            const response = await product_api.requestGetAllProducts(c);
+            console.log("리스트 : " +category)
+            const response = await product_api.requestGetAllProducts(category);
             if(response){
                 context.commit('SET_PRODUCT_LIST',response.data);
             }
@@ -63,6 +55,18 @@ const productStore={
                 context.commit('SET_SNACK_BAR',{
                     msg:'상품을 등록했습니다.',color:'success'
                 });
+            }
+        },
+        async REQUEST_PUSH_INTEREST(context, payload){
+            const response = await product_api.requestInterested(payload);
+            if(response){
+                context.commit('SET_SNACK_BAR',{
+                    msg:response.data, color:'info'
+                })
+            }
+            const getProductResponse = await product_api.requestGetProduct(payload);
+            if(getProductResponse){
+                context.commit('SET_PRODUCT_DETAIL',getProductResponse.data);
             }
         }
 
