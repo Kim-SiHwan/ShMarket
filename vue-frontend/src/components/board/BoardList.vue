@@ -3,6 +3,57 @@
 
     <p><small v-if="boardList">{{ boardList.length }}개의 동네생활이 있습니다</small></p>
 
+    <v-switch
+        class="ml-15"
+        color="orange"
+        hide-details
+        label="카테고리 필터"
+        v-on:change="changeCategoryFlag"
+    ></v-switch>
+
+    <div v-if="showCategoryFlag">
+      <div v-for="(flag,name) in categories" :key="name">
+
+        <v-checkbox
+            v-if="flag"
+            :label="name"
+            class="ml-15"
+            color="orange"
+            hide-details
+            input-value="true"
+            v-on:change="checked(name)">
+
+        </v-checkbox>
+
+        <v-checkbox
+            v-else
+            :label="name"
+            class="ml-15"
+            color="orange"
+            hide-details
+            v-on:change="checked(name)">
+
+        </v-checkbox>
+
+
+      </div>
+    </div>
+
+    <div style="margin: auto">
+      <v-chip
+          v-if="clickTagFlag"
+          color="info"
+          label
+          style="width: 320px"
+          close
+          @click:close="closeTag"
+      >
+        {{tagName}} 카테고리 게시글만 출력합니다
+      </v-chip>
+
+    </div>
+
+
     <div id="boardListDiv" class="row justify-center mt-15">
       <ul v-for="(list,index) in boardList" :key="index"
           style="list-style: none">
@@ -116,6 +167,7 @@ export default {
   name: "boardList",
   data() {
     return {
+      showCategoryFlag: false,
       clickTagFlag: false,
       tagName:''
     }
@@ -123,6 +175,26 @@ export default {
   methods: {
     showBoardList() {
       this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES', localStorage.getItem('boardCategories'));
+    },
+    checked(name) {
+      this.categories[name] = !this.categories[name];
+      localStorage.setItem('boardCategories', JSON.stringify(this.categories));
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES', localStorage.getItem('boardCategories'));
+    },
+    changeCategoryFlag() {
+      this.showCategoryFlag = !this.showCategoryFlag;
+    },
+    clickTag(name){
+      console.log(name);
+      this.tagName = name;
+      this.clickTagFlag = true;
+      let toJson ={}
+      toJson[name] = true;
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES',JSON.stringify(toJson));
+    },
+    closeTag(){
+      this.clickTagFlag=false;
+      this.showBoardList();
     }
   },
   computed: {
@@ -130,6 +202,9 @@ export default {
       return this.$store.state.boardStore.boardList;
     },
 
+    categories() {
+      return JSON.parse(localStorage.getItem('boardCategories'));
+    }
   },
   mounted() {
     this.showBoardList();
