@@ -66,13 +66,19 @@
         v-bind:rows="boardDetail.content.length/5"
         v-bind:value="boardDetail.content"
     ></v-textarea>
+    <comment></comment>
+
   </v-container>
 
 </template>
 
 <script>
+import Comment from "./Comment";
 export default {
   name: "boardDetail",
+  components: {
+    'comment' : Comment,
+  },
   data() {
     return {
       flag: false,

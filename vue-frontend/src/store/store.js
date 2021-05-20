@@ -5,6 +5,7 @@ import memberStore from "@/store/memberStore";
 import areaStore from "@/store/areaStore";
 import productStore from "@/store/productStore";
 import boardStore from "@/store/boardStore";
+import commentStore from "@/store/commentStore";
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
@@ -14,7 +15,8 @@ export const store = new Vuex.Store({
         memberStore,
         areaStore,
         productStore,
-        boardStore
+        boardStore,
+        commentStore
 
     }
 
