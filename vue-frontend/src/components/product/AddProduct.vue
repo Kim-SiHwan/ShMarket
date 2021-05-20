@@ -1,54 +1,54 @@
 <template>
   <v-container>
 
-    <v-row align="center" class="fill-height" justify="center" >
-      <div id="uploadReviewDiv" class="elevation-5" style="width: 800px; height: 600px" >
+    <v-row align="center" class="fill-height" justify="center">
+      <div id="uploadReviewDiv" class="elevation-5" style="width: 800px; height: 600px">
 
         <div class="mt-15 ml-15 mr-15 mb-15">
           <v-text-field
-              label="판매글의 제목을 입력해주세요."
-              v-model="requestData.title">
+              v-model="requestData.title"
+              label="판매글의 제목을 입력해주세요.">
 
           </v-text-field>
           <v-text-field
-              label="판매 상품의 가격을 입력해주세요 ( 선택사항 )"
-              v-model="requestData.price">
+              v-model="requestData.price"
+              label="판매 상품의 가격을 입력해주세요 ( 선택사항 )">
 
           </v-text-field>
           <v-select
-              class="pt-3 pl-3 pr-3 "
-              hide-details
+              v-model="requestData.category"
               :items="categories"
+              class="pt-3 pl-3 pr-3 "
+              dense
+              hide-details
               item-text="address"
               label="카테고리"
               no-data-text="카테고리를 입력해주세요."
-              v-model="requestData.category"
-              dense
           ></v-select>
           <v-textarea
-              no-resize
               v-model="requestData.content"
+              no-resize
               v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'"
           ></v-textarea>
           <v-file-input
               chips
+              label="사진을 1장 이상 선택해주세요."
               multiple
-              @change="selectedFile"
-              label="사진을 1장 이상 선택해주세요.">
+              @change="selectedFile">
 
           </v-file-input>
           <v-text-field
               v-if="this.requestData.tags.length<3"
-              v-on:keyup.enter="addTags" v-model="tagName" label="태그입력해주세요 [ 3개 까지의 태그만 입력가능합니다 ]"></v-text-field>
+              v-model="tagName" label="태그입력해주세요 [ 3개 까지의 태그만 입력가능합니다 ]" v-on:keyup.enter="addTags"></v-text-field>
           <div v-for="(tag,index) in requestData.tags" :key="index" style="display: inline">
             <v-chip
                 class="mr-3"
                 close
+                color="info"
                 label
                 small
-                @click:close="deleteTag(index)"
-                color="info">
-              {{tag}}
+                @click:close="deleteTag(index)">
+              {{ tag }}
             </v-chip>
           </div>
           <v-btn
@@ -64,9 +64,10 @@
     </v-row>
 
     <v-btn
-        large
         color="success"
-        @click="upload(fileData)">등록</v-btn>
+        large
+        @click="upload(fileData)">등록
+    </v-btn>
 
   </v-container>
 
@@ -75,70 +76,68 @@
 <script>
 export default {
   name: "AddProduct",
-  data(){
+  data() {
     return {
-      categories:[],
-      requestData:{
-        area :'',
-        title :'',
-        content :'',
-        username :'',
-        nickname :'',
-        category :'',
+      categories: [],
+      requestData: {
+        area: '',
+        title: '',
+        content: '',
+        username: '',
+        nickname: '',
+        category: '',
         price: '',
-        files :'',
-        tags :[]
+        files: '',
+        tags: []
       },
       tagName: '',
       fileData: ''
     }
   },
-  methods:{
-    addTags(){
+  methods: {
+    addTags() {
       this.requestData.tags.push(this.tagName);
-      this.tagName='';
+      this.tagName = '';
     },
-    deleteTag(tagIdx){
-      this.requestData.tags.splice(tagIdx,1);
+    deleteTag(tagIdx) {
+      this.requestData.tags.splice(tagIdx, 1);
     },
-    selectedFile(event){
+    selectedFile(event) {
       const files = event;
       let formData = new FormData;
-      for(let file in files){
-        formData.append('files',files[file]);
+      for (let file in files) {
+        formData.append('files', files[file]);
       }
 
-      this.fileData= formData;
+      this.fileData = formData;
     },
-    upload(formData){
-      if(formData===''){
-        this.$store.commit('SET_SNACK_BAR',{
-          msg:'사진을 1장 이상 선택해주세요.',color:'warning'
+    upload(formData) {
+      if (formData === '') {
+        this.$store.commit('SET_SNACK_BAR', {
+          msg: '사진을 1장 이상 선택해주세요.', color: 'warning'
         });
         return false;
       }
-      formData.set('area',this.requestData.area);
-      formData.set('title',this.requestData.title);
-      formData.set('content',this.requestData.content);
-      formData.set('nickname',this.requestData.nickname);
-      formData.set('price',this.requestData.price);
-      formData.set('category',this.requestData.category);
-      formData.set('tags',this.requestData.tags);
-      this.$store.dispatch('REQUEST_ADD_PRODUCT',formData);
+      formData.set('area', this.requestData.area);
+      formData.set('title', this.requestData.title);
+      formData.set('content', this.requestData.content);
+      formData.set('nickname', this.requestData.nickname);
+      formData.set('price', this.requestData.price);
+      formData.set('category', this.requestData.category);
+      formData.set('tags', this.requestData.tags);
+      this.$store.dispatch('REQUEST_ADD_PRODUCT', formData);
 
     },
   },
   created() {
-    for(let key in JSON.parse(localStorage.getItem('categories'))){
+    for (let key in JSON.parse(localStorage.getItem('productCategories'))) {
       this.categories.push(key);
     }
 
     this.requestData.nickname = sessionStorage.getItem('nickname');
     this.requestData.area = sessionStorage.getItem('area');
   },
-  computed:{
-
-  }
+  computed: {}
 }
 </script>
 

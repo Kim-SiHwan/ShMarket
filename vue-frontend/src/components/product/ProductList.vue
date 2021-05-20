@@ -3,6 +3,44 @@
 
     <p><small v-if="productList">{{ productList.length }}개의 상품이 있습니다</small></p>
 
+    <v-switch
+        class="ml-15"
+        color="orange"
+        hide-details
+        label="카테고리 필터"
+        v-on:change="changeCategoryFlag"
+    ></v-switch>
+
+    <div v-if="showCategoryFlag">
+
+      <div v-for="(flag,name) in categories" :key="name">
+
+        <v-checkbox
+            v-if="flag"
+            :label="name"
+            class="ml-15"
+            color="orange"
+            hide-details
+            input-value="true"
+            v-on:change="checked(name)">
+
+        </v-checkbox>
+
+        <v-checkbox
+            v-else
+            :label="name"
+            class="ml-15"
+            color="orange"
+            hide-details
+            v-on:change="checked(name)">
+
+        </v-checkbox>
+
+
+      </div>
+    </div>
+
+
     <div id="productListDiv" class="row justify-center mt-15">
       <ul v-for="(list,index) in productList" :key="index"
           style="list-style: none">
@@ -58,18 +96,18 @@
                   {{ list.productAlbumCount }}
                   <v-btn
                       v-if="list.like"
+                      color="pink"
                       dark
                       icon
-                      @click="pushLike(list.id)"
-                      color="pink">
+                      @click="pushLike(list.id)">
                     <v-icon dark>mdi-heart</v-icon>
                   </v-btn>
                   <v-btn
                       v-else
+                      color="grey"
                       dark
                       icon
-                      @click="pushLike(list.id)"
-                      color="grey">
+                      @click="pushLike(list.id)">
                     <v-icon dark>mdi-heart</v-icon>
                   </v-btn>
                 </div>
@@ -83,11 +121,11 @@
     <v-fab-transition>
       <v-btn
           bottom
-          right
-          fixed
-          fab
-          small
           color="orange lighten -1"
+          fab
+          fixed
+          right
+          small
           @click="$vuetify.goTo('#headerDiv')">
         <v-icon>mdi-chevron-double-up</v-icon>
       </v-btn>
@@ -100,17 +138,31 @@
 <script>
 export default {
   name: "productList",
+  data() {
+    return {
+      showCategoryFlag: false
+    }
+  },
   methods: {
     showProductList() {
-      this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('categories'));
+      this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('productCategories'));
     },
     clickTag(tag) {
       this.$store.dispatch('REQUEST_GET_ALL_REVIEWS_BY_TAG', tag);
     },
-    pushLike(productId){
+    pushLike(productId) {
       console.log(productId);
-      this.$store.dispatch('REQUEST_PUSH_INTEREST',productId);
+      this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
       // like 가져와서 관심상품 추가 및 해제
+    },
+    checked(name) {
+      this.categories[name] = !this.categories[name];
+      localStorage.setItem('productCategories', JSON.stringify(this.categories));
+      console.log(JSON.parse(localStorage.getItem('productCategories')));
+      this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('productCategories'));
+    },
+    changeCategoryFlag() {
+      this.showCategoryFlag = !this.showCategoryFlag;
     }
 
   },
@@ -119,8 +171,8 @@ export default {
       return this.$store.state.productStore.productList;
     },
 
-    categories(){
-      return this.$store.getters.GET_CATEGORIES;
+    categories() {
+      return JSON.parse(localStorage.getItem('productCategories'));
     }
   },
   mounted() {
