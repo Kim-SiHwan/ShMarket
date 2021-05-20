@@ -6,6 +6,9 @@ import Login from "@/components/member/Login";
 import ProductList from "@/components/product/ProductList";
 import AddProduct from "@/components/product/AddProduct";
 import ProductDetail from "@/components/product/ProductDetail";
+import BoardDetail from "@/components/board/BoardDetail";
+import BoardList from "@/components/board/BoardList";
+import AddBoard from "@/components/board/AddBoard";
 
 Vue.use(Router); //vue 라우터 사용
 
@@ -35,6 +38,18 @@ export default new Router({ //라우터 연결
         {
             path:'/productDetail',
             component: ProductDetail
+        },
+        {
+            path:'/boardDetail',
+            component: BoardDetail
+        },
+        {
+            path:'/boardList',
+            component: BoardList
+        },
+        {
+            path:'/addBoard',
+            component: AddBoard
         }
     ]
 })
