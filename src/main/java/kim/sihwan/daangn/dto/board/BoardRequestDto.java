@@ -17,6 +17,7 @@ public class BoardRequestDto {
     private String content;
     private String area;
     private String category;
+    private String hasImages;
     private List<MultipartFile> files;
 
     public Board toEntity(BoardRequestDto requestDto){

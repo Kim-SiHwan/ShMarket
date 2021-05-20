@@ -18,25 +18,26 @@ import java.util.UUID;
 public class BoardAlbumService {
 
     @Transactional
-    public Board addProductAlbums(BoardRequestDto boardRequestDto){
+    public Board addBoardAlbum(BoardRequestDto boardRequestDto){
         Board board = boardRequestDto.toEntity(boardRequestDto);
         String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\";
-        String saveUrl = "http://localhost:8080/api/product/download?fileName=";
+        String saveUrl = "http://localhost:8080/api/board/download?fileName=";
+        String addUrl = "";
         try{
             for(MultipartFile file : boardRequestDto.getFiles()){
                 String newFilename = createNewFilename(file.getOriginalFilename());
-                saveUrl = saveUrl + newFilename;
+                addUrl = saveUrl + newFilename;
                 File dest = new File(fileUrl + newFilename);
                 file.transferTo(dest);
 
                 BoardAlbum boardAlbum = BoardAlbum.builder()
                         .filename(file.getOriginalFilename())
-                        .url(saveUrl + newFilename)
+                        .url(addUrl)
                         .build();
                 boardAlbum.addBoard(board);
 
             }
-            board.addThumbnail(saveUrl);
+            board.addThumbnail(addUrl);
         }catch (Exception e){
             e.printStackTrace();
         }

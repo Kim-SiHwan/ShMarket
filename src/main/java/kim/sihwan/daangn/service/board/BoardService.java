@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -36,7 +38,12 @@ public class BoardService {
 
     @Transactional
     public Long addBoard(BoardRequestDto boardRequestDto){
-        Board board = boardAlbumService.addProductAlbums(boardRequestDto);
+        Board board = boardRequestDto.toEntity(boardRequestDto);
+
+        if(boardRequestDto.getHasImages().equals("yes")){
+            board = boardAlbumService.addBoardAlbum(boardRequestDto);
+        }
+
         Member member = memberRepository.findMemberByNickname(boardRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);;
         board.addMember(member);
         boardRepository.save(board);
@@ -58,11 +65,15 @@ public class BoardService {
         SelectedArea selectedArea = selectedAreaRepository.findByMemberId(member.getId());
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
+        List<String> getCategories = categories.stream()
+                .map(m-> URLDecoder.decode(m, StandardCharsets.UTF_8))
+                .collect(Collectors.toList());
+
         List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
 
         List<BoardListResponseDto> result = boardRepository.findAll()
                 .stream()
-                .filter(board -> al.contains(board.getArea()) && categories.contains(board.getCategory()))
+                .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()))
                 .map(BoardListResponseDto::toDto)
                 .sorted(Comparator.comparing(BoardListResponseDto::getId, Comparator.reverseOrder())).collect(Collectors.toList());
 
