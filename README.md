@@ -10,3 +10,24 @@
 ### 아키텍처
 
 ---
+### 개발 환경
+
+**Back**
+
+`Spring Web` `Spring Boot` `Spring Data JPA` `Spring Security` `Maria DB` `Swagger2` 
+
+`RabbitMq` `Firebase Cloud Messaging` `Json Web Token`
+
+---
+
+**Front**
+
+`Vue`  `Vue-Router` `Vuetify` `Vuex` `Vuex-Persisted State` `Axios`
+
+---
+
+**Deploy ( 아직 배포하지 않은 상태 )**
+
+`AWS EC2` `AWS S3` 
+
+---
