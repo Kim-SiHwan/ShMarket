@@ -20,15 +20,9 @@ public class Keyword {
     private Long id;
     private String keyword;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member member;
-
     @Builder
     public Keyword(String keyword) {
         this.keyword = keyword;
     }
 
-    public void addMember(Member member){
-        this.member = member;
-    }
 }
