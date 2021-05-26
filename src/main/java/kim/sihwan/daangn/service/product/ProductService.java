@@ -4,12 +4,14 @@ import kim.sihwan.daangn.domain.area.SelectedArea;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductInterested;
+import kim.sihwan.daangn.domain.product.ProductTag;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
+import kim.sihwan.daangn.service.push.RabbitService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -23,6 +25,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,6 +39,7 @@ public class ProductService {
     private final SelectedAreaRepository selectedAreaRepository;
     private final ProductInterestedService interestedService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final RabbitService rabbitService;
 
     @Transactional
     public Long addProduct(ProductRequestDto productRequestDto) {
@@ -44,11 +48,15 @@ public class ProductService {
         product.addMember(member);
         productRepository.save(product);
         tagService.addProductTag(product, productRequestDto.getTags());
+
+        Set<ProductTag> productTags = product.getProductTags();
+        productTags.forEach(tags -> rabbitService.rabbitProducer(tags.getTag().getTag(), tags.getProduct().getId()));
         return product.getId();
     }
+
     @Transactional
     public void addProduct2(ProductRequestDto productRequestDto) {
-        for(int i=0; i<1000; i++){
+        for (int i = 0; i < 1000; i++) {
             Product product = productAlbumService.addProductAlbums(productRequestDto);
             Member member = memberRepository.findMemberByNickname(productRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
             product.addMember(member);
@@ -57,15 +65,16 @@ public class ProductService {
         }
 
     }
+
     @Transactional
-    public String setStatus(Long productId,String status){
+    public String setStatus(Long productId, String status) {
         Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
 
-        if(status.equals("SALE")){
+        if (status.equals("SALE")) {
             product.setStatusSale();
-        }else if(status.equals("RESERVATION")){
+        } else if (status.equals("RESERVATION")) {
             product.setStatusReservation();
-        }else{
+        } else {
             product.setStatusCompleted();
         }
         return "상품의 상태가 변경되었습니다.";
@@ -75,10 +84,10 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
         addRead(productId);
         List<ProductInterested> interestedList = interestedService.findAll();
-        if(isInterested(interestedList,findMemberByUsername().getId(),productId)){
-            return ProductResponseDto.toDto(product,true);
+        if (isInterested(interestedList, findMemberByUsername().getId(), productId)) {
+            return ProductResponseDto.toDto(product, true);
         }
-        return ProductResponseDto.toDto(product,false);
+        return ProductResponseDto.toDto(product, false);
 
     }
 
@@ -92,10 +101,9 @@ public class ProductService {
 
 
         List<String> getCategories = categories.stream()
-                .map(m-> URLDecoder.decode(m, StandardCharsets.UTF_8))
+                .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
                 .collect(Collectors.toList());
 
-        System.out.println(getCategories);
         Long memberId = member.getId();
 
         List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
@@ -142,7 +150,7 @@ public class ProductService {
     }
 
     @Transactional
-    public Member findMemberByUsername(){
+    public Member findMemberByUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         return memberRepository.findMemberByUsername(username);
     }
