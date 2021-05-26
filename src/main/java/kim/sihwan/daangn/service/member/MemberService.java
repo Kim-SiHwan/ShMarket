@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -64,6 +65,9 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByUsername(auth.getName());
 
         String jwt = tokenProvider.createToken(auth);
+
+        ValueOperations<String,String> valueOperations = redisTemplate.opsForValue();
+        valueOperations.set(member.getId()+"::FCM", loginRequestDto.getFcmToken());
 
         return new LoginResponseDto(member.getId(),jwt, member.getUsername(), member.getNickname(), member.getArea().split(" ")[2]);
     }
@@ -125,9 +129,9 @@ public class MemberService implements UserDetailsService {
         dist = rad2deg(dist);
         dist = dist * 60 * 1.1515;
 
-        if (unit == "kilometer") {
+        if (unit.equals("kilometer")) {
             dist = dist * 1.609344;
-        } else if(unit == "meter"){
+        } else if(unit.equals("meter")){
             dist = dist * 1609.344;
         }
 
