@@ -23,6 +23,8 @@ target/
 *.9.png
 *.jpg
 /src/main/resources/static
+/vue-frontend/public/firebase-messaging-sw.js
+/vue-frontend/src/util/fcm.js
 
 ### NetBeans ###
 /nbproject/private/
@@ -37,3 +39,5 @@ build/
 ### VS Code ###
 .vscode/
 /src/main/resources/
+/vue-frontend/public/
+/vue-frontend/src/util/
