@@ -9,6 +9,7 @@ import ProductDetail from "@/components/product/ProductDetail";
 import BoardDetail from "@/components/board/BoardDetail";
 import BoardList from "@/components/board/BoardList";
 import AddBoard from "@/components/board/AddBoard";
+import Keyword from "@/components/member/Keyword";
 
 Vue.use(Router); //vue 라우터 사용
 
@@ -16,40 +17,44 @@ Vue.use(Router); //vue 라우터 사용
 export default new Router({ //라우터 연결
     routes: [
         {
-            path:'/',
+            path: '/',
             component: Main
         },
         {
-            path:'/join',
+            path: '/join',
             component: Join
         },
         {
-            path:'/login',
+            path: '/login',
             component: Login
         },
         {
-            path:'/productList',
+            path: '/productList',
             component: ProductList
         },
         {
-            path:'/addProduct',
+            path: '/addProduct',
             component: AddProduct
         },
         {
-            path:'/productDetail',
+            path: '/productDetail',
             component: ProductDetail
         },
         {
-            path:'/boardDetail',
+            path: '/boardDetail',
             component: BoardDetail
         },
         {
-            path:'/boardList',
+            path: '/boardList',
             component: BoardList
         },
         {
-            path:'/addBoard',
+            path: '/addBoard',
             component: AddBoard
+        },
+        {
+            path: '/keyword',
+            component: Keyword
         }
     ]
 })

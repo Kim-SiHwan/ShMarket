@@ -1,4 +1,3 @@
-
 function setStorage(tokenInfo){
     sessionStorage.setItem('access_token','Bearer '+tokenInfo.token);
     sessionStorage.setItem('nickname',tokenInfo.nickname);

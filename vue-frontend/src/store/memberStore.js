@@ -9,6 +9,7 @@ const memberStore = {
         username: '',
         nickname: '',
         area: '',
+        fcmToken: '',
         productCategories: {
             '디지털/가전': false,
             '가구/인테리어': true,
@@ -66,6 +67,9 @@ const memberStore = {
         INIT_CATEGORIES(state) {
             localStorage.setItem('productCategories', JSON.stringify(state.productCategories));
             localStorage.setItem('boardCategories', JSON.stringify(state.boardCategories));
+        },
+        SET_FCM_TOKEN(state, payload) {
+            state.fcmToken = payload;
         }
     },
     actions: {

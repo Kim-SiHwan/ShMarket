@@ -6,6 +6,8 @@ import areaStore from "@/store/areaStore";
 import productStore from "@/store/productStore";
 import boardStore from "@/store/boardStore";
 import commentStore from "@/store/commentStore";
+import pushStore from "@/store/pushStore";
+
 Vue.use(Vuex);
 
 export const store = new Vuex.Store({
@@ -16,7 +18,8 @@ export const store = new Vuex.Store({
         areaStore,
         productStore,
         boardStore,
-        commentStore
+        commentStore,
+        pushStore
 
     }
 

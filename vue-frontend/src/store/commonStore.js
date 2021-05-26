@@ -1,4 +1,3 @@
-
 const commonStore = {
 
     state: {
@@ -6,7 +5,9 @@ const commonStore = {
             open: false,
             text: '',
             timeout: 2500,
-            color: 'error'
+            color: 'error',
+            right: false,
+            linkId: 0
         },
         dialog: false
     },
@@ -47,7 +48,8 @@ const commonStore = {
             state.snackBar.open = true;
             state.snackBar.text = payload.msg
             state.snackBar.color = payload.color;
-
+            state.snackBar.right = !!payload.right;
+            state.snackBar.linkId = payload.productId;
         }
     }
 
