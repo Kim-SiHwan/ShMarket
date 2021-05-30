@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import kim.sihwan.daangn.domain.member.Keyword;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.MemberKeyword;
+import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.keyword.KeywordListResponseDto;
 import kim.sihwan.daangn.dto.keyword.KeywordRequestDto;
 import kim.sihwan.daangn.dto.push.NotificationResponse;
@@ -29,6 +30,31 @@ public class PushService {
     private final KeywordRepository keywordRepository;
     private final MemberRepository memberRepository;
     private final MemberKeywordRepository memberKeywordRepository;
+
+    public void sendByToken(ChatRequestDto chatRequestDto) {
+
+        System.out.println("토큰전송 서비스 : " + chatRequestDto.toString());
+
+        WebpushNotification webpushNotification = WebpushNotification.builder()
+                .setTitle(chatRequestDto.getSender() + "님으로부터 메시지가 도착했습니다.")
+                .setBody(chatRequestDto.getMessage())
+                .setTag(chatRequestDto.getRoomId().toString())
+                .build();
+
+        WebpushConfig webpushConfig = WebpushConfig.builder()
+                .setNotification(webpushNotification)
+                .build();
+
+        Message message = Message.builder()
+                .setToken(chatRequestDto.getFcmToken())
+                .setWebpushConfig(webpushConfig)
+                .putData("sender", chatRequestDto.getSender())
+                .putData("receiver", chatRequestDto.getReceiver())
+                .putData("productId", chatRequestDto.getProductId().toString())
+                .putData("roomId", chatRequestDto.getRoomId().toString())
+                .build();
+        FirebaseMessaging.getInstance().sendAsync(message);
+    }
 
     public List<KeywordListResponseDto> findAllKeywordsByUsername() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -86,6 +112,7 @@ public class PushService {
         Message message = Message.builder()
                 .setTopic(encodedTopic)
                 .setWebpushConfig(webpushConfig)
+                .putData("productId", notificationResponse.getProductId().toString())
                 .build();
         FirebaseMessaging.getInstance().sendAsync(message);
     }
