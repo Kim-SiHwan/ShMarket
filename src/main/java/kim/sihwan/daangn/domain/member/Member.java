@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -23,6 +25,11 @@ public class Member {
     private String area;
     private String role;
 
+    @OneToMany(mappedBy="member",cascade =CascadeType.ALL)
+    private Set<Manner> manners = new HashSet<>();
+
+    @OneToMany(mappedBy="member",cascade =CascadeType.ALL)
+    private Set<Review> reviews = new HashSet<>();
 
     @Builder
     public Member(String username, String password, String nickname, String area, String role) {
