@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <v-btn @click="chat">채팅하기</v-btn>
 
     <div style="text-align: center">
       <h3>{{ productDetail.title }}</h3>
@@ -101,6 +102,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
   name: "ProductDetail",
   data() {
@@ -112,6 +114,25 @@ export default {
   },
 
   methods: {
+    chat(){
+      let dto={
+        sender:sessionStorage.getItem('nickname'),
+        receiver:this.productDetail.nickname
+      };
+      axios.request({
+        url:'/api/chat',
+        method:'POST',
+        data:dto
+      }).then(res=>{
+        console.log(res.data);
+        this.$router.push({
+          path:'/chat',
+          query:{roomId:res.data}
+        });
+      })
+
+
+    },
     changeShowImages() {
       this.flag = !this.flag;
     },
