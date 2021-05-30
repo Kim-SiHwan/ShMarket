@@ -7,7 +7,11 @@ const commonStore = {
             timeout: 2500,
             color: 'error',
             right: false,
-            linkId: 0
+            productId:'',
+            roomId:'',
+            sender:'',
+            receiver:'',
+            type:''
         },
         dialog: false
     },
@@ -46,13 +50,15 @@ const commonStore = {
     mutations: {
         SET_SNACK_BAR(state, payload) {
             state.snackBar.open = true;
+            state.snackBar.type = payload.type;
             state.snackBar.text = payload.msg
             state.snackBar.color = payload.color;
             state.snackBar.right = !!payload.right;
-            state.snackBar.linkId = payload.productId;
+            state.snackBar.productId = payload.productId
+            state.snackBar.roomId = payload.roomId;
+            state.snackBar.sender = payload.sender;
+            state.snackBar.receiver = payload.receiver;
         }
     }
-
-
 }
 export default commonStore;

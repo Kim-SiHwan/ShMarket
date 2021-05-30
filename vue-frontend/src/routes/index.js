@@ -10,6 +10,8 @@ import BoardDetail from "@/components/board/BoardDetail";
 import BoardList from "@/components/board/BoardList";
 import AddBoard from "@/components/board/AddBoard";
 import Keyword from "@/components/member/Keyword";
+import Test from "@/components/websocket/Test";
+import Chat from "@/components/websocket/Chat";
 
 Vue.use(Router); //vue 라우터 사용
 
@@ -55,6 +57,14 @@ export default new Router({ //라우터 연결
         {
             path: '/keyword',
             component: Keyword
+        },
+        {
+            path: '/test',
+            component: Test
+        },
+        {
+            path:'/chat',
+            component: Chat
         }
     ]
 })
