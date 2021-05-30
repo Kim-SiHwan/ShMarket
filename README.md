@@ -16,7 +16,7 @@
 
 `Spring Web` `Spring Boot` `Spring Data JPA` `Spring Security` `Maria DB` `Swagger2` 
 
-`RabbitMq` `Firebase Cloud Messaging` `Json Web Token`
+`RabbitMq` `Firebase Cloud Messaging` `Json Web Token` `Web Socket`
 
 ---
 
