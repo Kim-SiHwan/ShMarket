@@ -19,13 +19,15 @@ public class Manner {
     @Column(name = "manner_id")
     private Long id;
     private String content;
+    private String type;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
     @Builder
-    public Manner(String content) {
+    public Manner(String content, String type) {
         this.content = content;
+        this.type = type;
     }
 
     public void addMember(Member member) {

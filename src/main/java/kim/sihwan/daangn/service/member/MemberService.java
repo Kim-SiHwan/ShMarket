@@ -3,17 +3,23 @@ package kim.sihwan.daangn.service.member;
 
 import kim.sihwan.daangn.config.jwt.JwtTokenProvider;
 import kim.sihwan.daangn.domain.area.Area;
+import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.area.SelectedArea;
+import kim.sihwan.daangn.domain.member.Review;
 import kim.sihwan.daangn.dto.member.JoinRequestDto;
 import kim.sihwan.daangn.dto.member.LoginRequestDto;
 import kim.sihwan.daangn.dto.member.LoginResponseDto;
 import kim.sihwan.daangn.dto.member.MemberResponseDto;
 
+import kim.sihwan.daangn.dto.member.manner.MannerDto;
+import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.exception.customException.UsernameDuplicatedException;
 import kim.sihwan.daangn.repository.area.AreaRepository;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
+import kim.sihwan.daangn.repository.member.MannerRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
+import kim.sihwan.daangn.repository.member.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
@@ -34,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -43,11 +50,43 @@ public class MemberService implements UserDetailsService {
 
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManagerBuilder managerBuilder;
+    private final PasswordEncoder passwordEncoder;
+    private final RedisTemplate<String, String> redisTemplate;
+
     private final MemberRepository memberRepository;
     private final AreaRepository areaRepository;
     private final SelectedAreaRepository selectedAreaRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
+    private final MannerRepository mannerRepository;
+    private final ReviewRepository reviewRepository;
+
+    @Transactional
+    public void addManner(MannerDto mannerRequestDto){
+        Member member = memberRepository.findMemberByNickname(mannerRequestDto.getNickname())
+                .orElseThrow(NoSuchElementException::new);
+        Manner manner = mannerRequestDto.toEntity(mannerRequestDto);
+        manner.addMember(member);
+    }
+
+    @Transactional
+    public void addReview(ReviewDto reviewDto){
+        Member member = memberRepository.findMemberByNickname(reviewDto.getNickname())
+                .orElseThrow(NoSuchElementException::new);
+        Review review = reviewDto.toEntity(reviewDto);
+        review.addMember(member);
+    }
+
+    public List<MannerDto> getMannersByNickname(String nickname){
+        return mannerRepository.findAllByMemberNickname(nickname).stream()
+                .map(MannerDto::toDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<ReviewDto> getReviewsByNickname(String nickname){
+        return reviewRepository.findAllByMemberNickname(nickname).stream()
+                .map(ReviewDto::toDto)
+                .collect(Collectors.toList());
+    }
+
 
     private Boolean isValidateDuplicateMember(Member member) {
         Member getMember = memberRepository.findMemberByUsername(member.getUsername());
