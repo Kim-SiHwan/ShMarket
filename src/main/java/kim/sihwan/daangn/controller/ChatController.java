@@ -38,7 +38,10 @@ public class ChatController {
         chatRequestDto.setFcmToken(fcmToken);
 
         chatService.addChatLog(chatRequestDto);
-        msgTemplate.convertAndSend("/topic/msg." + chatRequestDto.getRoomId(), new ChatLogResponseDto(chatRequestDto));
+        //Topic Exchange 사용
+        //msgTemplate.convertAndSend("/topic/msg." + chatRequestDto.getRoomId(), new ChatLogResponseDto(chatRequestDto));
+        msgTemplate.convertAndSend("/exchange/chat-exchange/msg." + chatRequestDto.getRoomId(), new ChatLogResponseDto(chatRequestDto));
+
         pushService.sendByToken(chatRequestDto);
     }
 

@@ -28,7 +28,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry registry){
         registry
                 .setApplicationDestinationPrefixes("/app")
-                .enableStompBrokerRelay("/topic")
+                .enableStompBrokerRelay("/exchange/chat-exchange")
+                //Topic Exchange 사용
+//                .enableStompBrokerRelay("/topic")
                 .setRelayPort(61613)
                 .setClientLogin(username)
                 .setClientPasscode(password);
