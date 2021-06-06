@@ -4,6 +4,7 @@ import com.google.firebase.messaging.*;
 import kim.sihwan.daangn.domain.member.Keyword;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.MemberKeyword;
+import kim.sihwan.daangn.domain.member.Notice;
 import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.keyword.KeywordListResponseDto;
 import kim.sihwan.daangn.dto.keyword.KeywordRequestDto;
@@ -11,6 +12,7 @@ import kim.sihwan.daangn.dto.push.NotificationResponse;
 import kim.sihwan.daangn.repository.member.KeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberKeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
+import kim.sihwan.daangn.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -30,6 +32,8 @@ public class PushService {
     private final KeywordRepository keywordRepository;
     private final MemberRepository memberRepository;
     private final MemberKeywordRepository memberKeywordRepository;
+
+    private final MemberService memberService;
 
     public void sendByToken(ChatRequestDto chatRequestDto) {
 
@@ -53,7 +57,15 @@ public class PushService {
                 .putData("productId", chatRequestDto.getProductId().toString())
                 .putData("roomId", chatRequestDto.getRoomId().toString())
                 .build();
+
         FirebaseMessaging.getInstance().sendAsync(message);
+
+        Notice notice = Notice.builder()
+                .type("채팅 알림")
+                .target(chatRequestDto.getRoomId())
+                .message(chatRequestDto.getSender()+"님에게 메시지가 도착했습니다.")
+                .build();
+        memberService.addNotice(notice,chatRequestDto.getReceiver());
     }
 
     public List<KeywordListResponseDto> findAllKeywordsByUsername() {
