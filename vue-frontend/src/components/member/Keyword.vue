@@ -2,7 +2,7 @@
   <v-container>
 
     {{keywords}}
-    <ul v-for="(list) in keywords" :key="list">
+    <ul v-for="(list,index) in keywords" :key="index">
       <li>{{list}}</li>
     </ul>
 
