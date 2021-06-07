@@ -74,10 +74,24 @@ export default {
     clickSnackBar() {
       console.log("?!@?#~!~");
 
-      this.$router.push({
-        path: '/productDetail',
-        query: {productId: this.snackBarInfo.linkId}
-      });
+      if (this.snackBarInfo.type === 1) {
+        console.log('타입 1')
+        this.$router.push({
+          path: '/productDetail',
+          query: {productId: this.snackBarInfo.productId}
+        });
+      } else {
+        console.log('타입2 ')
+        this.$router.push({
+          path: '/chat',
+          query: {
+            roomId: this.snackBarInfo.roomId,
+            productId: this.snackBarInfo.productId,
+            sender: this.snackBarInfo.sender,
+            receiver: this.snackBarInfo.receiver
+          }
+        });
+      }
 
     }
   },
