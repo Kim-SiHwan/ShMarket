@@ -20,7 +20,7 @@ public class BoardRequestDto {
     private String hasImages;
     private List<MultipartFile> files;
 
-    public Board toEntity(BoardRequestDto requestDto){
+    public Board toEntity(BoardRequestDto requestDto) {
         return Board.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())

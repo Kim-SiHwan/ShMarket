@@ -34,23 +34,23 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final BoardAlbumService boardAlbumService;
     private final SelectedAreaRepository selectedAreaRepository;
-    private final RedisTemplate<String,String> redisTemplate;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Transactional
-    public Long addBoard(BoardRequestDto boardRequestDto){
+    public void addBoard(BoardRequestDto boardRequestDto) {
         Board board = boardRequestDto.toEntity(boardRequestDto);
 
-        if(boardRequestDto.getHasImages().equals("yes")){
+        if (boardRequestDto.getHasImages().equals("yes")) {
             board = boardAlbumService.addBoardAlbum(boardRequestDto);
         }
 
-        Member member = memberRepository.findMemberByNickname(boardRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);;
+        Member member = memberRepository.findMemberByNickname(boardRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
+        ;
         board.addMember(member);
         boardRepository.save(board);
-        return board.getId();
     }
 
-    public BoardResponseDto findById(Long boardId){
+    public BoardResponseDto findById(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
         addRead(boardId);
         return BoardResponseDto.toDto(board);
@@ -66,7 +66,7 @@ public class BoardService {
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
         List<String> getCategories = categories.stream()
-                .map(m-> URLDecoder.decode(m, StandardCharsets.UTF_8))
+                .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
                 .collect(Collectors.toList());
 
         List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
@@ -83,17 +83,24 @@ public class BoardService {
         return result;
 
     }
+
     @Transactional
-    public void deleteBoard(Long boardId){
+    public void deleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
         boardRepository.delete(board);
     }
 
     @Transactional
-    public Board updateBoard(BoardUpdateRequestDto boardUpdateRequestDto){
+    public BoardResponseDto updateBoard(BoardUpdateRequestDto boardUpdateRequestDto) {
         Board board = boardRepository.findById(boardUpdateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        if (!boardUpdateRequestDto.getIds().isEmpty()) {
+            boardAlbumService.deleteImages(board, boardUpdateRequestDto.getIds());
+        }
+        if (boardUpdateRequestDto.getHasImages().equals("yes")) {
+            boardAlbumService.appendImages(board, boardUpdateRequestDto.getFiles());
+        }
         board.update(boardUpdateRequestDto.getTitle(), boardUpdateRequestDto.getContent());
-        return board;
+        return BoardResponseDto.toDto(board);
     }
 
     @Transactional

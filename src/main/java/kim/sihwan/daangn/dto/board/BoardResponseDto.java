@@ -19,6 +19,7 @@ public class BoardResponseDto {
     private final String updateDate;
     private final String category;
     private final int readCount;
+    private final boolean hasImages;
     private final List<BoardAlbumResponseDto> boardAlbums;
 
     public static BoardResponseDto toDto(Board board){
@@ -37,6 +38,7 @@ public class BoardResponseDto {
                         .map(BoardAlbumResponseDto::new)
                         .collect(Collectors.toList())
                 )
+                .hasImages(board.getBoardAlbums().isEmpty())
                 .build();
     }
 }

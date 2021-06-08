@@ -26,13 +26,14 @@ public class Board {
     private String content;
     private String area;
     private String category;
+    private Long thumbnailId;
     private String thumbnail;
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     private int read;
 
 
-    @OneToMany(mappedBy = "board")
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private Set<Comment> comments = new HashSet<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
@@ -51,26 +52,32 @@ public class Board {
         this.updateDate = LocalDateTime.now();
     }
 
-    public void addThumbnail(String thumbnail){
+    public void addThumbnail(Long thumbnailId, String thumbnail) {
+        this.thumbnailId = thumbnailId;
         this.thumbnail = thumbnail;
     }
 
+    public void removeThumbnail() {
+        this.thumbnail = "http://localhost:8080/api/board/download?fileName=default.png";
+        this.thumbnailId = 0L;
+    }
+
     @Builder
-    public Board(String title, String content, int read, String area, String category, String thumbnail) {
+    public Board(String title, String content, int read, String area, String category) {
         this.title = title;
         this.content = content;
         this.createDate = LocalDateTime.now();
         this.updateDate = LocalDateTime.now();
         this.area = area;
         this.category = category;
-        this.thumbnail = thumbnail;
+        this.thumbnailId = 0L;
+        this.thumbnail = "http://localhost:8080/api/board/download?fileName=default.png";
         this.read = read;
     }
 
     public void addMember(Member member) {
         this.member = member;
     }
-
 
 
 }
