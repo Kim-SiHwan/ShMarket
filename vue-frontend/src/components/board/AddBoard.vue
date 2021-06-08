@@ -58,6 +58,7 @@ export default {
         nickname: '',
         category: '',
         files: '',
+        hasImages: ''
       },
       fileData: ''
     }
@@ -76,13 +77,13 @@ export default {
       for (let file in files) {
         formData.append('files', files[file]);
       }
-      formData.set('hasImages',"yes");
+      formData.set('hasImages', "yes");
       this.fileData = formData;
     },
     upload(formData) {
       if (formData === '') {
         formData = new FormData;
-        formData.set('hasImages',"no");
+        formData.set('hasImages', "no");
       }
       formData.set('area', this.requestData.area);
       formData.set('title', this.requestData.title);
@@ -90,9 +91,6 @@ export default {
       formData.set('nickname', this.requestData.nickname);
       formData.set('category', this.requestData.category);
 
-      for(let key of formData.entries()){
-        console.log(key[0]+" " +key[1]);
-      }
       this.$store.dispatch('REQUEST_ADD_BOARD', formData);
 
     },

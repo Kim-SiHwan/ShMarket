@@ -1,7 +1,8 @@
 <template>
   <v-app id="headerDiv">
 
-    <p><small v-if="boardList">{{ boardList.length }}개의 동네생활이 있습니다</small></p>
+
+    <p><small v-if="boardList" >{{ boardList.length }}개의 동네생활이 있습니다</small></p>
 
     <v-switch
         class="ml-15"
@@ -48,7 +49,7 @@
           close
           @click:close="closeTag"
       >
-        {{tagName}} 카테고리 게시글만 출력합니다
+        {{ tagName }} 카테고리 게시글만 출력합니다
       </v-chip>
 
     </div>
@@ -61,7 +62,7 @@
           <div class="p-5 mb-5 rounded float-left"
                style="width: 300px; height: 400px; border: 2px solid orange">
             <div class="card-body">
-              <span style="margin-left: 130px; margin-top: 10px"><strong>{{ list.title }}</strong></span>
+              <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
               <span class="float-left card-subtitle">
               <span class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span>
@@ -74,49 +75,47 @@
               </span>
               <br>
 
-              <div id="imgDiv"  style="height: 100%; width: 100%">
+              <div id="imgDiv" style="height: 100%; width: 100%">
                 <router-link :to="{path:'/boardDetail',query:{boardId:list.id}}">
                   <v-img
-                      v-if="list.thumbnail"
                       :src="list.thumbnail"
                       class="mt-15 mr-3 ml-13 grey lighten-3"
+                      contain
                       width="200"
+                      max-height="100"
                   >
 
                   </v-img>
                   <v-textarea
-                      v-else
                       background-color="white"
-                      class="ml-3 mr-3"
-                      style="margin-top: 100px"
+                      class="ml-3 mr-3 mt-5"
                       no-resize
                       outlined
                       readonly="readonly"
-                      v-bind:rows="list.content.length/3"
-                      v-bind:value="list.content"
+                      rows="2"
+                      v-bind:value="list.content.substring(0,15)"
                   ></v-textarea>
                 </router-link>
 
               </div>
-              <div style="margin-top: 30px">
+              <div class="mt-3">
                 <v-row justify="center" align-content="center">
 
-                <v-chip
-                    class="ml-0 mr-1 pr-2 pl-2"
-                    color="info"
-                    label
-                    small
-                    @click="clickTag(list.category)"
-                >
-                  {{ list.category}}
-                </v-chip>
+                  <v-chip
+                      class="ml-0 mr-1 pr-2 pl-2"
+                      color="info"
+                      label
+                      small
+                      @click="clickTag(list.category)"
+                  >
+                    {{ list.category }}
+                  </v-chip>
                 </v-row>
               </div>
 
-                <div id="boardListIconDiv" style="margin-top: 50px;">
+              <div id="boardListIconDiv" class="mt-8">
 
-                  <v-row justify="center" align-content="center">
-
+                <v-row justify="center" align-content="center">
 
 
                   <v-icon
@@ -132,15 +131,15 @@
                   {{ list.boardAlbumCount }}
 
                   <v-icon
-                    color="red">
+                      color="red">
                     mdi-message-text
                   </v-icon>
-                  {{list.commentCount}}
-                  </v-row>
+                  {{ list.commentCount }}
+                </v-row>
 
-                </div>
               </div>
             </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -169,7 +168,7 @@ export default {
     return {
       showCategoryFlag: false,
       clickTagFlag: false,
-      tagName:''
+      tagName: ''
     }
   },
   methods: {
@@ -184,16 +183,16 @@ export default {
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
     },
-    clickTag(name){
+    clickTag(name) {
       console.log(name);
       this.tagName = name;
       this.clickTagFlag = true;
-      let toJson ={}
+      let toJson = {}
       toJson[name] = true;
-      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES',JSON.stringify(toJson));
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES', JSON.stringify(toJson));
     },
-    closeTag(){
-      this.clickTagFlag=false;
+    closeTag() {
+      this.clickTagFlag = false;
       this.showBoardList();
     }
   },

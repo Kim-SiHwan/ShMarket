@@ -2,70 +2,132 @@
   <v-container>
 
     <div style="text-align: center">
-      <h3>{{ boardDetail.title }}</h3>
+      <h3 v-if="!updateFlag">{{ boardDetail.title }}</h3>
+      <v-text-field
+          v-else
+          v-model="updateRequestData.title"></v-text-field>
     </div>
+    <hr>
     <div>
-      <span><small>판매자 : {{ boardDetail.nickname }}</small></span><br>
+      <span><small>작성자 : {{ boardDetail.nickname }}</small></span><br>
       <span><small>지역 : {{ boardDetail.area }}</small></span><br>
       <span><small>작성일 : {{ time }}</small></span><br>
 
     </div>
 
-    <v-carousel
-        height="500"
-        hide-delimiter-background>
+    <div v-if="!boardDetail.hasImages">
 
-      <v-carousel-item
-          v-for="(item,i) in boardDetail.boardAlbums"
-          :key="i">
-        <v-img :src="item.url" contain max-height="500"></v-img>
+      <v-carousel
+          height="500"
+          hide-delimiter-background>
 
-      </v-carousel-item>
-    </v-carousel>
-    <div style="text-align: center; margin-top: 10px">
+        <v-carousel-item
+            v-for="(item,i) in boardDetail.boardAlbums"
+            :key="i">
+          <v-img :src="item.url" contain max-height="500"></v-img>
 
-      <v-btn
+        </v-carousel-item>
+      </v-carousel>
+      <div style="text-align: center;">
+
+        <v-btn
+            v-if="flag"
+            color="orange"
+            class="white--text"
+            @click="changeShowImages">접어두기
+        </v-btn>
+        <v-btn
+            v-else
+            color="orange"
+            class="white--text"
+            @click="changeShowImages">펼쳐보기
+        </v-btn>
+
+      </div>
+      <v-row
           v-if="flag"
-          color="orange"
-          class="white--text"
-          @click="changeShowImages">접어두기
-      </v-btn>
-      <v-btn
-          v-else
-          color="orange"
-          class="white--text"
-          @click="changeShowImages">펼쳐보기
-      </v-btn>
-
+          class="mt-5"
+          justify="center">
+        <v-col
+            v-for="(file,index) in boardDetail.boardAlbums" :key="index"
+            class="d-flex child-flex"
+            cols="3">
+          <div id="boardImgDiv">
+            <v-img
+                :src="file.url"
+                aspect-ratio="1.2"
+                @click="selectedImg(file.id,$event)"
+                contain
+                width="500">
+              <p style="color: red; visibility: hidden">선택</p>
+            </v-img>
+          </div>
+        </v-col>
+      </v-row>
     </div>
-    <v-row
-        v-if="flag"
-        class="mt-5"
-        justify="center">
-      <v-col
-          v-for="(file,index) in boardDetail.boardAlbums" :key="index"
-          class="d-flex child-flex"
-          cols="3">
-        <div id="boardImgDiv">
-          <v-img
-              :src="file.url"
-              aspect-ratio="1.2"
-              contain
-              width="500">
-          </v-img>
-        </div>
-      </v-col>
-    </v-row>
     <v-textarea
-        v-if="boardDetail"
+        v-if="boardDetail && !updateFlag"
         background-color="white"
         class="mt-10"
         no-resize
         outlined
         readonly="readonly"
-        v-bind:rows="boardDetail.content.length/5"
         v-bind:value="boardDetail.content"
-    ></v-textarea>
+    >
+    </v-textarea>
+
+    <v-textarea
+        v-else-if="updateFlag"
+        background-color="white"
+        class="mt-10"
+        outlined
+        label="수정할 내용을 입력해주세요."
+        v-bind:value="boardDetail.content"
+        v-model="updateRequestData.content">
+    </v-textarea>
+
+    <div id="boardDetailBtnDiv" class="float-right mt-2 ml-3">
+
+      <v-btn
+          v-if="!updateFlag"
+          @click="clickUpdateBtn"
+          color="info">
+        수정
+      </v-btn>
+
+      <v-btn
+          v-if="updateFlag"
+          @click="clickUpdateBtn"
+          color="warning">
+        취소
+      </v-btn>
+
+      <v-btn
+          @click="deleteBoard"
+          class="mr-3 ml-3"
+          color="error">
+        삭제
+      </v-btn>
+
+      <v-btn
+          v-if="updateFlag"
+          @click="updateBoard(fileData)"
+          class="mr-3" color="success">
+        수정
+      </v-btn>
+
+    </div>
+
+
+    <v-file-input
+        v-if="updateFlag"
+        class="mr-3"
+        label="사진 추가"
+        outlined
+        multiple
+        @change="selectedFile">
+    </v-file-input>
+
     <comment></comment>
 
   </v-container>
@@ -74,15 +136,24 @@
 
 <script>
 import Comment from "./Comment";
+
 export default {
   name: "boardDetail",
   components: {
-    'comment' : Comment,
+    'comment': Comment,
   },
   data() {
     return {
       flag: false,
-      time: ''
+      time: '',
+      updateFlag: false,
+      fileData: '',
+      updateRequestData: {
+        id: '',
+        title: '',
+        content: '',
+        ids: []
+      }
 
     }
   },
@@ -120,16 +191,85 @@ export default {
       }
       const years = days / 365
       return `${Math.floor(years)}년 전`
-    }
+    },
+    deleteBoard() {
+      if(this.checkAuthority()) {
+        this.$store.dispatch('REQUEST_DELETE_BOARD', this.boardDetail.id);
+      }
+    },
+    clickUpdateBtn() {
+      if(this.checkAuthority()) {
+        this.updateFlag = !this.updateFlag;
+      }
+    },
+    checkAuthority() {
+      if (this.nickname !== this.boardDetail.nickname) {
+        this.$store.commit('SET_SNACK_BAR', {
+          msg: '작성자만 수정/삭제가 가능합니다.', color: 'error'
+        });
+        return false;
+      }
+      return true;
+    },
+    selectedImg(fileId, event) {
+      if (!this.updateFlag)
+        return false;
+      let targetImg = this.updateRequestData.ids.indexOf(fileId);
+      let current = event.target.childNodes[0];
+      if (targetImg !== -1) {
+        current.style.visibility = 'hidden';
+        this.updateRequestData.ids.splice(targetImg, 1);
+      } else {
+        current.style.visibility = 'visible';
+        this.updateRequestData.ids.push(fileId);
+      }
+      console.log(this.updateRequestData.ids);
+    },
+    selectedFile(event) {
+      const files = event;
+      let formData = new FormData;
+      for (let file in files) {
+        formData.append('files', files[file]);
+      }
+      formData.set('hasImages', "yes");
+      this.fileData = formData;
+    },
+
+    updateBoard(formData) {
+      if (formData === '') {
+        formData = new FormData;
+        formData.set('hasImages', "no");
+      }
+      if (this.updateRequestData.title === '')
+        this.updateRequestData.title = this.boardDetail.title;
+      if (this.updateRequestData.content === '')
+        this.updateRequestData.content = this.boardDetail.content;
+
+      formData.set('id', this.updateRequestData.id);
+      formData.set('title', this.updateRequestData.title);
+      formData.set('content', this.updateRequestData.content);
+      formData.set('ids', this.updateRequestData.ids);
+
+      this.$store.dispatch('REQUEST_UPDATE_BOARD', formData);
+      this.updateFlag = false;
+    },
   },
   computed: {
     boardDetail() {
       return this.$store.state.boardStore.boardDetail;
     },
+    nickname() {
+      return sessionStorage.getItem('nickname');
+    },
   },
   created() {
     this.$store.dispatch('REQUEST_GET_BOARD', this.$route.query.boardId);
     this.time = this.displayedAt(this.boardDetail.updateDate);
+  },
+  mounted() {
+    this.updateRequestData.id = this.$route.query.boardId;
+    this.updateRequestData.title = this.boardDetail.title;
+    this.updateRequestData.content = this.boardDetail.content;
   }
 }
 </script>

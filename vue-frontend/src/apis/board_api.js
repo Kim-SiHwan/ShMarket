@@ -26,4 +26,20 @@ function requestGetBoard(data){
     })
 }
 
-export default {requestAddBoard,requestGetAllBoards,requestGetBoard};
+function requestDeleteBoard(data){
+    return Send({
+        url:'/api/board/'+data,
+        method:'DELETE'
+    })
+}
+
+function requestUpdateBoard(data){
+    return Send({
+        url:'/api/board',
+        method:'PUT',
+        headers:{'Content-Type': 'multipart/form-data'},
+        data:data
+    })
+}
+
+export default {requestAddBoard,requestGetAllBoards,requestGetBoard,requestDeleteBoard,requestUpdateBoard};

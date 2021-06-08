@@ -1,5 +1,5 @@
 import board_api from "@/apis/board_api";
-
+import router from '@/routes/index';
 const boardStore={
     state:{
         boardList:[],
@@ -41,7 +41,25 @@ const boardStore={
             if(response){
                 context.commit('SET_SNACK_BAR',{
                     msg:'정상적으로 작성되었습니다.', color:'success'
-                })
+                });
+            }
+        },
+        async REQUEST_DELETE_BOARD(context,payload){
+            const response = board_api.requestDeleteBoard(payload);
+            if(response){
+                context.commit('SET_SNACK_BAR',{
+                    msg:'정상적으로 삭제되었습니다.', color: 'success'
+                });
+                await router.push('/boardList');
+            }
+        },
+        async REQUEST_UPDATE_BOARD(context,payload){
+            const response = await board_api.requestUpdateBoard(payload);
+            if(response){
+                context.commit('SET_SNACK_BAR',{
+                    msg:'정상적으로 수정되었습니다.', color: 'success'
+                });
+                context.commit('SET_BOARD_DETAIL',response.data);
             }
         }
 
