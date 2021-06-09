@@ -4,6 +4,7 @@ import kim.sihwan.daangn.dto.member.JoinRequestDto;
 import kim.sihwan.daangn.dto.member.LoginRequestDto;
 import kim.sihwan.daangn.dto.member.LoginResponseDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
+import kim.sihwan.daangn.dto.member.notice.NoticeResponseDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +49,11 @@ public class MemberController {
     @GetMapping("/review")
     public ResponseEntity<List<ReviewDto>> getReviewsByNickname(@RequestParam String nickname){
         return new ResponseEntity<>(memberService.getReviewsByNickname(nickname),HttpStatus.OK);
+    }
+
+    @GetMapping("/notice")
+    public ResponseEntity<List<NoticeResponseDto>> getNoticesByNickname(@RequestParam String nickname){
+        return new ResponseEntity<>(memberService.getNoticesByNickname(nickname),HttpStatus.OK);
     }
 
 

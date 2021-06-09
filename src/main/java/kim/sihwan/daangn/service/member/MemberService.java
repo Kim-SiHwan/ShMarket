@@ -6,6 +6,7 @@ import kim.sihwan.daangn.domain.area.Area;
 import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.area.SelectedArea;
+import kim.sihwan.daangn.domain.member.Notice;
 import kim.sihwan.daangn.domain.member.Review;
 import kim.sihwan.daangn.dto.member.JoinRequestDto;
 import kim.sihwan.daangn.dto.member.LoginRequestDto;
@@ -13,12 +14,14 @@ import kim.sihwan.daangn.dto.member.LoginResponseDto;
 import kim.sihwan.daangn.dto.member.MemberResponseDto;
 
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
+import kim.sihwan.daangn.dto.member.notice.NoticeResponseDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.exception.customException.UsernameDuplicatedException;
 import kim.sihwan.daangn.repository.area.AreaRepository;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MannerRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
+import kim.sihwan.daangn.repository.member.NoticeRepository;
 import kim.sihwan.daangn.repository.member.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,6 +32,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -58,6 +62,7 @@ public class MemberService implements UserDetailsService {
     private final SelectedAreaRepository selectedAreaRepository;
     private final MannerRepository mannerRepository;
     private final ReviewRepository reviewRepository;
+    private final NoticeRepository noticeRepository;
 
     @Transactional
     public void addManner(MannerDto mannerRequestDto){
@@ -87,6 +92,20 @@ public class MemberService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
+    public void addNotice(Notice notice,String nickname){
+        Member member = memberRepository.findMemberByNickname(nickname)
+                .orElseThrow(NoSuchElementException::new);
+        notice.addMember(member);
+        noticeRepository.save(notice);
+
+    }
+
+    public List<NoticeResponseDto> getNoticesByNickname(String nickname){
+        return noticeRepository.findAllByMemberNickname(nickname).stream()
+                .map(NoticeResponseDto::toDto)
+                .collect(Collectors.toList());
+    }
 
     private Boolean isValidateDuplicateMember(Member member) {
         Member getMember = memberRepository.findMemberByUsername(member.getUsername());

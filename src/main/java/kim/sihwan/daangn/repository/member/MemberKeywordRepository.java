@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface MemberKeywordRepository extends JpaRepository<MemberKeyword,Long> {
     List<MemberKeyword> findAllByMemberUsername(String username);
+    List<MemberKeyword> findAllByKeywordKeyword(String keyword);
 }

@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -36,9 +37,6 @@ public class PushService {
     private final MemberService memberService;
 
     public void sendByToken(ChatRequestDto chatRequestDto) {
-
-        System.out.println("토큰전송 서비스 : " + chatRequestDto.toString());
-
         WebpushNotification webpushNotification = WebpushNotification.builder()
                 .setTitle(chatRequestDto.getSender() + "님으로부터 메시지가 도착했습니다.")
                 .setBody(chatRequestDto.getMessage())
@@ -101,6 +99,7 @@ public class PushService {
 
     }
 
+    @Transactional
     public void sendTopic(NotificationResponse notificationResponse) {
         String encodedTopic = URLEncoder.encode(notificationResponse.getTopic(), StandardCharsets.UTF_8);
         Map<String, String> headers = new HashMap<>();
@@ -127,5 +126,25 @@ public class PushService {
                 .putData("productId", notificationResponse.getProductId().toString())
                 .build();
         FirebaseMessaging.getInstance().sendAsync(message);
+
+        List<String> receivers = getReceiverByKeyword(notificationResponse.getTopic());
+        receivers.forEach(r->{
+            Notice notice = Notice.builder()
+                    .type("키워드 알림")
+                    .target(notificationResponse.getProductId())
+                    .message(notificationResponse.getTopic()+"키워드 알림이 도착했습니다.")
+                    .build();
+            memberService.addNotice(notice,r);
+        });
+
+
+    }
+
+    @Transactional
+    public List<String> getReceiverByKeyword(String keyword){
+        List<MemberKeyword> list = memberKeywordRepository.findAllByKeywordKeyword(keyword);
+        return list.stream()
+                .map(m->m.getMember().getUsername())
+                .collect(Collectors.toList());
     }
 }
