@@ -8,6 +8,7 @@ import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
 import kim.sihwan.daangn.dto.board.BoardResponseDto;
 import kim.sihwan.daangn.dto.board.BoardUpdateRequestDto;
+import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.board.BoardRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -87,12 +88,20 @@ public class BoardService {
     @Transactional
     public void deleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
+        String nickname = findMemberByUsername().getNickname();
+        if(!board.getMember().getNickname().equals(nickname)){
+            throw new NotMineException();
+        }
         boardRepository.delete(board);
     }
 
     @Transactional
     public BoardResponseDto updateBoard(BoardUpdateRequestDto boardUpdateRequestDto) {
         Board board = boardRepository.findById(boardUpdateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        String nickname = findMemberByUsername().getNickname();
+        if(!board.getMember().getNickname().equals(nickname)){
+            throw new NotMineException();
+        }
         if (!boardUpdateRequestDto.getIds().isEmpty()) {
             boardAlbumService.deleteImages(board, boardUpdateRequestDto.getIds());
         }
@@ -107,5 +116,12 @@ public class BoardService {
     public void addRead(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
         board.addRead();
+    }
+
+
+    @Transactional
+    public Member findMemberByUsername() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findMemberByUsername(username);
     }
 }

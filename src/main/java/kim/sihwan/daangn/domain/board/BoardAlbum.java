@@ -21,7 +21,7 @@ public class BoardAlbum {
     private String url;
     private String filename;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
 
     @Builder
