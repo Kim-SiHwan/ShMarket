@@ -3,6 +3,7 @@ package kim.sihwan.daangn.controller;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
+import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
 import kim.sihwan.daangn.service.product.ProductInterestedService;
 import kim.sihwan.daangn.service.product.ProductService;
 import lombok.Data;
@@ -35,7 +36,7 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductListResponseDto>> getProducts(@RequestParam(value = "list") List<String> categories){
+    public ResponseEntity<List<ProductListResponseDto>> getProducts(@RequestParam(value = "list") List<String> categories) {
         List<ProductListResponseDto> list = productService.findAllProductsByCategory(categories);
         return new ResponseEntity<>(list, HttpStatus.OK);
     }
@@ -48,7 +49,8 @@ public class ProductController {
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@RequestParam("fileName") String fileName) {
-        Resource resource = new FileSystemResource("C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\" + fileName);
+        Resource resource = new FileSystemResource("C:\\Users\\tjdan\\OneDrive\\바탕 화면\\ShMarket2\\src\\main\\resources\\static\\images\\" + fileName);
+//        Resource resource = new FileSystemResource("C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\" + fileName);
         return new ResponseEntity(resource, HttpStatus.OK);
     }
 
@@ -58,15 +60,14 @@ public class ProductController {
         return new ResponseEntity<>(productService.setStatus(productId, status), HttpStatus.OK);
     }
 
-    //성능 테스트 용 매핑
-    @PostMapping("/v2")
-    public void test() {
-        interestedService.test();
+    @DeleteMapping("/{productId}")
+    public void deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
     }
 
-    @PostMapping("/v3")
-    public void test2(@ModelAttribute ProductRequestDto productRequestDto) {
-        productService.addProduct2(productRequestDto);
+    @PutMapping
+    public ResponseEntity<ProductResponseDto> updateProduct(@ModelAttribute ProductUpdateRequestDto updateRequestDto) {
+        return new ResponseEntity<>(productService.updateProduct(updateRequestDto), HttpStatus.OK);
     }
 
 }

@@ -15,10 +15,10 @@ public class ProductRequestDto {
     private String area;
     private String title;
     private String content;
-    private String username;
     private String nickname;
     private String category;
     private String price;
+    private String hasImages;
     private List<MultipartFile> files;
     private Set<String> tags;
 
@@ -28,7 +28,6 @@ public class ProductRequestDto {
                 .price(requestDto.getPrice())
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
-                .username(requestDto.getUsername())
                 .nickname(requestDto.getNickname())
                 .category(requestDto.getCategory())
                 .build();

@@ -25,21 +25,21 @@ public class ProductInterestedService {
 
 
     @Transactional
-    public String pushInterest(Long productId){
-        String msg= "관심상품에 등록되었습니다.";
+    public String pushInterest(Long productId) {
+        String msg = "관심상품에 등록되었습니다.";
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username,productId);
-        if(interested != null){
-            msg="관심상품에서 삭제되었습니다.";
+        ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username, productId);
+        if (interested != null) {
+            msg = "관심상품에서 삭제되었습니다.";
             removeInterest(interested.getId());
             return msg;
         }
-        addInterest(username,productId);
+        addInterest(username, productId);
         return msg;
     }
 
     @Transactional
-    public void addInterest(String username,Long productId){
+    public void addInterest(String username, Long productId) {
 
         Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
         Member member = memberRepository.findMemberByUsername(username);
@@ -50,27 +50,13 @@ public class ProductInterestedService {
     }
 
     @Transactional
-    public void removeInterest(Long id){
+    public void removeInterest(Long id) {
         interestedRepository.deleteById(id);
     }
 
 
-    public List<ProductInterested> findAll(){
+    public List<ProductInterested> findAll() {
         return interestedRepository.findAll();
     }
-
-    public void test(){
-        for(int i=1; i<=1000; i++){
-            String username = "user";
-            ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username,(long)i);
-            if(interested != null){
-                removeInterest(interested.getId());
-            }
-            addInterest(username,(long)i);
-        }
-
-    }
-
-
 
 }

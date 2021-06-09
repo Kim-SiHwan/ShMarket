@@ -15,7 +15,6 @@ public class ProductListResponseDto {
     private final String area;
     private final String title;
     private final String content;
-    private final String username;
     private final String nickname;
     private final String createDate;
     private final String thumbnail;
@@ -30,7 +29,6 @@ public class ProductListResponseDto {
                 .builder()
                 .id(product.getId())
                 .area(product.getArea())
-                .username(product.getMember().getUsername())
                 .nickname(product.getMember().getNickname())
                 .title(product.getTitle())
                 .content(product.getContent())
@@ -39,10 +37,12 @@ public class ProductListResponseDto {
                 .thumbnail(product.getThumbnail())
                 .productAlbumCount(product.getProductAlbums().size())
                 .like(like)
-                .tags(product.getProductTags()
+                .tags(
+                        product.getProductTags()
                         .stream()
                         .map(tag-> new TagResponseDto(tag.getTag()))
-                        .collect(Collectors.toList()))
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 }

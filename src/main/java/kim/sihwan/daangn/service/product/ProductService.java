@@ -8,6 +8,8 @@ import kim.sihwan.daangn.domain.product.ProductTag;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
+import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
+import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
@@ -32,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductService {
+
     private final ProductRepository productRepository;
     private final ProductAlbumService productAlbumService;
     private final MemberRepository memberRepository;
@@ -42,8 +45,12 @@ public class ProductService {
     private final RabbitService rabbitService;
 
     @Transactional
-    public Long addProduct(ProductRequestDto productRequestDto) {
-        Product product = productAlbumService.addProductAlbums(productRequestDto);
+    public void addProduct(ProductRequestDto productRequestDto) {
+        Product product = productRequestDto.toEntity(productRequestDto);
+        if (productRequestDto.getHasImages().equals("yes")) {
+            product = productAlbumService.addProductAlbums(productRequestDto);
+        }
+
         Member member = memberRepository.findMemberByNickname(productRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
         product.addMember(member);
         productRepository.save(product);
@@ -51,19 +58,6 @@ public class ProductService {
 
         Set<ProductTag> productTags = product.getProductTags();
         productTags.forEach(tags -> rabbitService.rabbitProducer(tags.getTag().getTag(), tags.getProduct().getId()));
-        return product.getId();
-    }
-
-    @Transactional
-    public void addProduct2(ProductRequestDto productRequestDto) {
-        for (int i = 0; i < 1000; i++) {
-            Product product = productAlbumService.addProductAlbums(productRequestDto);
-            Member member = memberRepository.findMemberByNickname(productRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
-            product.addMember(member);
-            productRepository.save(product);
-            tagService.addProductTag(product, productRequestDto.getTags());
-        }
-
     }
 
     @Transactional
@@ -131,6 +125,33 @@ public class ProductService {
 
     }
 
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        String nickname = findMemberByUsername().getNickname();
+        if (!product.getNickname().equals(nickname)) {
+            throw new NotMineException();
+        }
+        productRepository.deleteById(productId);
+    }
+
+    @Transactional
+    public ProductResponseDto updateProduct(ProductUpdateRequestDto updateRequestDto) {
+        Product product = productRepository.findById(updateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        String nickname = findMemberByUsername().getNickname();
+        if (!product.getNickname().equals(nickname)) {
+            throw new NotMineException();
+        }
+        if (!updateRequestDto.getIds().isEmpty()) {
+            productAlbumService.deleteImages(product, updateRequestDto.getIds());
+        }
+        if (updateRequestDto.getHasImages().equals("yes")) {
+            productAlbumService.appendImages(product, updateRequestDto.getFiles());
+        }
+        product.update(updateRequestDto.getTitle(), updateRequestDto.getContent());
+        List<ProductInterested> interestedList = interestedService.findAll();
+        return ProductResponseDto.toDto(product, isInterested(interestedList, findMemberByUsername().getId(), product.getId()));
+    }
 
     @Transactional
     public void addRead(Long productId) {

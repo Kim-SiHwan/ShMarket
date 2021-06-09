@@ -16,11 +16,11 @@ public class ProductResponseDto {
     private final String area;
     private final String title;
     private final String content;
-    private final String username;
     private final String nickname;
     private final String category;
     private final String createDate;
-    private boolean like;
+    private final boolean like;
+    private final boolean hasImages;
     private final int readCount;
     private final List<ProductAlbumResponseDto> productAlbums;
     private final List<TagResponseDto> tags;
@@ -30,14 +30,15 @@ public class ProductResponseDto {
                 .builder()
                 .id(product.getId())
                 .area(product.getArea())
-                .username(product.getMember().getUsername())
                 .nickname(product.getMember().getNickname())
                 .like(like)
+                .hasImages(product.getProductAlbums().isEmpty())
                 .title(product.getTitle())
                 .content(product.getContent())
                 .category(product.getCategory())
                 .createDate(product.getCreateDate().toString())
-                .productAlbums(product.getProductAlbums()
+                .productAlbums(
+                        product.getProductAlbums()
                         .stream()
                         .map(ProductAlbumResponseDto::new)
                         .collect(Collectors.toList())

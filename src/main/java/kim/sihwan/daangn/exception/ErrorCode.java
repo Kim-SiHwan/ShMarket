@@ -12,7 +12,8 @@ public enum ErrorCode {
     INVALID_TOKEN(4, "잘못된 토큰정보입니다. 다시 로그인을 진행해주세요."),
     EXPIRED_TOKEN(5, "만료된 토큰입니다. 다시 로그인을 진행해주세요."),
     NON_LOGIN(6, "로그인이 필요합니다."),
-    NOT_ADMIN(7,"관리자만 가능한 서비스입니다.");
+    NOT_ADMIN(7,"관리자만 가능한 서비스입니다."),
+    NOT_MINE(8,"작성자만 수정/삭제가 가능합니다.");
 
 
 
