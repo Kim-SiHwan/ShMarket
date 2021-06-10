@@ -23,8 +23,7 @@ public class BoardAlbumService {
 
     private final BoardAlbumRepository boardAlbumRepository;
 
-    private static final String fileUrl = "C:\\Users\\tjdan\\OneDrive\\바탕 화면\\ShMarket2\\src\\main\\resources\\static\\images\\";
-    //데스크탑        String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\";
+    private static final String fileUrl = "C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\";
     private static final String saveUrl = "http://localhost:8080/api/board/download?fileName=";
     private String addUrl = "";
 
