@@ -25,8 +25,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatLogRepository chatLogRepository;
 
-
-    public List<ChatLogResponseDto> findAllChatLogByRoomId(Long roomId){
+    public List<ChatLogResponseDto> findAllChatLogByRoomId(Long roomId) {
         return chatLogRepository.findAllByChatRoomId(roomId).stream()
                 .map(ChatLogResponseDto::new)
                 .collect(Collectors.toList());
