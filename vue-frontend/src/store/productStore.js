@@ -1,4 +1,5 @@
 import product_api from "@/apis/product_api";
+import router from '@/routes/index';
 
 const productStore = {
     state: {
@@ -30,7 +31,6 @@ const productStore = {
                     category.push(key);
                 }
             }
-            console.log("리스트 : " + category)
             const response = await product_api.requestGetAllProducts(category);
             if (response) {
                 context.commit('SET_PRODUCT_LIST', response.data);
@@ -49,13 +49,32 @@ const productStore = {
             if (response) {
                 context.commit('SET_SNACK_BAR', {
                     msg: response.data, color: 'info'
-                })
+                });
             }
             const getProductResponse = await product_api.requestGetProduct(payload);
             if (getProductResponse) {
                 context.commit('SET_PRODUCT_DETAIL', getProductResponse.data);
             }
-        }
+        },
+        async REQUEST_DELETE_PRODUCT(context, payload) {
+            const response = await product_api.requestDeleteProduct(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: '정상적으로 삭제되었습니다.', color: 'info'
+                });
+                await router.push('/productList');
+            }
+        },
+        async REQUEST_UPDATE_PRODUCT(context, payload) {
+            const response = await product_api.requestUpdateProduct(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: '정상적으로 수정되었습니다.', color: 'info'
+                });
+                context.commit('SET_PRODUCT_DETAIL', response.data);
+            }
+        },
+
     }
 }
 

@@ -1,3 +1,5 @@
+
+
 import Send from "@/apis/common_api";
 
 function requestAddProduct(data){
@@ -34,4 +36,21 @@ function requestGetProduct(data){
     })
 }
 
-export default {requestAddProduct,requestInterested,requestGetAllProducts,requestGetProduct};
+function requestDeleteProduct(data){
+    return Send({
+        url:'/api/product/'+data,
+        method:'DELETE'
+    })
+}
+
+function requestUpdateProduct(data){
+    return Send({
+        url:'/api/product',
+        method:'PUT',
+        headers:{'Content-Type': 'multipart/form-data'},
+        data:data
+    })
+}
+
+export default {requestAddProduct,requestInterested,requestGetAllProducts,requestGetProduct,requestDeleteProduct,requestUpdateProduct};
+

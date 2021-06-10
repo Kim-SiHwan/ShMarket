@@ -48,68 +48,84 @@
           <div class="p-5 mb-5 rounded float-left"
                style="width: 300px; height: 400px; border: 2px solid orange">
             <div class="card-body">
-              <span style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
+              <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
               <span class="float-left card-subtitle">
-              <span class="float-left mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span>
+              <router-link :to="{path:'/profile',query:{nickname:list.nickname}}"><span
+                  class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
-              <span class="float-left mt-1 mr-3"> <small>작성일 : {{
-                  list.createDate.substring(0, 10)
-                }}</small></span>
+              <span
+                  class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{ list.createDate.substring(0, 10) }}</small></span>
               <br>
-              <span class="float-left mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
+              <span class="float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
               </span>
               <br>
 
-              <div id="imgDiv" style="height: 100%; width: 100%">
+              <div id="productListImgDiv" style="height: 100%; width: 100%">
                 <router-link :to="{path:'/productDetail',query:{productId:list.id}}">
                   <v-img
                       :src="list.thumbnail"
                       class="mt-15 mr-3 ml-13 grey lighten-3"
-                      width="200"
-                  >
+                      max-height="200"
+                      width="200">
 
                   </v-img>
                 </router-link>
-
-                <div v-for="(tags,index) in list.tags" :key="index" style="list-style: none; display: inline">
-                  <v-chip
-                      class="ml-0 mr-1 pr-2 pl-2"
-                      color="info"
-                      label
-                      small>
-                    {{ tags.tag }}
-                  </v-chip>
+                <div
+                    v-if="list.tags.length ===0 "
+                    style="height: 34px">
                 </div>
 
-                <div id="reviewListIconDiv" class="mt-4 mb-5">
-                  <v-icon
-                      color="blue darken-4">
-                    mdi-message-text
-                  </v-icon>
-                  {{ list.readCount }}
+                <div v-else id="productTagDiv" class="mt-5">
+                  <v-row align-content="center" justify="center">
+                    <div v-for="(tags,index) in list.tags" :key="index" style="list-style: none; display: inline">
+                      <v-chip
+                          class="ml-0 mr-1 pr-2 pl-2"
+                          color="info"
+                          label
+                          small>
+                        {{ tags.tag }}
+                      </v-chip>
+                    </div>
+                  </v-row>
+                </div>
 
-                  <v-icon
-                      color="green">
-                    mdi-image-multiple
-                  </v-icon>
-                  {{ list.productAlbumCount }}
-                  <v-btn
-                      v-if="list.like"
-                      color="pink"
-                      dark
-                      icon
-                      @click="pushLike(list.id)">
-                    <v-icon dark>mdi-heart</v-icon>
-                  </v-btn>
-                  <v-btn
-                      v-else
-                      color="grey"
-                      dark
-                      icon
-                      @click="pushLike(list.id)">
-                    <v-icon dark>mdi-heart</v-icon>
-                  </v-btn>
+                <div id="productListIconDiv" class="mt-8">
+                  <v-row align-content="center" justify="center">
+                    <v-icon
+                        color="blue darken-4">
+                      mdi-message-text
+                    </v-icon>
+                    <span class="mt-1">{{ list.readCount }}</span>
+
+                    <v-icon
+                        color="green">
+                      mdi-image-multiple
+                    </v-icon>
+                    <span class="mt-1">{{ list.productAlbumCount }}</span>
+
+                    <v-btn
+                        v-if="list.like"
+                        color="pink"
+                        dark
+                        icon
+                        @click="pushLike(list.id)">
+
+                      <v-icon dark>mdi-heart</v-icon>
+
+                    </v-btn>
+
+                    <v-btn
+                        v-else
+                        color="grey"
+                        dark
+                        icon
+                        @click="pushLike(list.id)">
+
+                      <v-icon dark>mdi-heart</v-icon>
+
+                    </v-btn>
+                  </v-row>
                 </div>
               </div>
             </div>
@@ -130,8 +146,6 @@
         <v-icon>mdi-chevron-double-up</v-icon>
       </v-btn>
     </v-fab-transition>
-
-
   </v-app>
 </template>
 
@@ -147,30 +161,22 @@ export default {
     showProductList() {
       this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('productCategories'));
     },
-    clickTag(tag) {
-      this.$store.dispatch('REQUEST_GET_ALL_REVIEWS_BY_TAG', tag);
-    },
     pushLike(productId) {
-      console.log(productId);
       this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
-      // like 가져와서 관심상품 추가 및 해제
     },
     checked(name) {
       this.categories[name] = !this.categories[name];
       localStorage.setItem('productCategories', JSON.stringify(this.categories));
-      console.log(JSON.parse(localStorage.getItem('productCategories')));
       this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('productCategories'));
     },
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
     }
-
   },
   computed: {
     productList() {
       return this.$store.state.productStore.productList;
     },
-
     categories() {
       return JSON.parse(localStorage.getItem('productCategories'));
     }
@@ -180,7 +186,6 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 
 small {

@@ -2,7 +2,7 @@
   <v-container>
 
     <v-row align="center" class="fill-height" justify="center">
-      <div id="uploadReviewDiv" class="elevation-5" style="width: 800px; height: 600px">
+      <div id="uploadProductDiv" class="elevation-5" style="width: 800px; height: 600px">
 
         <div class="mt-15 ml-15 mr-15 mb-15">
           <v-text-field
@@ -108,15 +108,13 @@ export default {
       for (let file in files) {
         formData.append('files', files[file]);
       }
-
+      formData.set('hasImages', "yes");
       this.fileData = formData;
     },
     upload(formData) {
       if (formData === '') {
-        this.$store.commit('SET_SNACK_BAR', {
-          msg: '사진을 1장 이상 선택해주세요.', color: 'warning'
-        });
-        return false;
+        formData = new FormData;
+        formData.set('hasImages', "no");
       }
       formData.set('area', this.requestData.area);
       formData.set('title', this.requestData.title);
