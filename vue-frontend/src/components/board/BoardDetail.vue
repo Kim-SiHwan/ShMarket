@@ -32,14 +32,14 @@
 
         <v-btn
             v-if="flag"
-            color="orange"
             class="white--text"
+            color="orange"
             @click="changeShowImages">접어두기
         </v-btn>
         <v-btn
             v-else
-            color="orange"
             class="white--text"
+            color="orange"
             @click="changeShowImages">펼쳐보기
         </v-btn>
 
@@ -56,9 +56,9 @@
             <v-img
                 :src="file.url"
                 aspect-ratio="1.2"
-                @click="selectedImg(file.id,$event)"
                 contain
-                width="500">
+                width="500"
+                @click="selectedImg(file.id,$event)">
               <p style="color: red; visibility: hidden">선택</p>
             </v-img>
           </div>
@@ -78,41 +78,41 @@
 
     <v-textarea
         v-else-if="updateFlag"
+        v-model="updateRequestData.content"
         background-color="white"
         class="mt-10"
-        outlined
         label="수정할 내용을 입력해주세요."
-        v-bind:value="boardDetail.content"
-        v-model="updateRequestData.content">
+        outlined
+        v-bind:value="boardDetail.content">
     </v-textarea>
 
     <div id="boardDetailBtnDiv" class="float-right mt-2 ml-3">
 
       <v-btn
           v-if="!updateFlag"
-          @click="clickUpdateBtn"
-          color="info">
+          color="info"
+          @click="clickUpdateBtn">
         수정
       </v-btn>
 
       <v-btn
           v-if="updateFlag"
-          @click="clickUpdateBtn"
-          color="warning">
+          color="warning"
+          @click="clickUpdateBtn">
         취소
       </v-btn>
 
       <v-btn
-          @click="deleteBoard"
           class="mr-3 ml-3"
-          color="error">
+          color="error"
+          @click="deleteBoard">
         삭제
       </v-btn>
 
       <v-btn
           v-if="updateFlag"
-          @click="updateBoard(fileData)"
-          class="mr-3" color="success">
+          class="mr-3"
+          color="success" @click="updateBoard(fileData)">
         수정
       </v-btn>
 
@@ -123,8 +123,8 @@
         v-if="updateFlag"
         class="mr-3"
         label="사진 추가"
-        outlined
         multiple
+        outlined
         @change="selectedFile">
     </v-file-input>
 
@@ -193,12 +193,12 @@ export default {
       return `${Math.floor(years)}년 전`
     },
     deleteBoard() {
-      if(this.checkAuthority()) {
+      if (this.checkAuthority()) {
         this.$store.dispatch('REQUEST_DELETE_BOARD', this.boardDetail.id);
       }
     },
     clickUpdateBtn() {
-      if(this.checkAuthority()) {
+      if (this.checkAuthority()) {
         this.updateFlag = !this.updateFlag;
       }
     },
@@ -252,6 +252,8 @@ export default {
 
       this.$store.dispatch('REQUEST_UPDATE_BOARD', formData);
       this.updateFlag = false;
+      this.fileData = '';
+      this.updateRequestData.ids = [];
     },
   },
   computed: {

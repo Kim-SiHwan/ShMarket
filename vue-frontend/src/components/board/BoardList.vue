@@ -2,7 +2,7 @@
   <v-app id="headerDiv">
 
 
-    <p><small v-if="boardList" >{{ boardList.length }}개의 동네생활이 있습니다</small></p>
+    <p><small v-if="boardList">{{ boardList.length }}개의 동네생활이 있습니다</small></p>
 
     <v-switch
         class="ml-15"
@@ -43,10 +43,10 @@
     <div style="margin: auto">
       <v-chip
           v-if="clickTagFlag"
+          close
           color="info"
           label
           style="width: 320px"
-          close
           @click:close="closeTag"
       >
         {{ tagName }} 카테고리 게시글만 출력합니다
@@ -60,12 +60,13 @@
           style="list-style: none">
         <li id="listDiv">
           <div class="p-5 mb-5 rounded float-left"
-               style="width: 300px; height: 400px; border: 2px solid orange">
+               style="width: 300px; height: 500px; border: 2px solid orange">
             <div class="card-body">
               <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
               <span class="float-left card-subtitle">
-              <span class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span>
+              <router-link :to="{path:'/profile',query:{nickname:list.nickname}}"><span
+                  class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
               <span class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{
                   list.updateDate.substring(0, 10)
@@ -75,15 +76,13 @@
               </span>
               <br>
 
-              <div id="imgDiv" style="height: 100%; width: 100%">
+              <div id="boardListImgDiv" style="height: 100%; width: 100%">
                 <router-link :to="{path:'/boardDetail',query:{boardId:list.id}}">
                   <v-img
                       :src="list.thumbnail"
                       class="mt-15 mr-3 ml-13 grey lighten-3"
-                      contain
-                      width="200"
-                      max-height="100"
-                  >
+                      height="200"
+                      width="200">
 
                   </v-img>
                   <v-textarea
@@ -99,25 +98,21 @@
 
               </div>
               <div class="mt-3">
-                <v-row justify="center" align-content="center">
+                <v-row align-content="center" justify="center">
 
                   <v-chip
                       class="ml-0 mr-1 pr-2 pl-2"
                       color="info"
                       label
                       small
-                      @click="clickTag(list.category)"
-                  >
+                      @click="clickTag(list.category)">
                     {{ list.category }}
                   </v-chip>
                 </v-row>
               </div>
 
               <div id="boardListIconDiv" class="mt-8">
-
-                <v-row justify="center" align-content="center">
-
-
+                <v-row align-content="center" justify="center">
                   <v-icon
                       color="blue darken-4">
                     mdi-message-text
@@ -134,9 +129,9 @@
                       color="red">
                     mdi-message-text
                   </v-icon>
+
                   {{ list.commentCount }}
                 </v-row>
-
               </div>
             </div>
           </div>
@@ -156,8 +151,6 @@
         <v-icon>mdi-chevron-double-up</v-icon>
       </v-btn>
     </v-fab-transition>
-
-
   </v-app>
 </template>
 
@@ -184,10 +177,9 @@ export default {
       this.showCategoryFlag = !this.showCategoryFlag;
     },
     clickTag(name) {
-      console.log(name);
       this.tagName = name;
       this.clickTagFlag = true;
-      let toJson = {}
+      let toJson = {};
       toJson[name] = true;
       this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES', JSON.stringify(toJson));
     },
@@ -200,7 +192,6 @@ export default {
     boardList() {
       return this.$store.state.boardStore.boardList;
     },
-
     categories() {
       return JSON.parse(localStorage.getItem('boardCategories'));
     }
