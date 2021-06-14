@@ -23,25 +23,16 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final RedisTemplate<String, String> redisTemplate;
-    private final MemberRepository memberRepository;
     private final SimpMessageSendingOperations msgTemplate;
     private final ChatService chatService;
     private final PushService pushService;
 
     @MessageMapping("/chat/msg")
     public void send(@RequestBody ChatRequestDto chatRequestDto) {
-        Member member = memberRepository.findMemberByNickname(chatRequestDto.getReceiver())
-                .orElseThrow(NoSuchElementException::new);
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        String fcmToken = valueOperations.get(member.getId() + "::FCM");
-        chatRequestDto.setFcmToken(fcmToken);
-
         chatService.addChatLog(chatRequestDto);
         //Topic Exchange 사용
         //msgTemplate.convertAndSend("/topic/msg." + chatRequestDto.getRoomId(), new ChatLogResponseDto(chatRequestDto));
         msgTemplate.convertAndSend("/exchange/chat-exchange/msg." + chatRequestDto.getRoomId(), new ChatLogResponseDto(chatRequestDto));
-
         pushService.sendByToken(chatRequestDto);
     }
 

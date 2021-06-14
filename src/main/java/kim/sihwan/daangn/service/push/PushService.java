@@ -12,7 +12,7 @@ import kim.sihwan.daangn.dto.push.NotificationResponse;
 import kim.sihwan.daangn.repository.member.KeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberKeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
-import kim.sihwan.daangn.service.member.MemberService;
+import kim.sihwan.daangn.service.member.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -34,9 +34,14 @@ public class PushService {
     private final MemberRepository memberRepository;
     private final MemberKeywordRepository memberKeywordRepository;
 
-    private final MemberService memberService;
+    private final NoticeService noticeService;
 
     public void sendByToken(ChatRequestDto chatRequestDto) {
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        Member member = memberRepository.findMemberByNickname(chatRequestDto.getReceiver())
+                .orElseThrow(NoSuchElementException::new);
+        String fcmToken = valueOperations.get(member.getId() + "::FCM");
+
         WebpushNotification webpushNotification = WebpushNotification.builder()
                 .setTitle(chatRequestDto.getSender() + "님으로부터 메시지가 도착했습니다.")
                 .setBody(chatRequestDto.getMessage())
@@ -48,7 +53,7 @@ public class PushService {
                 .build();
 
         Message message = Message.builder()
-                .setToken(chatRequestDto.getFcmToken())
+                .setToken(fcmToken)
                 .setWebpushConfig(webpushConfig)
                 .putData("sender", chatRequestDto.getSender())
                 .putData("receiver", chatRequestDto.getReceiver())
@@ -63,7 +68,7 @@ public class PushService {
                 .target(chatRequestDto.getRoomId())
                 .message(chatRequestDto.getSender()+"님에게 메시지가 도착했습니다.")
                 .build();
-        memberService.addNotice(notice,chatRequestDto.getReceiver());
+        noticeService.addNotice(notice,chatRequestDto.getReceiver());
     }
 
     public List<KeywordListResponseDto> findAllKeywordsByUsername() {
@@ -108,7 +113,6 @@ public class PushService {
 
         String sendTitle = notificationResponse.getTopic() + " 키워드 알림이 도착했어요!";
         String sendMessage = notificationResponse.getTopic() + " 키워드에 해당하는 물품이 등록되었어요!";
-        System.out.println(sendTitle + " " + sendMessage);
         WebpushNotification webpushNotification = WebpushNotification.builder()
                 .setTitle(sendTitle)
                 .setBody(sendMessage)
@@ -134,7 +138,7 @@ public class PushService {
                     .target(notificationResponse.getProductId())
                     .message(notificationResponse.getTopic()+"키워드 알림이 도착했습니다.")
                     .build();
-            memberService.addNotice(notice,r);
+            noticeService.addNotice(notice,r);
         });
 
 
