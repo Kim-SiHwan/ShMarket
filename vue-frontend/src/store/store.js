@@ -7,6 +7,7 @@ import productStore from "@/store/productStore";
 import boardStore from "@/store/boardStore";
 import commentStore from "@/store/commentStore";
 import pushStore from "@/store/pushStore";
+import chatStore from "@/store/chatStore";
 
 Vue.use(Vuex);
 
@@ -19,8 +20,8 @@ export const store = new Vuex.Store({
         productStore,
         boardStore,
         commentStore,
-        pushStore
-
+        pushStore,
+        chatStore
     }
 
 });

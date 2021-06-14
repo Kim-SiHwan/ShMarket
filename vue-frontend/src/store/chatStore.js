@@ -1,0 +1,32 @@
+import chat_api from "@/apis/chat_api";
+import router from "@/routes";
+
+const chatStore = {
+    state: {
+        chatLog:[]
+    },
+    mutations: {
+        SET_CHAT_LOG(state, payload) {
+            state.chatLog = payload;
+        }
+    },
+    actions: {
+        async REQUEST_ADD_CHATROOM(context, payload) {
+            const response = await chat_api.requestAddChatRoom(payload);
+            if (response) {
+                await router.push({
+                    path: '/chat',
+                    query: {roomId: response.data}
+                })
+            }
+        },
+        async REQUEST_GET_CHAT_LOGS(context, payload){
+            const response = await chat_api.requestGetChatLogs(payload);
+            if(response){
+                context.commit('SET_CHAT_LOG', response.data);
+            }
+        }
+    }
+}
+
+export default chatStore
