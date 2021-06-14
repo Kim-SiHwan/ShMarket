@@ -54,7 +54,7 @@ public class ProductController {
     }
 
     @PutMapping("/status/{productId}")
-    public ResponseEntity<String> setStatus(@PathVariable Long productId,
+    public ResponseEntity<ProductResponseDto> setStatus(@PathVariable Long productId,
                                             @RequestParam("status") String status) {
         return new ResponseEntity<>(productService.setStatus(productId, status), HttpStatus.OK);
     }

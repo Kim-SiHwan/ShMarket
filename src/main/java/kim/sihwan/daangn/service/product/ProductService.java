@@ -61,7 +61,7 @@ public class ProductService {
     }
 
     @Transactional
-    public String setStatus(Long productId, String status) {
+    public ProductResponseDto setStatus(Long productId, String status) {
         Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
 
         if (status.equals("SALE")) {
@@ -71,7 +71,7 @@ public class ProductService {
         } else {
             product.setStatusCompleted();
         }
-        return "상품의 상태가 변경되었습니다.";
+        return ProductResponseDto.toDto(product,false);
     }
 
     public ProductResponseDto findById(Long productId) {
