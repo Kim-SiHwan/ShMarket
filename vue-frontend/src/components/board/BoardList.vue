@@ -9,8 +9,9 @@
         color="orange"
         hide-details
         label="카테고리 필터"
-        v-on:change="changeCategoryFlag"
-    ></v-switch>
+        v-on:change="changeCategoryFlag">
+
+    </v-switch>
 
     <div v-if="showCategoryFlag">
       <div v-for="(flag,name) in categories" :key="name">
@@ -35,8 +36,6 @@
             v-on:change="checked(name)">
 
         </v-checkbox>
-
-
       </div>
     </div>
 
@@ -47,11 +46,9 @@
           color="info"
           label
           style="width: 320px"
-          @click:close="closeTag"
-      >
+          @click:close="closeTag">
         {{ tagName }} 카테고리 게시글만 출력합니다
       </v-chip>
-
     </div>
 
 
@@ -60,7 +57,7 @@
           style="list-style: none">
         <li id="listDiv">
           <div class="p-5 mb-5 rounded float-left"
-               style="width: 300px; height: 500px; border: 2px solid orange">
+               style="width: 300px; height: 500px; border: 2px solid green">
             <div class="card-body">
               <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
@@ -69,7 +66,7 @@
                   class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
               <span class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{
-                  list.updateDate.substring(0, 10)
+                  displayedAt(list.updateDate)
                 }}</small></span>
               <br>
               <span class="float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
@@ -92,8 +89,9 @@
                       outlined
                       readonly="readonly"
                       rows="2"
-                      v-bind:value="list.content.substring(0,15)"
-                  ></v-textarea>
+                      v-bind:value="list.content.substring(0,15)">
+
+                  </v-textarea>
                 </router-link>
 
               </div>
@@ -142,13 +140,28 @@
     <v-fab-transition>
       <v-btn
           bottom
-          color="orange lighten -1"
+          color="green"
+          dark
           fab
           fixed
           right
           small
           @click="$vuetify.goTo('#headerDiv')">
         <v-icon>mdi-chevron-double-up</v-icon>
+      </v-btn>
+    </v-fab-transition>
+
+    <v-fab-transition>
+      <v-btn
+          color="green"
+          dark
+          fab
+          fixed
+          right
+          small
+          style="bottom: 80px;"
+          @click="addBoard">
+        <v-icon>mdi-plus</v-icon>
       </v-btn>
     </v-fab-transition>
   </v-app>
@@ -165,6 +178,9 @@ export default {
     }
   },
   methods: {
+    addBoard() {
+      this.$router.push('/addBoard');
+    },
     showBoardList() {
       this.$store.dispatch('REQUEST_GET_ALL_BOARDS_BY_CATEGORIES', localStorage.getItem('boardCategories'));
     },
@@ -186,7 +202,37 @@ export default {
     closeTag() {
       this.clickTagFlag = false;
       this.showBoardList();
-    }
+    },
+    displayedAt(createdAt) {
+      createdAt = new Date(createdAt);
+      const milliSeconds = new Date() - createdAt
+      const seconds = milliSeconds / 1000
+      if (seconds < 60) {
+        return `방금 전`
+      }
+      const minutes = seconds / 60
+      if (minutes < 60) {
+        return `${Math.floor(minutes)}분 전`
+      }
+      const hours = minutes / 60
+      if (hours < 24) {
+        return `${Math.floor(hours)}시간 전`
+      }
+      const days = hours / 24
+      if (days < 7) {
+        return `${Math.floor(days)}일 전`
+      }
+      const weeks = days / 7
+      if (weeks < 5) {
+        return `${Math.floor(weeks)}주 전`
+      }
+      const months = days / 30
+      if (months < 12) {
+        return `${Math.floor(months)}개월 전`
+      }
+      const years = days / 365
+      return `${Math.floor(years)}년 전`
+    },
   },
   computed: {
     boardList() {

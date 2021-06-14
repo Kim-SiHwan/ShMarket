@@ -2,7 +2,7 @@
   <v-container>
 
     <v-row align="center" class="fill-height" justify="center">
-      <div id="uploadBoardDiv" class="elevation-5" style="width: 800px; height: 600px">
+      <div id="uploadBoardDiv" class="elevation-5" style="width: 800px; height: 500px">
 
         <div class="mt-15 ml-15 mr-15 mb-15">
           <v-text-field
@@ -10,6 +10,7 @@
               label="게시글의 제목을 입력해주세요.">
 
           </v-text-field>
+
           <v-select
               v-model="requestData.category"
               :items="categories"
@@ -18,31 +19,37 @@
               hide-details
               item-text="address"
               label="카테고리"
-              no-data-text="카테고리를 입력해주세요."
-          ></v-select>
+              no-data-text="카테고리를 입력해주세요.">
+
+          </v-select>
+
           <v-textarea
               v-model="requestData.content"
               no-resize
-              v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'"
-          ></v-textarea>
+              v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'">
+
+          </v-textarea>
+
           <v-file-input
               chips
-              label="사진을 1장 이상 선택해주세요."
+              label="사진 선택"
               multiple
               @change="selectedFile">
+
           </v-file-input>
+
+
+          <v-btn
+              class="float-right"
+              color="success"
+              large
+              @click="upload(fileData)">등록
+          </v-btn>
         </div>
       </div>
     </v-row>
 
-    <v-btn
-        color="success"
-        large
-        @click="upload(fileData)">등록
-    </v-btn>
-
   </v-container>
-
 </template>
 
 <script>

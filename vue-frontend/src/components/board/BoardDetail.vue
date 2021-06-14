@@ -11,7 +11,7 @@
     <div>
       <span><small>작성자 : {{ boardDetail.nickname }}</small></span><br>
       <span><small>지역 : {{ boardDetail.area }}</small></span><br>
-      <span><small>작성일 : {{ time }}</small></span><br>
+      <span><small>작성일 : {{ displayedAt(boardDetail.updateDate) }}</small></span><br>
 
     </div>
 
@@ -28,18 +28,20 @@
 
         </v-carousel-item>
       </v-carousel>
-      <div style="text-align: center;">
+      <div
+          class="mt-2"
+          style="text-align: center;">
 
         <v-btn
             v-if="flag"
-            class="white--text"
-            color="orange"
+            color="green"
+            dark
             @click="changeShowImages">접어두기
         </v-btn>
         <v-btn
             v-else
-            class="white--text"
-            color="orange"
+            color="green"
+            dark
             @click="changeShowImages">펼쳐보기
         </v-btn>
 
@@ -72,8 +74,7 @@
         no-resize
         outlined
         readonly="readonly"
-        v-bind:value="boardDetail.content"
-    >
+        v-bind:value="boardDetail.content">
     </v-textarea>
 
     <v-textarea
@@ -127,7 +128,7 @@
         outlined
         @change="selectedFile">
     </v-file-input>
-
+    <br><br><br>
     <comment></comment>
 
   </v-container>
@@ -266,7 +267,6 @@ export default {
   },
   created() {
     this.$store.dispatch('REQUEST_GET_BOARD', this.$route.query.boardId);
-    this.time = this.displayedAt(this.boardDetail.updateDate);
   },
   mounted() {
     this.updateRequestData.id = this.$route.query.boardId;

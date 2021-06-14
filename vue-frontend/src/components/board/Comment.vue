@@ -2,17 +2,11 @@
   <v-app>
     <v-container id="commentContainer">
 
-      {{ updateContent }}
-      <hr>
-
-      {{ boardDetail }}
-      <hr>
-      {{ commentList }}
       <v-icon
-          color="blue darken-2"
-      >
+          color="blue darken-2">
         mdi-message-text
       </v-icon>
+
       <p v-if="commentList">
         {{ commentList.length }}개의 댓글이 달렸습니다
       </p>
@@ -40,9 +34,8 @@
                   no-resize
                   outlined
                   readonly="readonly"
-                  rows="4"
-                  v-bind:value="commentList.item.content"
-              >
+                  v-bind:value="commentList.item.content">
+
               </v-textarea>
             </td>
 
@@ -247,7 +240,7 @@ export default {
       this.$store.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID', this.$route.query.boardId);
     },
     addComment() {
-      if(!this.isAuthenticated){
+      if (!this.isAuthenticated) {
         this.$store.commit('SET_SNACK_BAR',
             {msg: '로그인이 필요합니다.', color: 'error'}
         );
