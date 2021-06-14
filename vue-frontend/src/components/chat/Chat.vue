@@ -32,38 +32,44 @@
 
       </div>
 
-      <div
-          v-else
-          class="float-left pt-3 pl-3 pr-3 rounded-lg text-center mt-5 "
-          style="border-radius: 10px; background-color: darkgray;  height: auto; overflow:hidden; word-break: break-all;width: auto; max-width: 40%">
+      <div v-else>
 
+        <span class="float-left">{{list.sender}}</span>
+        <div style="clear:both"></div>
+        <div
+            class="float-left pt-3 pl-3 pr-3 rounded-lg text-center "
+            style="border-radius: 10px; background-color: darkgray;  height: auto; overflow:hidden; word-break: break-all;width: auto; max-width: 40%">
         <p>{{ list.message }}</p>
-
+        </div>
       </div>
       <div style="clear: both"></div>
-
     </div>
 
     <div id="bottomDiv">
 
     </div>
 
+    <v-row justify="center" align-content="center">
+
     <div
         id="chatDiv"
-        style="bottom: 100px; position: fixed">
+        style="bottom: 50px; position: fixed;">
       <v-text-field
           id="inputText"
           v-model="msg"
-          style="display: inline-block"
+          outlined
+          style="display: inline-block; width: 500px"
           @keyup.enter="send">
       </v-text-field>
 
       <v-btn
           color="orange"
           dark
-          small>전송
+          height="57"
+          @click="send">전송
       </v-btn>
-    </div>
+    </div>    </v-row>
+
   </v-container>
 </template>
 
@@ -89,6 +95,7 @@ export default {
   created() {
     this.chatRequestDto.roomId = this.$route.query.roomId;
     this.chatRequestDto.productId = this.$route.query.productId;
+    this.chatRequestDto.sender = this.nickname;
     this.chatRequestDto.receiver = this.$route.query.sender;
     this.$store.dispatch('REQUEST_GET_PRODUCT', this.chatRequestDto.productId);
     this.connect()
@@ -97,13 +104,26 @@ export default {
     if (!this.chatRequestDto.receiver) {
       this.chatRequestDto.receiver = this.productDetail.nickname;
     }
-    this.$store.dispatch('REQUEST_GET_CHAT_LOGS', this.$route.query.roomId);
+    if(this.chatRequestDto.sender  === this.chatRequestDto.receiver){
+      if(this.chatLogs[0].sender === this.chatRequestDto.sender){
+        this.chatRequestDto.receiver = this.chatLogs[0].receiver;
+      }else{
+        this.chatRequestDto.receiver = this.chatLogs[0].sender;
+      }
+    }
+    let getLogData={
+      roomId : this.$route.query.roomId,
+      nickname : this.nickname
+    };
+    this.$store.dispatch('REQUEST_GET_CHAT_LOGS', getLogData);
     this.$vuetify.goTo('#bottomDiv');
+    this.$store.dispatch('REQUEST_GET_CHAT_COUNT', this.nickname);
   },
   methods: {
     send() {
-      this.chatRequestDto.sender = this.nickname;
       console.log(this.chatRequestDto.sender);
+      console.log(this.chatRequestDto.receiver);
+
       this.stompClient.send('/app/chat/msg', JSON.stringify({
         roomId: this.chatRequestDto.roomId,
         productId: this.productDetail.id,

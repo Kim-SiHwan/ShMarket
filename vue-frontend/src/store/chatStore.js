@@ -3,11 +3,19 @@ import router from "@/routes";
 
 const chatStore = {
     state: {
-        chatLog:[]
+        chatLog:[],
+        chatRooms:[],
+        chatCount:''
     },
     mutations: {
         SET_CHAT_LOG(state, payload) {
             state.chatLog = payload;
+        },
+        SET_CHAT_ROOMS(state, payload){
+            state.chatRooms = payload;
+        },
+        SET_CHAT_COUNT(state, payload){
+            state.chatCount = payload;
         }
     },
     actions: {
@@ -24,6 +32,18 @@ const chatStore = {
             const response = await chat_api.requestGetChatLogs(payload);
             if(response){
                 context.commit('SET_CHAT_LOG', response.data);
+            }
+        },
+        async REQUEST_GET_CHAT_ROOMS(context, payload){
+            const response =  await chat_api.requestGetChatRooms(payload);
+            if(response){
+                context.commit('SET_CHAT_ROOMS', response.data);
+            }
+        },
+        async REQUEST_GET_CHAT_COUNT(context, payload){
+            const response = await chat_api.requestGetNotReadCount(payload);
+            if(response){
+                context.commit('SET_CHAT_COUNT',response.data);
             }
         }
     }

@@ -62,13 +62,6 @@ public class PushService {
                 .build();
 
         FirebaseMessaging.getInstance().sendAsync(message);
-
-        Notice notice = Notice.builder()
-                .type("채팅 알림")
-                .target(chatRequestDto.getRoomId())
-                .message(chatRequestDto.getSender()+"님에게 메시지가 도착했습니다.")
-                .build();
-        noticeService.addNotice(notice,chatRequestDto.getReceiver());
     }
 
     public List<KeywordListResponseDto> findAllKeywordsByUsername() {

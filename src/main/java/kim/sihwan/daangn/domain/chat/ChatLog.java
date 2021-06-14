@@ -23,10 +23,14 @@ public class ChatLog {
     private String sender;
     private String receiver;
     private LocalDateTime createDate;
-    private boolean isRead;
+    private boolean read;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
+
+    public void changeReadState(){
+        this.read = true;
+    }
 
     @Builder
     public ChatLog(String message, String sender, String receiver) {
@@ -34,7 +38,7 @@ public class ChatLog {
         this.sender = sender;
         this.receiver = receiver;
         this.createDate = LocalDateTime.now();
-        this.isRead = false;
+        this.read = false;
     }
 
     public void addChatRoom(ChatRoom chatRoom){

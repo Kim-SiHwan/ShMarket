@@ -10,8 +10,10 @@ import BoardDetail from "@/components/board/BoardDetail";
 import BoardList from "@/components/board/BoardList";
 import AddBoard from "@/components/board/AddBoard";
 import Keyword from "@/components/member/Keyword";
-import Test from "@/components/websocket/Test";
-import Chat from "@/components/websocket/Chat";
+import Test from "@/components/chat/Test";
+import Chat from "@/components/chat/Chat";
+import Profile from "@/components/member/Profile";
+import ChatRooms from "@/components/chat/ChatRooms";
 
 Vue.use(Router); //vue 라우터 사용
 
@@ -65,6 +67,14 @@ export default new Router({ //라우터 연결
         {
             path:'/chat',
             component: Chat
+        },
+        {
+            path:'/profile',
+            component: Profile
+        },
+        {
+            path:'/chatRooms',
+            component: ChatRooms
         }
     ]
 })

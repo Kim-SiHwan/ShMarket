@@ -1,14 +1,11 @@
 package kim.sihwan.daangn.controller;
 
-import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.dto.chat.ChatLogResponseDto;
 import kim.sihwan.daangn.dto.chat.ChatRequestDto;
-import kim.sihwan.daangn.repository.member.MemberRepository;
+import kim.sihwan.daangn.dto.chat.ChatRoomResponseDto;
 import kim.sihwan.daangn.service.chat.ChatService;
 import kim.sihwan.daangn.service.push.PushService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -16,7 +13,6 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RestController
 @RequestMapping("/api")
@@ -42,8 +38,19 @@ public class ChatController {
     }
 
     @GetMapping("/chat/{roomId}")
-    public ResponseEntity<List<ChatLogResponseDto>> getChatLogByRoomId(@PathVariable Long roomId) {
-        return new ResponseEntity<>(chatService.findAllChatLogByRoomId(roomId), HttpStatus.OK);
+    public ResponseEntity<List<ChatLogResponseDto>> getChatLogByRoomId(@PathVariable Long roomId,
+                                                                       @RequestParam String nickname) {
+        return new ResponseEntity<>(chatService.findAllChatLogByRoomId(roomId, nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/chat")
+    public ResponseEntity<List<ChatRoomResponseDto>> getChatRooms(@RequestParam String nickname) {
+        return new ResponseEntity<>(chatService.findAllChatRoomByNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/chat/read")
+    public ResponseEntity<Integer> getChatLogNotRead(@RequestParam String nickname) {
+        return new ResponseEntity<>(chatService.countAllNotReadChatLog(nickname), HttpStatus.OK);
     }
 
 }
