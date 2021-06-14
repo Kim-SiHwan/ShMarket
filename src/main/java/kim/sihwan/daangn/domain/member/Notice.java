@@ -28,6 +28,10 @@ public class Notice {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
+    public void updateRead() {
+        this.isRead = true;
+    }
+
     @Builder
     public Notice(Long target, String type, String message) {
         this.target = target;
@@ -37,7 +41,7 @@ public class Notice {
         this.createDate = LocalDateTime.now();
     }
 
-    public void addMember(Member member){
+    public void addMember(Member member) {
         this.member = member;
     }
 }
