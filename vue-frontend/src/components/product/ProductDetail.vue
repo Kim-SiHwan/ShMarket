@@ -1,7 +1,6 @@
 <template>
   <v-container>
 
-    <v-btn @click="chat">채팅하기</v-btn>
 
     <div style="text-align: center">
       <h3 v-if="!updateFlag">{{ productDetail.title }}</h3>
@@ -9,17 +8,19 @@
           v-else
           v-model="updateRequestData.title"></v-text-field>
     </div>
+    <hr>
+
     <div>
       <span><small>판매자 : {{ productDetail.nickname }}</small></span><br>
       <span><small>지역 : {{ productDetail.area }}</small></span><br>
-      <span><small>작성일 : {{ time }}</small></span><br>
+      <span><small>작성일 : {{ displayedAt(productDetail.createDate) }}</small></span><br>
       <span v-if="productDetail.tags">
         <small>관련 태그 :
             <div v-for="(tags,index) in productDetail.tags" :key="index"
                  style="list-style: none; display: inline">
                <v-chip
                    class="ml-0 mr-1 pr-2 pl-2"
-                   color="orange"
+                   color="green"
                    label
                    small
                    text-color="white">
@@ -28,9 +29,24 @@
            </div>
         </small>
       </span>
+      <br>
+      <span><small>판매 상태 : {{ productDetail.status }} </small></span>
+      <v-select
+          v-if="nickname === productDetail.nickname"
+          v-model="selectedStatus"
+          :items="statusItem"
+          dense
+          item-text="description"
+          label="상태변경"
+          outlined
+          style="width: 200px"
+          @change="changeStatus"
+      ></v-select>
     </div>
 
-    <div v-if="!productDetail.hasImages">
+    <div
+        v-if="!productDetail.hasImages"
+        class="mt-3">
 
       <v-carousel
           height="500"
@@ -43,37 +59,23 @@
 
         </v-carousel-item>
       </v-carousel>
-      <div style="text-align: center; margin-top: 10px">
-        <v-btn
-            v-if="productDetail.like"
-            color="pink"
-            dark
-            icon
-            @click="pushLike(productDetail.id)">
-          <v-icon dark>mdi-heart</v-icon>
-        </v-btn>
-        <v-btn
-            v-else
-            color="grey"
-            dark
-            icon
-            @click="pushLike(productDetail.id)">
-          <v-icon dark>mdi-heart</v-icon>
-        </v-btn>
+      <div
+          class="mt-2"
+          style="text-align: center;">
         <v-btn
             v-if="flag"
-            class="white--text"
-            color="orange"
+            color="green"
+            dark
             @click="changeShowImages">접어두기
         </v-btn>
         <v-btn
             v-else
-            class="white--text"
-            color="orange"
+            color="green"
+            dark
             @click="changeShowImages">펼쳐보기
         </v-btn>
-
       </div>
+
       <v-row
           v-if="flag"
           class="mt-5"
@@ -95,6 +97,42 @@
         </v-col>
       </v-row>
     </div>
+
+    <div id="likeDiv">
+      <v-btn
+          v-if="productDetail.like"
+          class="float-right"
+          color="pink"
+          dark
+          icon
+          x-large
+          @click="pushLike(productDetail.id)">
+        <v-icon dark>mdi-heart</v-icon>
+      </v-btn>
+      <v-btn
+          v-else
+          class="float-right"
+          color="grey"
+          dark
+          icon
+          x-large
+          @click="pushLike(productDetail.id)">
+        <v-icon dark>mdi-heart</v-icon>
+      </v-btn>
+    </div>
+    <div style="clear: both"></div>
+    <br>
+    <v-btn class="float-right"
+           color="info"
+           dark
+           rounded
+           @click="chat">
+      채팅하기
+      <v-icon
+          right>
+        mdi-chat
+      </v-icon>
+    </v-btn>
     <v-textarea
         v-if="productDetail && !updateFlag"
         background-color="white"
@@ -102,7 +140,6 @@
         no-resize
         outlined
         readonly="readonly"
-        v-bind:rows="productDetail.content.length/5"
         v-bind:value="productDetail.content"
     ></v-textarea>
     <v-textarea
@@ -162,7 +199,6 @@
 </template>
 
 <script>
-import axios from 'axios';
 
 export default {
   name: "ProductDetail",
@@ -172,6 +208,12 @@ export default {
       updateFlag: '',
       time: '',
       fileData: '',
+      selectedStatus: '',
+      statusItem: [
+        {status: 'SALE', description: '판매중'},
+        {status: 'RESERVATION', description: '예약중'},
+        {status: 'COMPLETE', description: '판매 완료'}
+      ],
       updateRequestData: {
         id: '',
         title: '',
@@ -184,10 +226,12 @@ export default {
 
   methods: {
     chat() {
-      let dto = {
+      let data = {
         sender: sessionStorage.getItem('nickname'),
         receiver: this.productDetail.nickname
       };
+      this.$store.dispatch('REQUEST_ADD_CHATROOM',data);
+/*      this.$store
       axios.request({
         url: '/api/chat',
         method: 'POST',
@@ -198,15 +242,12 @@ export default {
           path: '/chat',
           query: {roomId: res.data}
         });
-      })
-
-
+      })*/
     },
     changeShowImages() {
       this.flag = !this.flag;
     },
     pushLike(productId) {
-      console.log(productId);
       this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
     },
     displayedAt(createdAt) {
@@ -281,7 +322,6 @@ export default {
       formData.set('hasImages', "yes");
       this.fileData = formData;
     },
-
     updateBoard(formData) {
       if (formData === '') {
         formData = new FormData;
@@ -302,6 +342,20 @@ export default {
       this.fileData = '';
       this.updateRequestData.ids = [];
     },
+    changeStatus() {
+      let data = {
+        status: '',
+        productId: this.productDetail.id
+      };
+      if (this.selectedStatus === '판매중') {
+        data.status = 'SALE';
+      } else if (this.selectedStatus === '예약중') {
+        data.status = 'RESERVATION';
+      } else {
+        data.status = 'COMPLETE';
+      }
+      this.$store.dispatch('REQUEST_CHANGE_STATUS',data);
+    }
   },
   computed: {
     productDetail() {

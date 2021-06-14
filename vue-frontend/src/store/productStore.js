@@ -22,7 +22,6 @@ const productStore = {
                 context.commit('SET_PRODUCT_DETAIL', response.data);
             }
         },
-
         async REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES(context, payload) {
             let tempCategory = JSON.parse(payload);
             let category = [];
@@ -40,7 +39,7 @@ const productStore = {
             const response = await product_api.requestAddProduct(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
-                    msg: '상품을 등록했습니다.', color: 'success'
+                    msg: '상품을 등록했습니다.', color: 'info'
                 });
             }
         },
@@ -74,7 +73,15 @@ const productStore = {
                 context.commit('SET_PRODUCT_DETAIL', response.data);
             }
         },
-
+        async REQUEST_CHANGE_STATUS(context, payload) {
+            const response = await product_api.requestUpdateStatus(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: '상태가 변경되었습니다.', color: 'info'
+                });
+                context.commit('SET_PRODUCT_DETAIL', response.data);
+            }
+        },
     }
 }
 

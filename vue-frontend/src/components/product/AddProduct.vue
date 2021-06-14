@@ -5,16 +5,19 @@
       <div id="uploadProductDiv" class="elevation-5" style="width: 800px; height: 600px">
 
         <div class="mt-15 ml-15 mr-15 mb-15">
+
           <v-text-field
               v-model="requestData.title"
               label="판매글의 제목을 입력해주세요.">
 
           </v-text-field>
+
           <v-text-field
               v-model="requestData.price"
               label="판매 상품의 가격을 입력해주세요 ( 선택사항 )">
 
           </v-text-field>
+
           <v-select
               v-model="requestData.category"
               :items="categories"
@@ -23,24 +26,33 @@
               hide-details
               item-text="address"
               label="카테고리"
-              no-data-text="카테고리를 입력해주세요."
-          ></v-select>
+              no-data-text="카테고리를 입력해주세요.">
+
+          </v-select>
+
           <v-textarea
               v-model="requestData.content"
               no-resize
-              v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'"
-          ></v-textarea>
+              v-bind:label="this.requestData.area +'에 올릴 게시글 내용을 작성해주세요.'">
+
+          </v-textarea>
+
           <v-file-input
               chips
-              label="사진을 1장 이상 선택해주세요."
+              label="사진 선택"
               multiple
               @change="selectedFile">
 
           </v-file-input>
+
           <v-text-field
               v-if="this.requestData.tags.length<3"
-              v-model="tagName" label="태그입력해주세요 [ 3개 까지의 태그만 입력가능합니다 ]" v-on:keyup.enter="addTags"></v-text-field>
+              v-model="tagName" label="태그를 입력해주세요 [ 최대 3개 ]" v-on:keyup.enter="addTags">
+
+          </v-text-field>
+
           <div v-for="(tag,index) in requestData.tags" :key="index" style="display: inline">
+
             <v-chip
                 class="mr-3"
                 close
@@ -49,28 +61,29 @@
                 small
                 @click:close="deleteTag(index)">
               {{ tag }}
+
             </v-chip>
           </div>
+
           <v-btn
               v-if="this.requestData.tags.length<3"
               color="primary"
               small
               @click="addTags">
-            추가
+            태그 추가
           </v-btn>
         </div>
 
+        <v-btn
+            class="float-right"
+            color="success"
+            large
+            @click="upload(fileData)">등록
+        </v-btn>
       </div>
     </v-row>
 
-    <v-btn
-        color="success"
-        large
-        @click="upload(fileData)">등록
-    </v-btn>
-
   </v-container>
-
 </template>
 
 <script>

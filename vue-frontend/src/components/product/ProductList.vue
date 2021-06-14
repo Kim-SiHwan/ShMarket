@@ -5,11 +5,12 @@
 
     <v-switch
         class="ml-15"
-        color="orange"
+        color="blue"
         hide-details
         label="카테고리 필터"
-        v-on:change="changeCategoryFlag"
-    ></v-switch>
+        v-on:change="changeCategoryFlag">
+
+    </v-switch>
 
     <div v-if="showCategoryFlag">
 
@@ -19,7 +20,7 @@
             v-if="flag"
             :label="name"
             class="ml-15"
-            color="orange"
+            color="green"
             hide-details
             input-value="true"
             v-on:change="checked(name)">
@@ -36,7 +37,6 @@
 
         </v-checkbox>
 
-
       </div>
     </div>
 
@@ -46,7 +46,7 @@
           style="list-style: none">
         <li id="listDiv">
           <div class="p-5 mb-5 rounded float-left"
-               style="width: 300px; height: 400px; border: 2px solid orange">
+               style="width: 300px; height: 400px; border: 2px solid green">
             <div class="card-body">
               <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
@@ -55,7 +55,7 @@
                   class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
               <span
-                  class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{ list.createDate.substring(0, 10) }}</small></span>
+                  class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{ displayedAt(list.createDate) }}</small></span>
               <br>
               <span class="float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
               </span>
@@ -66,7 +66,7 @@
                   <v-img
                       :src="list.thumbnail"
                       class="mt-15 mr-3 ml-13 grey lighten-3"
-                      max-height="200"
+                      height="200"
                       width="200">
 
                   </v-img>
@@ -135,15 +135,31 @@
     </div>
 
     <v-fab-transition>
+
       <v-btn
           bottom
-          color="orange lighten -1"
+          color="green lighten -1"
+          dark
           fab
           fixed
           right
           small
           @click="$vuetify.goTo('#headerDiv')">
         <v-icon>mdi-chevron-double-up</v-icon>
+      </v-btn>
+    </v-fab-transition>
+
+    <v-fab-transition>
+      <v-btn
+          style="bottom: 80px;"
+          color="green lighten -1"
+          dark
+          fab
+          fixed
+          right
+          small
+          @click="addProduct">
+          <v-icon>mdi-plus</v-icon>
       </v-btn>
     </v-fab-transition>
   </v-app>
@@ -154,10 +170,14 @@ export default {
   name: "productList",
   data() {
     return {
+      time:'',
       showCategoryFlag: false
     }
   },
   methods: {
+    addProduct(){
+      this.$router.push('/addProduct');
+    },
     showProductList() {
       this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_BY_CATEGORIES', localStorage.getItem('productCategories'));
     },
@@ -171,7 +191,37 @@ export default {
     },
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
-    }
+    },
+    displayedAt(createdAt) {
+      createdAt = new Date(createdAt);
+      const milliSeconds = new Date() - createdAt
+      const seconds = milliSeconds / 1000
+      if (seconds < 60) {
+        return `방금 전`
+      }
+      const minutes = seconds / 60
+      if (minutes < 60) {
+        return `${Math.floor(minutes)}분 전`
+      }
+      const hours = minutes / 60
+      if (hours < 24) {
+        return `${Math.floor(hours)}시간 전`
+      }
+      const days = hours / 24
+      if (days < 7) {
+        return `${Math.floor(days)}일 전`
+      }
+      const weeks = days / 7
+      if (weeks < 5) {
+        return `${Math.floor(weeks)}주 전`
+      }
+      const months = days / 30
+      if (months < 12) {
+        return `${Math.floor(months)}개월 전`
+      }
+      const years = days / 365
+      return `${Math.floor(years)}년 전`
+    },
   },
   computed: {
     productList() {
