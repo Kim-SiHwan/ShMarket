@@ -96,21 +96,11 @@ export default {
     this.chatRequestDto.roomId = this.$route.query.roomId;
     this.chatRequestDto.productId = this.$route.query.productId;
     this.chatRequestDto.sender = this.nickname;
-    this.chatRequestDto.receiver = this.$route.query.sender;
-    this.$store.dispatch('REQUEST_GET_PRODUCT', this.chatRequestDto.productId);
+    this.chatRequestDto.receiver = this.$route.query.receiver;
+    this.$store.dispatch('REQUEST_GET_PRODUCT', this.$route.query.productId);
     this.connect()
   },
   mounted() {
-    if (!this.chatRequestDto.receiver) {
-      this.chatRequestDto.receiver = this.productDetail.nickname;
-    }
-    if(this.chatRequestDto.sender  === this.chatRequestDto.receiver){
-      if(this.chatLogs[0].sender === this.chatRequestDto.sender){
-        this.chatRequestDto.receiver = this.chatLogs[0].receiver;
-      }else{
-        this.chatRequestDto.receiver = this.chatLogs[0].sender;
-      }
-    }
     let getLogData={
       roomId : this.$route.query.roomId,
       nickname : this.nickname
@@ -127,7 +117,7 @@ export default {
       this.stompClient.send('/app/chat/msg', JSON.stringify({
         roomId: this.chatRequestDto.roomId,
         productId: this.productDetail.id,
-        sender: this.chatRequestDto.sender,
+        sender: this.nickname,
         receiver: this.chatRequestDto.receiver,
         message: this.msg
       }), {});

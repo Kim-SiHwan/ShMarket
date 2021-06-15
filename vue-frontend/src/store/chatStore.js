@@ -24,7 +24,12 @@ const chatStore = {
             if (response) {
                 await router.push({
                     path: '/chat',
-                    query: {roomId: response.data}
+                    query:{
+                        roomId: response.data,
+                        sender: payload.sender,
+                        receiver: payload.receiver,
+                        productId: payload.productId
+                    }
                 })
             }
         },
@@ -32,6 +37,7 @@ const chatStore = {
             const response = await chat_api.requestGetChatLogs(payload);
             if(response){
                 context.commit('SET_CHAT_LOG', response.data);
+                await context.dispatch('REQUEST_GET_CHAT_COUNT',payload.nickname);
             }
         },
         async REQUEST_GET_CHAT_ROOMS(context, payload){
