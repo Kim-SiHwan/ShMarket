@@ -212,9 +212,11 @@ export default {
         );
         return false;
       }
-      this.$store.dispatch('REQUEST_DELETE_COMMENT', commentId);
-      this.$store.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID', this.boardDetail.id);
-
+      let deleteData={
+        commentId : commentId,
+        boardId : this.boardDetail.id
+      };
+      this.$store.dispatch('REQUEST_DELETE_COMMENT', deleteData);
     },
     updateCommentForm(commentData) {
       if (this.nickname !== commentData.nickname) {
@@ -229,10 +231,10 @@ export default {
     updateComment(commentId) {
       this.updateForm = {
         id: commentId,
-        content: this.updateContent
-      }
+        content: this.updateContent,
+        boardId: this.boardDetail.id
+      };
       this.$store.dispatch('REQUEST_UPDATE_COMMENT', this.updateForm);
-      this.$store.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID', this.boardDetail.id);
       this.dialog = false;
 
     },
@@ -249,7 +251,6 @@ export default {
       this.requestData.nickname = this.nickname;
       this.requestData.boardId = this.boardDetail.id;
       this.$store.dispatch('REQUEST_ADD_COMMENT', this.requestData);
-      this.$store.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID', this.boardDetail.id);
       this.requestData.content = '';
 
     }

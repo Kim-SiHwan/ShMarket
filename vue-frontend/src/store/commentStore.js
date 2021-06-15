@@ -22,14 +22,16 @@ const commentStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: '댓글이 등록되었습니다.', color: 'success'
                 })
+                await context.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID',payload.boardId);
             }
         },
         async REQUEST_DELETE_COMMENT(context,payload){
-            const response = await comment_api.requestDeleteCommentByCommentId(payload);
+            const response = await comment_api.requestDeleteCommentByCommentId(payload.commentId);
             if(response){
                 context.commit('SET_SNACK_BAR', {
                     msg: '댓글이 삭제되었습니다.', color: 'success'
                 })
+                await context.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID',payload.boardId);
             }
         },
         async REQUEST_UPDATE_COMMENT(context,payload){
@@ -38,6 +40,7 @@ const commentStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: '댓글이 수정되었습니다.', color: 'success'
                 })
+                await context.dispatch('REQUEST_GET_COMMENTS_BY_BOARD_ID',payload.boardId);
             }
         }
     }
