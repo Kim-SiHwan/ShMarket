@@ -31,4 +31,10 @@ public class NoticeController {
         noticeService.updateAllIsRead(nickname);
     }
 
+
+    @GetMapping("/read")
+    public ResponseEntity<Integer> getNotReadNotice(@RequestParam String nickname) {
+        return new ResponseEntity<>(noticeService.countAllNotReadNotice(nickname), HttpStatus.OK);
+    }
+
 }

@@ -10,4 +10,6 @@ public interface NoticeRepository extends JpaRepository<Notice,Long> {
 
     @EntityGraph(attributePaths = {"member"})
     List<Notice> findAllByMemberNickname(String nickname);
+
+    int countAllByMemberNicknameAndRead(String nickname, boolean read);
 }
