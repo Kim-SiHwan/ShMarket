@@ -58,6 +58,22 @@ function requestUpdateStatus(data) {
     })
 }
 
+function requestGetMyProduct(data) {
+    return Send({
+        url: '/api/product/my',
+        method: 'GET',
+        params: {originName: data.originName, requestNickname: data.requestNickname}
+    })
+}
+
+function requestGetMyLikeProduct(data) {
+    return Send({
+        url: '/api/product/my/like',
+        method: 'GET',
+        params: {nickname: data}
+    })
+}
+
 export default {
     requestAddProduct,
     requestInterested,
@@ -65,6 +81,8 @@ export default {
     requestGetProduct,
     requestDeleteProduct,
     requestUpdateProduct,
-    requestUpdateStatus
+    requestUpdateStatus,
+    requestGetMyProduct,
+    requestGetMyLikeProduct
 };
 

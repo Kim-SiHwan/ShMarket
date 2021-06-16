@@ -5,6 +5,8 @@ const productStore = {
     state: {
         productList: [],
         productDetail: '',
+        myProductList:[],
+        myLikeProductList:[]
     },
 
     mutations: {
@@ -82,6 +84,18 @@ const productStore = {
                 context.commit('SET_PRODUCT_DETAIL', response.data);
             }
         },
+        async REQUEST_GET_MY_PRODUCT(context, payload){
+            const response = await product_api.requestGetMyProduct(payload);
+            if(response){
+                context.commit('SET_PRODUCT_LIST', response.data);
+            }
+        },
+        async REQUEST_GET_MY_LIKE_PRODUCT(context, payload){
+            const response = await product_api.requestGetMyLikeProduct(payload);
+            if(response){
+                context.commit('SET_PRODUCT_LIST', response.data);
+            }
+        }
     }
 }
 

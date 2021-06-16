@@ -14,11 +14,17 @@ import Test from "@/components/chat/Test";
 import Chat from "@/components/chat/Chat";
 import Profile from "@/components/member/Profile";
 import ChatRooms from "@/components/chat/ChatRooms";
+import MyProduct from "@/components/member/MyProduct";
+import MyLikeProduct from "@/components/member/MyLikeProduct";
+import Manner from "@/components/member/Manner";
+import Review from "@/components/member/Review";
+import Follow from "@/components/member/Follow";
 
 Vue.use(Router); //vue 라우터 사용
 
 
 export default new Router({ //라우터 연결
+    mode: 'history',
     routes: [
         {
             path: '/',
@@ -42,7 +48,7 @@ export default new Router({ //라우터 연결
         },
         {
             path: '/productDetail',
-            component: ProductDetail
+            component: ProductDetail,
         },
         {
             path: '/boardDetail',
@@ -66,11 +72,41 @@ export default new Router({ //라우터 연결
         },
         {
             path:'/chat',
-            component: Chat
+            component: Chat,
         },
         {
             path:'/profile',
-            component: Profile
+            component: Profile,
+            children:[
+                {
+                    path:'/profile/myProduct',
+                    component: MyProduct
+                },
+                {
+                    path:'/profile/myLikeProduct',
+                    component: MyLikeProduct
+                },
+                {
+                    path:'/profile/keyword',
+                    component: Keyword
+                },
+                {
+                    path:'/profile/manner',
+                    component: Manner
+                },
+                {
+                    path:'/profile/review',
+                    component: Review
+                },
+                {
+                    path:'/profile/board',
+
+                },
+                {
+                    path:'/profile/follow',
+                    component: Follow
+                }
+            ]
         },
         {
             path:'/chatRooms',

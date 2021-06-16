@@ -71,7 +71,7 @@ public class ProductService {
         } else {
             product.setStatusCompleted();
         }
-        return ProductResponseDto.toDto(product,false);
+        return ProductResponseDto.toDto(product, false);
     }
 
     public ProductResponseDto findById(Long productId) {
@@ -83,6 +83,27 @@ public class ProductService {
         }
         return ProductResponseDto.toDto(product, false);
 
+    }
+
+    public List<ProductListResponseDto> findAllMyProduct(String originName, String requestNickname) {
+        List<ProductInterested> interestedList = interestedService.findAllByNickname(originName);
+        Member member = memberRepository.findMemberByNickname(originName).orElseThrow(NoSuchElementException::new);;
+        return productRepository.findAllByMemberNickname(requestNickname).stream()
+                .map(m -> {
+                    if(isInterested(interestedList, member.getId(), m.getId())) {
+                        return ProductListResponseDto.toDto(m, true);
+                    }
+                    return ProductListResponseDto.toDto(m, false);
+                }).collect(Collectors.toList());
+    }
+
+    public List<ProductListResponseDto> findAllMyLikeProduct(String nickname) {
+
+        List<ProductInterested> interestedList = interestedService.findAllByNickname(nickname);
+        return interestedList.stream()
+                .map(m -> {
+                    return ProductListResponseDto.toDto(m.getProduct(), true);
+                }).collect(Collectors.toList());
     }
 
     public List<ProductListResponseDto> findAllProductsByCategory(List<String> categories) {
@@ -161,6 +182,9 @@ public class ProductService {
 
     public boolean isInterested(List<ProductInterested> interestedList, Long memberId, Long productId) {
         boolean flag = false;
+
+        //효율성 올려야함
+        //이 전의 것으로 하면 쿼리가 엄청 나가고 이렇게 하면 반복문이 너무 많이 돔 해결책 강구
         for (ProductInterested interested : interestedList) {
             if (interested.getMember().getId().equals(memberId) && interested.getProduct().getId().equals(productId)) {
                 flag = true;

@@ -59,4 +59,8 @@ public class ProductInterestedService {
         return interestedRepository.findAll();
     }
 
+    public List<ProductInterested> findAllByNickname(String nickname){
+        return interestedRepository.findAllByMemberNickname(nickname);
+    }
+
 }

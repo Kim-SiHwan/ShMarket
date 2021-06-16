@@ -46,6 +46,17 @@ public class ProductController {
         return new ResponseEntity(productService.findById(productId), HttpStatus.OK);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<ProductListResponseDto>> getMyProducts(@RequestParam String originName,
+                                                                      @RequestParam String requestNickname) {
+        return new ResponseEntity<>(productService.findAllMyProduct(originName, requestNickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/my/like")
+    public ResponseEntity<List<ProductListResponseDto>> getMyLikeProducts(@RequestParam String nickname) {
+        return new ResponseEntity<>(productService.findAllMyLikeProduct(nickname), HttpStatus.OK);
+    }
+
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@RequestParam("fileName") String fileName) {
@@ -55,7 +66,7 @@ public class ProductController {
 
     @PutMapping("/status/{productId}")
     public ResponseEntity<ProductResponseDto> setStatus(@PathVariable Long productId,
-                                            @RequestParam("status") String status) {
+                                                        @RequestParam("status") String status) {
         return new ResponseEntity<>(productService.setStatus(productId, status), HttpStatus.OK);
     }
 
