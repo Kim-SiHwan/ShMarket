@@ -9,7 +9,9 @@ const memberStore = {
         username: '',
         nickname: '',
         area: '',
-        fcmToken: '',
+        fcmToken: localStorage.getItem('fcmToken'),
+        manners: [],
+        reviews: [],
         productCategories: {
             '디지털/가전': false,
             '가구/인테리어': true,
@@ -70,14 +72,21 @@ const memberStore = {
         },
         SET_FCM_TOKEN(state, payload) {
             state.fcmToken = payload;
-        }
+        },
+        SET_MANNERS(state, payload) {
+            state.manners = payload;
+        },
+        SET_REVIEWS(state, payload) {
+            state.reviews = payload;
+        },
+
     },
     actions: {
         async REQUEST_JOIN(context, payload) {
             const joinResponse = await member_api.requestJoin(payload);
             if (joinResponse) {
                 context.commit('SET_SNACK_BAR', {
-                    msg: payload.username + '으로 정상 가입되었습니다.', color: 'success'
+                    msg: payload.username + '으로 정상 가입되었습니다.', color: 'info'
                 });
                 context.commit('INIT_CATEGORIES');
                 router.push('/login');
@@ -88,9 +97,10 @@ const memberStore = {
             if (loginResponse) {
                 context.commit('LOGIN', loginResponse.data);
                 context.commit('SET_SNACK_BAR', {
-                    msg: loginResponse.data.username + '님 반갑습니다.', color: 'success'
+                    msg: loginResponse.data.username + '님 반갑습니다.', color: 'info'
                 });
-                // router.push('/main');
+                await context.dispatch('REQUEST_GET_CHAT_COUNT', loginResponse.data.nickname);
+                await context.dispatch('REQUEST_GET_NOTICES', loginResponse.data.nickname);
             }
         },
         async REQUEST_LOGOUT(context) {
@@ -98,11 +108,42 @@ const memberStore = {
             if (logoutResponse) {
                 context.commit('LOGOUT');
                 context.commit('SET_SNACK_BAR', {
-                    msg: '로그아웃 되었습니다.', color: 'success'
+                    msg: '로그아웃 되었습니다.', color: 'info'
                 });
             }
 
         },
+        async REQUEST_ADD_MANNER(context, payload) {
+            const response = await member_api.requestAddManner(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: payload.nickname + '님에 대한 매너 평가가 완료되었습니다.', color: 'info'
+                });
+                await context.dispatch('REQUEST_GET_MANNERS', payload.nickname);
+            }
+        },
+        async REQUEST_GET_MANNERS(context, payload) {
+            const response = await member_api.requestGetManners(payload);
+            if (response) {
+                context.commit('SET_MANNERS', response.data);
+            }
+        },
+        async REQUEST_ADD_REVIEW(context, payload) {
+            const response = await member_api.requestAddReview(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: payload.nickname + '님과의 거래 후기가 작성되었습니다.', color: 'info'
+                });
+                await context.dispatch('REQUEST_GET_REVIEWS', payload.nickname);
+            }
+        },
+        async REQUEST_GET_REVIEWS(context, payload) {
+            const response = await member_api.requestGetReviews(payload);
+            if (response) {
+                context.commit('SET_REVIEWS', response.data);
+            }
+        },
+
     }
 
 }
