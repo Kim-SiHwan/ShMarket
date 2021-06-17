@@ -19,98 +19,109 @@ import MyLikeProduct from "@/components/member/MyLikeProduct";
 import Manner from "@/components/member/Manner";
 import Review from "@/components/member/Review";
 import Follow from "@/components/member/Follow";
+import MyBoard from "@/components/member/MyBoard";
+import Qna from "@/components/qna/Qna";
+import QnaDetail from "@/components/qna/QnaDetail";
 
 Vue.use(Router); //vue 라우터 사용
 
 
 export default new Router({ //라우터 연결
-    mode: 'history',
+    mode  : 'history',
     routes: [
         {
-            path: '/',
+            path     : '/',
             component: Main
         },
         {
-            path: '/join',
+            path     : '/join',
             component: Join
         },
         {
-            path: '/login',
+            path     : '/login',
             component: Login
         },
         {
-            path: '/productList',
+            path     : '/productList',
             component: ProductList
         },
         {
-            path: '/addProduct',
+            path     : '/addProduct',
             component: AddProduct
         },
         {
-            path: '/productDetail',
+            path     : '/productDetail',
             component: ProductDetail,
         },
         {
-            path: '/boardDetail',
+            path     : '/boardDetail',
             component: BoardDetail
         },
         {
-            path: '/boardList',
+            path     : '/boardList',
             component: BoardList
         },
         {
-            path: '/addBoard',
+            path     : '/addBoard',
             component: AddBoard
         },
         {
-            path: '/keyword',
+            path     : '/keyword',
             component: Keyword
         },
         {
-            path: '/test',
+            path     : '/test',
             component: Test
         },
         {
-            path:'/chat',
+            path     : '/chat',
             component: Chat,
         },
         {
-            path:'/profile',
+            path     : '/profile',
             component: Profile,
-            children:[
+            children : [
                 {
-                    path:'/profile/myProduct',
+                    path     : '/profile/myProduct',
                     component: MyProduct
                 },
                 {
-                    path:'/profile/myLikeProduct',
+                    path     : '/profile/myLikeProduct',
                     component: MyLikeProduct
                 },
                 {
-                    path:'/profile/keyword',
+                    path     : '/profile/keyword',
                     component: Keyword
                 },
                 {
-                    path:'/profile/manner',
+                    path     : '/profile/manner',
                     component: Manner
                 },
                 {
-                    path:'/profile/review',
+                    path     : '/profile/review',
                     component: Review
                 },
                 {
-                    path:'/profile/board',
-
+                    path     : '/profile/myBoard',
+                    component: MyBoard
                 },
                 {
-                    path:'/profile/follow',
+                    path     : '/profile/follow',
                     component: Follow
+                },
+                {
+                    path     : '/profile/qna',
+                    component: Qna
                 }
             ]
         },
         {
-            path:'/chatRooms',
+            path     : '/chatRooms',
             component: ChatRooms
+        },
+        {
+            path     : '/qnaDetail',
+            component: QnaDetail
         }
     ]
 })

@@ -24,10 +24,11 @@ public class Follow {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member toMember;
 
-    public void addFromMember(Member member){
+    public void addFromMember(Member member) {
         this.fromMember = member;
     }
-    public void addToMember(Member member){
+
+    public void addToMember(Member member) {
         this.toMember = member;
     }
 }
