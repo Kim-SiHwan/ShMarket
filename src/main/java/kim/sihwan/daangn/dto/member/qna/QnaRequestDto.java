@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class QnaRequestDto {
 
-    private Long memberId;
+    private String nickname;
     private String title;
     private String content;
 

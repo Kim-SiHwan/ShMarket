@@ -7,7 +7,6 @@ import kim.sihwan.daangn.dto.member.qna.QnaResponseDto;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.member.QnaRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,19 +24,27 @@ public class QnaService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Long addQna(QnaRequestDto qnaRequestDto){
+    public void addQna(QnaRequestDto qnaRequestDto){
         Qna qna = qnaRequestDto.toEntity(qnaRequestDto);
-        Member member = memberRepository.findById(qnaRequestDto.getMemberId()).orElseThrow(NoSuchElementException::new);
+        Member member = memberRepository.findMemberByNickname(qnaRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
         qna.addMember(member);
         qnaRepository.save(qna);
-        return qna.getId();
     }
 
     public List<QnaResponseDto> findAllQna(){
         return qnaRepository.findAll()
                 .stream()
                 .map(QnaResponseDto::toDto)
-                .sorted(Comparator.comparing(QnaResponseDto::getId, Comparator.reverseOrder())).collect(Collectors.toList());
+                .sorted(Comparator.comparing(QnaResponseDto::getId, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
+    }
+
+    public List<QnaResponseDto> findAllQnaByNickname(String nickname){
+        return qnaRepository.findAllByMemberNickname(nickname)
+                .stream()
+                .map(QnaResponseDto::toDto)
+                .sorted(Comparator.comparing(QnaResponseDto::getId, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
     }
 
     public QnaResponseDto findById(Long qnaId){

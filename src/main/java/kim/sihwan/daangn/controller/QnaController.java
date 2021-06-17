@@ -27,6 +27,11 @@ public class QnaController {
         return new ResponseEntity<>(qnaService.findById(qnaId),HttpStatus.OK);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<QnaResponseDto>> findAllQnaByNickname(@RequestParam String nickname){
+        return new ResponseEntity<>(qnaService.findAllQnaByNickname(nickname),HttpStatus.OK);
+    }
+
     @PostMapping
     public void addQna(@RequestBody QnaRequestDto requestDto) {
         qnaService.addQna(requestDto);
