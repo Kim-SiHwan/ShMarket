@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -22,22 +23,22 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/join")
-    public Long join(@RequestBody JoinRequestDto joinRequestDto) {
+    public Long join(@Valid @RequestBody JoinRequestDto joinRequestDto) {
         return memberService.join(joinRequestDto);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
+    public ResponseEntity<LoginResponseDto> login(@Valid @RequestBody LoginRequestDto loginRequestDto) {
         return new ResponseEntity<>(memberService.login(loginRequestDto), HttpStatus.OK);
     }
 
     @PostMapping("/manner")
-    public void addManner(@RequestBody MannerDto mannerRequestDto) {
+    public void addManner(@Valid @RequestBody MannerDto mannerRequestDto) {
         memberService.addManner(mannerRequestDto);
     }
 
     @PostMapping("/review")
-    public void addReview(@RequestBody ReviewDto reviewDto) {
+    public void addReview(@Valid @RequestBody ReviewDto reviewDto) {
         memberService.addReview(reviewDto);
     }
 

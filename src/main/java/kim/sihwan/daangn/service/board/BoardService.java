@@ -8,6 +8,7 @@ import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
 import kim.sihwan.daangn.dto.board.BoardResponseDto;
 import kim.sihwan.daangn.dto.board.BoardUpdateRequestDto;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.board.BoardRepository;
@@ -46,13 +47,12 @@ public class BoardService {
         }
 
         Member member = memberRepository.findMemberByNickname(boardRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
-        ;
         board.addMember(member);
         boardRepository.save(board);
     }
 
     public BoardResponseDto findById(Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
+        Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
         addRead(boardId);
         return BoardResponseDto.toDto(board);
     }
@@ -93,7 +93,7 @@ public class BoardService {
 
     @Transactional
     public void deleteBoard(Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
+        Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
         String nickname = findMemberByUsername().getNickname();
         if(!board.getMember().getNickname().equals(nickname)){
             throw new NotMineException();
@@ -103,7 +103,7 @@ public class BoardService {
 
     @Transactional
     public BoardResponseDto updateBoard(BoardUpdateRequestDto boardUpdateRequestDto) {
-        Board board = boardRepository.findById(boardUpdateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        Board board = boardRepository.findById(boardUpdateRequestDto.getId()).orElseThrow(AlreadyGoneException::new);
         String nickname = findMemberByUsername().getNickname();
         if(!board.getMember().getNickname().equals(nickname)){
             throw new NotMineException();
@@ -120,10 +120,9 @@ public class BoardService {
 
     @Transactional
     public void addRead(Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(NoSuchElementException::new);
+        Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
         board.addRead();
     }
-
 
     @Transactional
     public Member findMemberByUsername() {

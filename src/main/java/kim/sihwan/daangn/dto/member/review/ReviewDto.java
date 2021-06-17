@@ -5,12 +5,20 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+
 @Getter
 @Setter
 @Builder
 public class ReviewDto {
+
+    @NotBlank(message = "판매자의 닉네임은 필수 항목입니다.")
     private String nickname;
+
+    @NotBlank(message = "구매자의 닉네임은 필수 항목입니다.")
     private String buyer;
+
+    @NotBlank(message = "거래 후기 내용은 필수 항목입니다.")
     private String content;
 
     public Review toEntity(ReviewDto reviewDto){

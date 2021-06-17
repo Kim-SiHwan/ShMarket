@@ -4,6 +4,7 @@ import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.Qna;
 import kim.sihwan.daangn.dto.member.qna.QnaRequestDto;
 import kim.sihwan.daangn.dto.member.qna.QnaResponseDto;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.member.QnaRepository;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +49,7 @@ public class QnaService {
     }
 
     public QnaResponseDto findById(Long qnaId){
-        Qna qna = qnaRepository.findById(qnaId).orElseThrow(NoSuchElementException::new);
+        Qna qna = qnaRepository.findById(qnaId).orElseThrow(AlreadyGoneException::new);
         return QnaResponseDto.toDto(qna);
     }
 

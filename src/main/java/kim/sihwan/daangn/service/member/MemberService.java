@@ -7,15 +7,18 @@ import kim.sihwan.daangn.domain.area.SelectedArea;
 import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.Review;
-import kim.sihwan.daangn.dto.member.*;
+import kim.sihwan.daangn.dto.member.JoinRequestDto;
+import kim.sihwan.daangn.dto.member.LoginRequestDto;
+import kim.sihwan.daangn.dto.member.LoginResponseDto;
+import kim.sihwan.daangn.dto.member.MemberResponseDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
+import kim.sihwan.daangn.exception.customException.NicknameDuplicatedException;
+import kim.sihwan.daangn.exception.customException.UserNotFoundException;
 import kim.sihwan.daangn.exception.customException.UsernameDuplicatedException;
 import kim.sihwan.daangn.repository.area.AreaRepository;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
-import kim.sihwan.daangn.repository.member.MannerRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
-import kim.sihwan.daangn.repository.member.ReviewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
@@ -32,10 +35,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -52,8 +52,6 @@ public class MemberService implements UserDetailsService {
     private final MemberRepository memberRepository;
     private final AreaRepository areaRepository;
     private final SelectedAreaRepository selectedAreaRepository;
-    private final MannerRepository mannerRepository;
-    private final ReviewRepository reviewRepository;
 
     @Transactional
     public void addManner(MannerDto mannerRequestDto) {
@@ -85,14 +83,17 @@ public class MemberService implements UserDetailsService {
                 .collect(Collectors.toList());
     }
 
-    private Boolean isValidateDuplicateMember(Member member) {
+    private Boolean isValidateDuplicateUsername(Member member) {
         Member getMember = memberRepository.findMemberByUsername(member.getUsername());
-        if (getMember == null) {
-            return true;
-        }
-        return false;
+        return getMember == null;
     }
 
+    private Boolean isValidateDuplicateNickname(Member member) {
+        Optional<Member> getMember = memberRepository.findMemberByNickname(member.getNickname());
+        return getMember.isEmpty();
+    }
+
+    @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword());
 
@@ -111,9 +112,11 @@ public class MemberService implements UserDetailsService {
     @Transactional
     public Long join(JoinRequestDto joinRequestDto) {
         Member member = joinRequestDto.toEntity(joinRequestDto, passwordEncoder);
-        System.out.println(member.getUsername());
-        if (!isValidateDuplicateMember(member)) {
+        if (!isValidateDuplicateUsername(member)) {
             throw new UsernameDuplicatedException();
+        }
+        if (!isValidateDuplicateNickname(member)) {
+            throw new NicknameDuplicatedException();
         }
         memberRepository.save(member);
 
@@ -152,9 +155,10 @@ public class MemberService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) {
         Member member = memberRepository.findMemberByUsername(username);
+        if(member == null)
+            throw new UserNotFoundException();
         return new User(member.getUsername(), member.getPassword(), Collections.singleton(new SimpleGrantedAuthority(member.getRole())));
     }
-
 
     private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
 

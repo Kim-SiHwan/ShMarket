@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -24,7 +25,7 @@ public class CommentController {
     }
 
     @PostMapping
-    public void addComment(@RequestBody CommentRequestDto requestDto){
+    public void addComment(@Valid @RequestBody CommentRequestDto requestDto){
         commentService.addComment(requestDto);
     }
 
@@ -34,7 +35,7 @@ public class CommentController {
     }
 
     @PutMapping
-    public void updateComment(@RequestBody CommentUpdateRequestDto updateRequestDto){
+    public void updateComment(@Valid @RequestBody CommentUpdateRequestDto updateRequestDto){
         commentService.updateComment(updateRequestDto);
     }
 }

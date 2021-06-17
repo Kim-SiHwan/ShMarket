@@ -6,7 +6,6 @@ import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
 import kim.sihwan.daangn.service.product.ProductInterestedService;
 import kim.sihwan.daangn.service.product.ProductService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -15,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -26,7 +26,7 @@ public class ProductController {
     private final ProductInterestedService interestedService;
 
     @PostMapping
-    public void addProduct(@ModelAttribute ProductRequestDto productRequestDto) {
+    public void addProduct(@Valid @ModelAttribute ProductRequestDto productRequestDto) {
         productService.addProduct(productRequestDto);
     }
 
@@ -76,7 +76,7 @@ public class ProductController {
     }
 
     @PutMapping
-    public ResponseEntity<ProductResponseDto> updateProduct(@ModelAttribute ProductUpdateRequestDto updateRequestDto) {
+    public ResponseEntity<ProductResponseDto> updateProduct(@Valid @ModelAttribute ProductUpdateRequestDto updateRequestDto) {
         return new ResponseEntity<>(productService.updateProduct(updateRequestDto), HttpStatus.OK);
     }
 

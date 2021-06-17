@@ -4,6 +4,7 @@ package kim.sihwan.daangn.service.product;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductInterested;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.InterestedRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +41,7 @@ public class ProductInterestedService {
     @Transactional
     public void addInterest(String username, Long productId) {
 
-        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
         Member member = memberRepository.findMemberByUsername(username);
         ProductInterested productInterested = new ProductInterested();
         productInterested.addMember(member);

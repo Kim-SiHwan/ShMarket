@@ -1,28 +1,34 @@
 package kim.sihwan.daangn.dto.member.manner;
 
 import kim.sihwan.daangn.domain.member.Manner;
-import kim.sihwan.daangn.domain.member.Review;
-import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
 @Builder
 public class MannerDto {
+
+    @NotBlank(message = "닉네임은 필수 항목입니다.")
     private String nickname;
+
+    @NotBlank(message = "평가 타입은 필수 항목입니다.")
     private String type;
+
+    @NotBlank(message = "평가 내용은 필수 항목입니다.")
     private String content;
 
-    public Manner toEntity(MannerDto mannerDto){
+    public Manner toEntity(MannerDto mannerDto) {
         return Manner.builder()
                 .type(mannerDto.getType())
                 .content(mannerDto.getContent())
                 .build();
     }
 
-    public static MannerDto toDto(Manner manner){
+    public static MannerDto toDto(Manner manner) {
         return MannerDto.builder()
                 .nickname(manner.getMember().getNickname())
                 .type(manner.getType())

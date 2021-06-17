@@ -13,6 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 
@@ -46,7 +47,7 @@ public class BoardController {
     }
 
     @PostMapping
-    public void addBoard(@ModelAttribute BoardRequestDto boardRequestDto) {
+    public void addBoard(@Valid @ModelAttribute BoardRequestDto boardRequestDto) {
         boardService.addBoard(boardRequestDto);
     }
 
@@ -56,7 +57,7 @@ public class BoardController {
     }
 
     @PutMapping
-    public ResponseEntity<BoardResponseDto> updateBoard(@ModelAttribute BoardUpdateRequestDto updateRequestDto) {
+    public ResponseEntity<BoardResponseDto> updateBoard(@Valid @ModelAttribute BoardUpdateRequestDto updateRequestDto) {
         return new ResponseEntity<>(boardService.updateBoard(updateRequestDto), HttpStatus.OK);
     }
 }

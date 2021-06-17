@@ -9,6 +9,7 @@ import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -62,7 +63,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto setStatus(Long productId, String status) {
-        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
 
         if (status.equals("SALE")) {
             product.setStatusSale();
@@ -75,7 +76,7 @@ public class ProductService {
     }
 
     public ProductResponseDto findById(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
         addRead(productId);
         List<ProductInterested> interestedList = interestedService.findAll();
         if (isInterested(interestedList, findMemberByUsername().getId(), productId)) {
@@ -148,7 +149,7 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
         String nickname = findMemberByUsername().getNickname();
         if (!product.getNickname().equals(nickname)) {
             throw new NotMineException();
@@ -158,7 +159,7 @@ public class ProductService {
 
     @Transactional
     public ProductResponseDto updateProduct(ProductUpdateRequestDto updateRequestDto) {
-        Product product = productRepository.findById(updateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(updateRequestDto.getId()).orElseThrow(AlreadyGoneException::new);
         String nickname = findMemberByUsername().getNickname();
         if (!product.getNickname().equals(nickname)) {
             throw new NotMineException();
@@ -176,7 +177,7 @@ public class ProductService {
 
     @Transactional
     public void addRead(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(NoSuchElementException::new);
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
         product.addRead();
     }
 

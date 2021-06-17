@@ -5,6 +5,7 @@ import kim.sihwan.daangn.domain.board.Comment;
 import kim.sihwan.daangn.dto.board.comment.CommentRequestDto;
 import kim.sihwan.daangn.dto.board.comment.CommentResponseDto;
 import kim.sihwan.daangn.dto.board.comment.CommentUpdateRequestDto;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.board.BoardRepository;
 import kim.sihwan.daangn.repository.board.CommentRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -27,7 +28,7 @@ public class CommentService {
     @Transactional
     public void addComment(CommentRequestDto commentRequestDto){
         Comment comment = commentRequestDto.toEntity(commentRequestDto);
-        Board board = boardRepository.findById(commentRequestDto.getBoardId()).orElseThrow(NoSuchElementException::new);
+        Board board = boardRepository.findById(commentRequestDto.getBoardId()).orElseThrow(AlreadyGoneException::new);
         comment.addBoard(board);
         commentRepository.save(comment);
 
@@ -47,7 +48,7 @@ public class CommentService {
 
     @Transactional
     public void updateComment(CommentUpdateRequestDto updateRequestDto){
-        Comment comment = commentRepository.findById(updateRequestDto.getId()).orElseThrow(NoSuchElementException::new);
+        Comment comment = commentRepository.findById(updateRequestDto.getId()).orElseThrow(AlreadyGoneException::new);
         comment.changeComment(updateRequestDto.getContent());
 
     }
