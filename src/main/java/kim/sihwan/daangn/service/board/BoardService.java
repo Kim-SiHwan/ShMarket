@@ -57,6 +57,12 @@ public class BoardService {
         return BoardResponseDto.toDto(board);
     }
 
+    public List<BoardListResponseDto> findAllBoardByNickname(String nickname){
+        return boardRepository.findALlByMemberNickname(nickname).stream()
+                .map(BoardListResponseDto::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<BoardListResponseDto> findAllBoardByCategory(List<String> categories) {
 
         StopWatch stopWatch = new StopWatch();

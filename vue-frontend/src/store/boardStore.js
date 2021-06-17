@@ -2,8 +2,8 @@ import board_api from "@/apis/board_api";
 import router from '@/routes/index';
 
 const boardStore = {
-    state: {
-        boardList: [],
+    state    : {
+        boardList  : [],
         boardDetail: ''
     },
     mutations: {
@@ -14,7 +14,7 @@ const boardStore = {
             state.boardDetail = payload
         }
     },
-    actions: {
+    actions  : {
         async REQUEST_GET_BOARD(context, payload) {
             const response = await board_api.requestGetBoard(payload);
             if (response) {
@@ -62,10 +62,14 @@ const boardStore = {
                 });
                 context.commit('SET_BOARD_DETAIL', response.data);
             }
+        },
+        async REQUEST_GET_MY_BOARD(context, payload) {
+            const response = await board_api.requestGetMyBoard(payload);
+            if (response) {
+                context.commit('SET_BOARD_LIST', response.data);
+            }
         }
-
     }
-
 }
 
 export default boardStore

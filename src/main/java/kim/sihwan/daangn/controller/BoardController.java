@@ -33,6 +33,11 @@ public class BoardController {
         return new ResponseEntity<>(boardService.findById(boardId), HttpStatus.OK);
     }
 
+    @GetMapping("/my")
+    public ResponseEntity<List<BoardListResponseDto>> findAllBoardByNickname(@RequestParam String nickname){
+        return new ResponseEntity<>(boardService.findAllBoardByNickname(nickname), HttpStatus.OK);
+    }
+
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@RequestParam("fileName") String fileName) {

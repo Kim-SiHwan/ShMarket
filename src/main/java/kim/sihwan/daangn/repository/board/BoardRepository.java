@@ -11,4 +11,6 @@ public interface BoardRepository extends JpaRepository<Board,Long> {
     @Override
     @EntityGraph(attributePaths = {"member", "boardAlbums"})
     List<Board> findAll();
+
+    List<Board> findALlByMemberNickname(String nickname);
 }
