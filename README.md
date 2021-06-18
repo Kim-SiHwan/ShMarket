@@ -49,3 +49,7 @@
 `AWS EC2` `AWS S3` 
 
 ---
+
+### 이슈 
+#32 웹 소켓 JWT 인증 이슈 
+https://tjdans.tistory.com/25
