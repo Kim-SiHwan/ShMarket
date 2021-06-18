@@ -9,6 +9,7 @@ import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.keyword.KeywordListResponseDto;
 import kim.sihwan.daangn.dto.keyword.KeywordRequestDto;
 import kim.sihwan.daangn.dto.push.NotificationResponse;
+import kim.sihwan.daangn.exception.customException.AlreadyExistKeywordException;
 import kim.sihwan.daangn.repository.member.KeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberKeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -16,7 +17,6 @@ import kim.sihwan.daangn.service.member.NoticeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -64,19 +64,26 @@ public class PushService {
         FirebaseMessaging.getInstance().sendAsync(message);
     }
 
-    public List<KeywordListResponseDto> findAllKeywordsByUsername() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberKeywordRepository.findAllByMemberUsername(username).stream()
+    public List<KeywordListResponseDto> findAllKeywordsByNickname(String nickname) {
+        return memberKeywordRepository.findAllByMemberNickname(nickname).stream()
                 .map(KeywordListResponseDto::toDto)
                 .collect(Collectors.toList());
     }
 
-    public void addKeyword(KeywordRequestDto keywordRequestDto) throws FirebaseMessagingException {
+    private Boolean isExistKeyword(String keyword){
+        Optional<Keyword> getKeyword = keywordRepository.findByKeyword(keyword);
+        return getKeyword.isEmpty();
+    }
 
+    @Transactional
+    public void addKeyword(KeywordRequestDto keywordRequestDto) throws FirebaseMessagingException {
         Member member = memberRepository.findMemberByNickname(keywordRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
-        Keyword keyword = Keyword.builder()
-                .keyword(keywordRequestDto.getKeyword())
-                .build();
+
+        if (!isExistKeyword(keywordRequestDto.getKeyword())) {
+            throw new AlreadyExistKeywordException();
+        }
+
+        Keyword keyword = keywordRequestDto.toEntity(keywordRequestDto);
         keywordRepository.save(keyword);
         MemberKeyword memberKeyword = new MemberKeyword();
         memberKeyword.addMember(member);
@@ -86,6 +93,14 @@ public class PushService {
 
     }
 
+    @Transactional
+    public void deleteKeyword(KeywordRequestDto keywordRequestDto) throws FirebaseMessagingException {
+        MemberKeyword memberKeyword = memberKeywordRepository.findByMemberNicknameAndKeywordKeyword(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword());
+        memberKeywordRepository.delete(memberKeyword);
+        deleteTopic(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword());
+    }
+
+    @Transactional
     public void setTopic(Member member, String topic) throws FirebaseMessagingException {
 
         String encodedTopic = URLEncoder.encode(topic, StandardCharsets.UTF_8);
@@ -94,6 +109,17 @@ public class PushService {
         List<String> rt = Collections.singletonList(fcmToken);
         FirebaseMessaging.getInstance()
                 .subscribeToTopic(rt, encodedTopic);
+    }
+
+    @Transactional
+    public void deleteTopic(String nickname, String topic) throws FirebaseMessagingException {
+        String encodedTopic = URLEncoder.encode(topic, StandardCharsets.UTF_8);
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        Member member = memberRepository.findMemberByNickname(nickname).orElseThrow(NoSuchElementException::new);
+        String fcmToken = valueOperations.get(member.getId() + "::FCM");
+        List<String> rt = Collections.singletonList(fcmToken);
+        FirebaseMessaging.getInstance()
+                .unsubscribeFromTopic(rt, (encodedTopic));
 
     }
 
@@ -125,23 +151,23 @@ public class PushService {
         FirebaseMessaging.getInstance().sendAsync(message);
 
         List<String> receivers = getReceiverByKeyword(notificationResponse.getTopic());
-        receivers.forEach(r->{
+        receivers.forEach(r -> {
             Notice notice = Notice.builder()
                     .type("키워드 알림")
                     .target(notificationResponse.getProductId())
-                    .message(notificationResponse.getTopic()+"키워드 알림이 도착했습니다.")
+                    .message(notificationResponse.getTopic() + "키워드 알림이 도착했습니다.")
                     .build();
-            noticeService.addNotice(notice,r);
+            noticeService.addNotice(notice, r);
         });
 
 
     }
 
     @Transactional
-    public List<String> getReceiverByKeyword(String keyword){
+    public List<String> getReceiverByKeyword(String keyword) {
         List<MemberKeyword> list = memberKeywordRepository.findAllByKeywordKeyword(keyword);
         return list.stream()
-                .map(m->m.getMember().getUsername())
+                .map(m -> m.getMember().getUsername())
                 .collect(Collectors.toList());
     }
 }

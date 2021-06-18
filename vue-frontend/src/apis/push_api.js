@@ -9,11 +9,24 @@ function requestAddKeyword(data) {
 
 }
 
-function requestGetKeywords() {
+function requestGetKeywords(data) {
     return Send({
         url: '/api/push/keywords',
-        method: 'GET'
+        method: 'GET',
+        params:{nickname : data}
     })
 }
 
-export default {requestAddKeyword, requestGetKeywords}
+function requestDeleteKeyword(data){
+    return Send({
+        url:'/api/push/keyword',
+        method:'DELETE',
+        data:data
+    })
+}
+
+export default {
+    requestAddKeyword,
+    requestGetKeywords,
+    requestDeleteKeyword
+}
