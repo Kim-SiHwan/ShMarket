@@ -2,6 +2,7 @@ package kim.sihwan.daangn.config.jwt;
 
 import io.jsonwebtoken.*;
 import kim.sihwan.daangn.service.member.MemberService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -9,9 +10,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 
+@Slf4j
 @Component
 public class JwtTokenProvider {
 
@@ -54,18 +55,18 @@ public class JwtTokenProvider {
     }
 
 
-    public boolean validateToken(String token, HttpServletRequest request) {
+    public boolean validateToken(String token) {
         try {
             Jwts.parserBuilder().setSigningKey(secret).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            request.setAttribute("exception","InvalidTokenException");
+            log.info("SecurityException | MalformedJwtException e");
         } catch (ExpiredJwtException e) {
-            request.setAttribute("exception","ExpiredTokenException");
+            log.info("ExpiredJwtException e");
         } catch (UnsupportedJwtException e) {
-            request.setAttribute("exception","UnsupportedTokenException");
+            log.info("UnsupportedJwtException e");
         } catch (IllegalArgumentException e) {
-            request.setAttribute("exception","IllegalArgumentTokenException");
+            log.info("IllegalArgumentException e");
         }
         return false;
     }
