@@ -65,6 +65,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDto(ErrorCode.NOT_NULL.getCode(), message),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(AlreadyExistKeywordException.class)
+    protected ResponseEntity<ErrorResponseDto> alreadyExistKeywordException(AlreadyExistKeywordException e){
+        log.info("AlreadyExistKeywordException \n"+ e.getMessage());
+        return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST_KEYWORD.getCode(),ErrorCode.ALREADY_EXIST_KEYWORD.getDescription()),HttpStatus.BAD_REQUEST);
+    }
+
     private ErrorResponseDto errorResponseDto(int code, String message){
         return new ErrorResponseDto(false,code,message);
 
