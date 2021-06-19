@@ -4,6 +4,7 @@ package kim.sihwan.daangn.service.member;
 import kim.sihwan.daangn.config.jwt.JwtTokenProvider;
 import kim.sihwan.daangn.domain.area.Area;
 import kim.sihwan.daangn.domain.area.SelectedArea;
+import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.Review;
@@ -11,13 +12,13 @@ import kim.sihwan.daangn.dto.member.JoinRequestDto;
 import kim.sihwan.daangn.dto.member.LoginRequestDto;
 import kim.sihwan.daangn.dto.member.LoginResponseDto;
 import kim.sihwan.daangn.dto.member.MemberResponseDto;
+import kim.sihwan.daangn.dto.member.block.BlockDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
-import kim.sihwan.daangn.exception.customException.NicknameDuplicatedException;
-import kim.sihwan.daangn.exception.customException.UserNotFoundException;
-import kim.sihwan.daangn.exception.customException.UsernameDuplicatedException;
+import kim.sihwan.daangn.exception.customException.*;
 import kim.sihwan.daangn.repository.area.AreaRepository;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
+import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,6 +52,7 @@ public class MemberService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
     private final AreaRepository areaRepository;
+    private final BlockRepository blockRepository;
     private final SelectedAreaRepository selectedAreaRepository;
 
     @Transactional
@@ -81,6 +83,35 @@ public class MemberService implements UserDetailsService {
         return member.getReviews().stream()
                 .map(ReviewDto::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void addBlock(BlockDto blockDto){
+        Member fromMember = memberRepository.findMemberByNickname(blockDto.getFromNickname()).orElseThrow(NoSuchElementException::new);
+        Optional<Block> getBlock = blockRepository.findByMemberNicknameAndToMember(blockDto.getFromNickname(), blockDto.getToNickname());
+
+        if(getBlock.isPresent()){
+            throw new AlreadyExistException("block");
+        }
+
+        if(fromMember.getBlocks().size()>=2){
+            throw new OverSizeException("block");
+        }
+
+        Block block = blockDto.toEntity(blockDto);
+        block.addMember(fromMember);
+    }
+
+    public List<BlockDto> getBlocksByNickname(String nickname){
+        Member member = memberRepository.findMemberByNickname(nickname).orElseThrow(NoSuchElementException::new);
+        return member.getBlocks().stream()
+                .map(BlockDto::toDto)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteBlock(Long blockId){
+        blockRepository.deleteById(blockId);
     }
 
     private Boolean isValidateDuplicateUsername(Member member) {

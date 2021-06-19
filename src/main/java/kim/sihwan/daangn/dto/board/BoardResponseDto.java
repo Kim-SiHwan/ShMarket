@@ -5,6 +5,7 @@ import kim.sihwan.daangn.dto.board.boardAlbum.BoardAlbumResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,7 +23,7 @@ public class BoardResponseDto {
     private final boolean hasImages;
     private final List<BoardAlbumResponseDto> boardAlbums;
 
-    public static BoardResponseDto toDto(Board board){
+    public static BoardResponseDto toDto(Board board) {
         return BoardResponseDto
                 .builder()
                 .id(board.getId())
@@ -34,9 +35,10 @@ public class BoardResponseDto {
                 .category(board.getCategory())
                 .boardAlbums(
                         board.getBoardAlbums()
-                        .stream()
-                        .map(BoardAlbumResponseDto::new)
-                        .collect(Collectors.toList())
+                                .stream()
+                                .map(BoardAlbumResponseDto::new)
+                                .sorted(Comparator.comparing(BoardAlbumResponseDto::getId, Comparator.reverseOrder()))
+                                .collect(Collectors.toList())
                 )
                 .hasImages(board.getBoardAlbums().isEmpty())
                 .build();

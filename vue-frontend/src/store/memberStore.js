@@ -3,51 +3,52 @@ import auth from "@/util/auth"
 import router from "@/routes/index";
 
 const memberStore = {
-    state: {
-        token: sessionStorage.getItem('access_token'),
-        authenticated: false,
-        username: '',
-        nickname: '',
-        area: '',
-        fcmToken: localStorage.getItem('fcmToken'),
-        manners: [],
-        reviews: [],
+    state    : {
+        token            : sessionStorage.getItem('access_token'),
+        authenticated    : false,
+        username         : '',
+        nickname         : '',
+        area             : '',
+        fcmToken         : localStorage.getItem('fcmToken'),
+        manners          : [],
+        reviews          : [],
+        blocks           : [],
         productCategories: {
-            '디지털/가전': false,
-            '가구/인테리어': true,
+            '디지털/가전'  : false,
+            '가구/인테리어' : true,
             '유아동/유아도서': true,
-            '생활/가공식품': true,
-            '스포츠/레저': true,
-            '여성잡화': true,
-            '여성의류': true,
-            '남성패션/잡화': true,
-            '게임/취미': true,
-            '뷰티/미용': true,
-            '반려동물 용품': true,
+            '생활/가공식품' : true,
+            '스포츠/레저'  : true,
+            '여성잡화'    : true,
+            '여성의류'    : true,
+            '남성패션/잡화' : true,
+            '게임/취미'   : true,
+            '뷰티/미용'   : true,
+            '반려동물 용품' : true,
             '도서/티켓/음반': true,
-            '식물': true,
-            '기타 중고물품': true
+            '식물'      : true,
+            '기타 중고물품' : true
         },
-        boardCategories: {
-            '우리동네질문': true,
+        boardCategories  : {
+            '우리동네질문' : true,
             '분실/실종센터': true,
-            '동네사건사고': true,
-            '일상': true,
-            '동네소식': true,
-            '취미생활': true,
-            '강아지': true,
-            '고양이': true,
-            '건강': true,
-            '살림': true,
-            '인테리어': true,
-            '교육/학원': true,
-            '동네사진전': true,
-            '같이해요': true,
-            '출산/육아': true,
-            '기타': true
+            '동네사건사고' : true,
+            '일상'     : true,
+            '동네소식'   : true,
+            '취미생활'   : true,
+            '강아지'    : true,
+            '고양이'    : true,
+            '건강'     : true,
+            '살림'     : true,
+            '인테리어'   : true,
+            '교육/학원'  : true,
+            '동네사진전'  : true,
+            '같이해요'   : true,
+            '출산/육아'  : true,
+            '기타'     : true
         }
     },
-    getters: {
+    getters  : {
         isAuthenticated(state) {
             return !!(state.token && state.authenticated && state.nickname);
         }
@@ -57,6 +58,7 @@ const memberStore = {
             auth.setStorage(payload);
             state.token = sessionStorage.getItem('access_token');
             state.nickname = sessionStorage.getItem('nickname');
+            state.username = sessionStorage.getItem('username');
             state.area = sessionStorage.getItem('area');
             state.authenticated = true;
         },
@@ -64,6 +66,7 @@ const memberStore = {
             auth.initStorage();
             state.token = "";
             state.username = "";
+            state.nickname = "";
             state.authenticated = false;
         },
         INIT_CATEGORIES(state) {
@@ -79,9 +82,12 @@ const memberStore = {
         SET_REVIEWS(state, payload) {
             state.reviews = payload;
         },
+        SET_BLOCKS(state, payload) {
+            state.blocks = payload;
+        }
 
     },
-    actions: {
+    actions  : {
         async REQUEST_JOIN(context, payload) {
             const joinResponse = await member_api.requestJoin(payload);
             if (joinResponse) {
@@ -104,14 +110,10 @@ const memberStore = {
             }
         },
         async REQUEST_LOGOUT(context) {
-            const logoutResponse = await member_api.requestLogout();
-            if (logoutResponse) {
-                context.commit('LOGOUT');
-                context.commit('SET_SNACK_BAR', {
-                    msg: '로그아웃 되었습니다.', color: 'info'
-                });
-            }
-
+            context.commit('LOGOUT');
+            context.commit('SET_SNACK_BAR', {
+                msg: '로그아웃 되었습니다.', color: 'info'
+            });
         },
         async REQUEST_ADD_MANNER(context, payload) {
             const response = await member_api.requestAddManner(payload);
@@ -141,6 +143,28 @@ const memberStore = {
             const response = await member_api.requestGetReviews(payload);
             if (response) {
                 context.commit('SET_REVIEWS', response.data);
+            }
+        },
+        async REQUEST_ADD_BLOCK(context, payload) {
+            const response = await member_api.requestAddBlock(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: payload.toNickname + '님을 차단했습니다.\n 더이상 사용자가 올린 글이 보이지 않습니다.', color: 'info'
+                })
+            }
+        },
+        async REQUEST_GET_BLOCKS(context, payload) {
+            const response = await member_api.requestGetBlocks(payload);
+            if (response) {
+                context.commit('SET_BLOCKS', response.data);
+            }
+        },
+        async REQUEST_DELETE_BLOCK(context, payload) {
+            const response = await member_api.requestDeleteBlock(payload);
+            if (response) {
+                context.commit('SET_SNACK_BAR', {
+                    msg: payload.toNickname + '님 차단을 해제했습니다.\n 다시 사용자가 올린 글이 표시됩니다.', color: 'info'
+                })
             }
         },
 

@@ -2,6 +2,7 @@ package kim.sihwan.daangn.domain.member;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -18,17 +19,19 @@ public class Block {
     @Column(name = "follow_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private Member fromMember;
+    private String toMember;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member toMember;
+    private Member member;
 
-    public void addFromMember(Member member){
-        this.fromMember = member;
+    @Builder
+    public Block(String toMember) {
+        this.toMember = toMember;
     }
-    public void addToMember(Member member){
-        this.toMember = member;
+
+    public void addMember(Member member) {
+        this.member = member;
+        this.member.getBlocks().add(this);
     }
 
 }

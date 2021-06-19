@@ -3,6 +3,7 @@ package kim.sihwan.daangn.service.board;
 
 import kim.sihwan.daangn.domain.area.SelectedArea;
 import kim.sihwan.daangn.domain.board.Board;
+import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
@@ -12,6 +13,7 @@ import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.board.BoardRepository;
+import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ListOperations;
@@ -34,6 +36,7 @@ import java.util.stream.Collectors;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
+    private final BlockRepository blockRepository;
     private final BoardAlbumService boardAlbumService;
     private final SelectedAreaRepository selectedAreaRepository;
     private final RedisTemplate<String, String> redisTemplate;
@@ -78,9 +81,13 @@ public class BoardService {
 
         List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
 
+        List<String> blockList = blockRepository.findAllByMemberNickname(member.getNickname()).stream()
+                .map(Block::getToMember)
+                .collect(Collectors.toList());
+
         List<BoardListResponseDto> result = boardRepository.findAll()
                 .stream()
-                .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()))
+                .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()) && !blockList.contains(board.getMember().getNickname()))
                 .map(BoardListResponseDto::toDto)
                 .sorted(Comparator.comparing(BoardListResponseDto::getId, Comparator.reverseOrder())).collect(Collectors.toList());
 

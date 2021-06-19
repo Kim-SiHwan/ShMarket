@@ -22,6 +22,8 @@ import Follow from "@/components/member/Follow";
 import MyBoard from "@/components/member/MyBoard";
 import Qna from "@/components/qna/Qna";
 import QnaDetail from "@/components/qna/QnaDetail";
+import Error from "@/components/common/Error";
+import Block from "@/components/member/Block";
 
 Vue.use(Router); //vue 라우터 사용
 
@@ -112,6 +114,10 @@ export default new Router({ //라우터 연결
                 {
                     path     : '/profile/qna',
                     component: Qna
+                },
+                {
+                    path     : '/profile/block',
+                    component: Block
                 }
             ]
         },
@@ -122,6 +128,10 @@ export default new Router({ //라우터 연결
         {
             path     : '/qnaDetail',
             component: QnaDetail
+        },
+        {
+            path     : '/error',
+            component: Error
         }
     ]
 })

@@ -3,6 +3,7 @@ package kim.sihwan.daangn.controller;
 import kim.sihwan.daangn.dto.member.JoinRequestDto;
 import kim.sihwan.daangn.dto.member.LoginRequestDto;
 import kim.sihwan.daangn.dto.member.LoginResponseDto;
+import kim.sihwan.daangn.dto.member.block.BlockDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.service.member.MemberService;
@@ -50,6 +51,21 @@ public class MemberController {
     @GetMapping("/review")
     public ResponseEntity<List<ReviewDto>> getReviewsByNickname(@RequestParam String nickname) {
         return new ResponseEntity<>(memberService.getReviewsByNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/block")
+    public ResponseEntity<List<BlockDto>> getBlocksByNickname(@RequestParam String nickname){
+        return new ResponseEntity<>(memberService.getBlocksByNickname(nickname), HttpStatus.OK);
+    }
+
+    @PostMapping("/block")
+    public void addBlock(@RequestBody BlockDto blockDto){
+        memberService.addBlock(blockDto);
+    }
+
+    @DeleteMapping("/block/{blockId}")
+    public void deleteBlock(@PathVariable Long blockId){
+        memberService.deleteBlock(blockId);
     }
 
 

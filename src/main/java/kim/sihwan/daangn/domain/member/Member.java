@@ -31,6 +31,9 @@ public class Member {
     @OneToMany(mappedBy="member",cascade =CascadeType.ALL)
     private Set<Review> reviews = new HashSet<>();
 
+    @OneToMany(mappedBy="member",cascade =CascadeType.ALL)
+    private Set<Block> blocks = new HashSet<>();
+
     @Builder
     public Member(String username, String password, String nickname, String area, String role) {
         this.username = username;

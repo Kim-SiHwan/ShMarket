@@ -15,7 +15,7 @@
     <v-row justify = "center">
       <div class = "mt-5">
         <p v-if = "paramNickname === nickname"> 아이디 : {{ username }}</p>
-        <p> 닉네임 : {{ nickname }}</p>
+        <p> 닉네임 : {{ paramNickname }}</p>
         <v-btn
             v-if = "paramNickname === nickname"
             color = "green"
@@ -23,6 +23,18 @@
             rounded>
           프로필 수정
         </v-btn>
+        <router-link
+            v-else
+            :to = " {path:'/profile',query:{nickname:nickname}}"
+            style = "text-decoration: none">
+          <v-btn
+              color = "green"
+              dark
+              rounded>
+            내 프로필 가기
+          </v-btn>
+        </router-link>
+
       </div>
     </v-row>
 
@@ -73,6 +85,24 @@
           <br>추가하기
         </router-link>
 
+        <router-link
+            v-if = "paramNickname === nickname"
+            :to = "{path:'/profile/block',query:{nickname:paramNickname}}"
+            class = "profileLink"
+            style = "text-decoration: none; color:black">
+          <v-icon color = "red" size = "60">mdi-block-helper</v-icon>
+          <br>차단관리
+        </router-link>
+
+        <router-link
+            v-else
+            :to = "{path:'/profile',query:{nickname:paramNickname}}"
+            class = "profileLink"
+            style = "text-decoration: none; color:black"
+            @click.native = "addBlock">
+          <v-icon color = "red" size = "60">mdi-block-helper</v-icon>
+          <br>차단하기
+        </router-link>
 
         <router-link
             v-if = "paramNickname === nickname"
@@ -130,6 +160,13 @@ export default {
         toMember  : this.paramNickname
       };
       this.$store.dispatch('REQUEST_ADD_FOLLOW', data);
+    },
+    addBlock() {
+      let data = {
+        fromNickname: this.nickname,
+        toNickname  : this.paramNickname
+      };
+      this.$store.dispatch('REQUEST_ADD_BLOCK', data);
     }
   },
   computed: {

@@ -1,6 +1,7 @@
 package kim.sihwan.daangn.service.product;
 
 import kim.sihwan.daangn.domain.area.SelectedArea;
+import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductInterested;
@@ -12,6 +13,7 @@ import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
+import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import kim.sihwan.daangn.service.push.RabbitService;
@@ -41,6 +43,7 @@ public class ProductService {
     private final MemberRepository memberRepository;
     private final ProductTagService tagService;
     private final SelectedAreaRepository selectedAreaRepository;
+    private final BlockRepository blockRepository;
     private final ProductInterestedService interestedService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RabbitService rabbitService;
@@ -126,9 +129,13 @@ public class ProductService {
 
         List<ProductInterested> interestedList = interestedService.findAll();
 
+        List<String> blockList = blockRepository.findAllByMemberNickname(member.getNickname()).stream()
+                .map(Block::getToMember)
+                .collect(Collectors.toList());
+
         List<ProductListResponseDto> result = productRepository.findAll()
                 .stream()
-                .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()))
+                .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()) && !blockList.contains(product.getNickname()))
                 .map(m -> {
                     if (isInterested(interestedList, memberId, m.getId())) {
                         return ProductListResponseDto.toDto(m, true);

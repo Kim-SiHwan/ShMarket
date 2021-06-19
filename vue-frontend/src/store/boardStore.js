@@ -38,7 +38,7 @@ const boardStore = {
             }
         },
         async REQUEST_ADD_BOARD(context, payload) {
-            const response = board_api.requestAddBoard(payload);
+            const response = await board_api.requestAddBoard(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
                     msg: '정상적으로 작성되었습니다.', color: 'info'
@@ -46,7 +46,7 @@ const boardStore = {
             }
         },
         async REQUEST_DELETE_BOARD(context, payload) {
-            const response = board_api.requestDeleteBoard(payload);
+            const response = await board_api.requestDeleteBoard(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
                     msg: '정상적으로 삭제되었습니다.', color: 'info'
