@@ -13,7 +13,7 @@
           color = "info"
           label
           @click = "goProfile(list)"
-          @click:close = "deleteBlock(list.id)">
+          @click:close = "deleteBlock(list.toNickname,list.id)">
         {{ list.toNickname }}
       </v-chip>
     </div>
@@ -23,29 +23,31 @@
 
 <script>
 export default {
-  name: "Block",
-  data(){
-    return{
-
-    }
+  name    : "Block",
+  data() {
+    return {}
   },
-  methods:{
-    goProfile(toNickname){
+  methods : {
+    goProfile(toNickname) {
       this.$router.push({
         path : '/profile',
         query: {nickname: toNickname}
       });
 
     },
-    deleteBlock(blockId){
-      this.$store.dispatch('REQUEST_DELETE_BLOCK', blockId);
+    deleteBlock(toNickname, blockId) {
+      let data = {
+        toNickname: toNickname,
+        blockId   : blockId
+      }
+      this.$store.dispatch('REQUEST_DELETE_BLOCK', data);
     }
   },
-  computed:{
-    nickname(){
+  computed: {
+    nickname() {
       return this.$store.state.memberStore.nickname;
     },
-    blocks(){
+    blocks() {
       return this.$store.state.memberStore.blocks;
     }
   },

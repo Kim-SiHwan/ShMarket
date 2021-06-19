@@ -29,7 +29,7 @@ public class BlockDto {
     public static BlockDto toDto(Block block){
         return BlockDto.builder()
                 .id(block.getId())
-                .toNickname(block.getMember().getNickname())
+                .toNickname(block.getToMember())
                 .build();
     }
 

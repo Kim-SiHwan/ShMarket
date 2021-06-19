@@ -160,7 +160,7 @@ const memberStore = {
             }
         },
         async REQUEST_DELETE_BLOCK(context, payload) {
-            const response = await member_api.requestDeleteBlock(payload);
+            const response = await member_api.requestDeleteBlock(payload.blockId);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
                     msg: payload.toNickname + '님 차단을 해제했습니다.\n 다시 사용자가 올린 글이 표시됩니다.', color: 'info'
