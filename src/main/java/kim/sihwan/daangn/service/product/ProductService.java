@@ -12,6 +12,7 @@ import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
+import kim.sihwan.daangn.exception.customException.OverSizeException;
 import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -51,6 +52,10 @@ public class ProductService {
     @Transactional
     public void addProduct(ProductRequestDto productRequestDto) {
         Product product = productRequestDto.toEntity(productRequestDto);
+        if(productRequestDto.getTags().size()>3){
+            throw new OverSizeException("tag");
+        }
+
         if (productRequestDto.getHasImages().equals("yes")) {
             product = productAlbumService.addProductAlbums(productRequestDto);
         }

@@ -65,12 +65,46 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponseDto(ErrorCode.NOT_NULL.getCode(), message),HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(AlreadyExistKeywordException.class)
-    protected ResponseEntity<ErrorResponseDto> alreadyExistKeywordException(AlreadyExistKeywordException e){
+    @ExceptionHandler(AlreadyExistException.class)
+    protected ResponseEntity<ErrorResponseDto> alreadyExistKeywordException(AlreadyExistException e){
         log.info("AlreadyExistKeywordException \n"+ e.getMessage());
-        return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST_KEYWORD.getCode(),ErrorCode.ALREADY_EXIST_KEYWORD.getDescription()),HttpStatus.BAD_REQUEST);
+        String description ="이미 존재하는 값입니다.";
+        switch (e.getMessage()){
+            case "keyword":
+                description = "이미 존재하는 키워드입니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
+            case "block":
+                description = "이미 차단한 사용자입니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
+            case "follow":
+                description = "이미 모아보기의 대상입니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(OverSizeException.class)
+    protected ResponseEntity<ErrorResponseDto> overSizeKeywordException(OverSizeException e){
+        log.info("OverSizeKeywordException \n"+ e.getMessage());
+        String description ="최대치를 초과하였습니다.";
+        switch (e.getMessage()){
+            case "keyword":
+                description = "키워드는 최대 10개까지 설정할 수 있습니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+            case "block":
+                description = "차단은 최대 5명까지 설정할 수 있습니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+            case "tag":
+                description = "태그는 최대 3개까지 설정할 수 있습니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+            case "follow":
+                description = "모아보기는 최대 5명까지 설정할 수 있습니다.";
+                return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+    }
     private ErrorResponseDto errorResponseDto(int code, String message){
         return new ErrorResponseDto(false,code,message);
 

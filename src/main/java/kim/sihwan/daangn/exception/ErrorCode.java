@@ -14,7 +14,9 @@ public enum ErrorCode {
     NON_LOGIN(8, "로그인이 필요합니다."),
     NOT_ADMIN(9,"관리자만 가능한 서비스입니다."),
     NOT_MINE(10,"작성자만 수정/삭제가 가능합니다."),
-    ALREADY_EXIST_KEYWORD(11,"이미 존재하는 키워드입니다.");
+    ALREADY_EXIST(11,""),
+    OVER_SIZE(12,""),
+    OVER_SIZE_TAG(13,"태그는 최대 3개만 설정할 수 있습니다.");
 
     private final int code;
     private final String description;
@@ -23,4 +25,5 @@ public enum ErrorCode {
         this.code = code;
         this.description = description;
     }
+
 }

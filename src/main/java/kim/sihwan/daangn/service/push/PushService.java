@@ -9,7 +9,8 @@ import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.keyword.KeywordListResponseDto;
 import kim.sihwan.daangn.dto.keyword.KeywordRequestDto;
 import kim.sihwan.daangn.dto.push.NotificationResponse;
-import kim.sihwan.daangn.exception.customException.AlreadyExistKeywordException;
+import kim.sihwan.daangn.exception.customException.AlreadyExistException;
+import kim.sihwan.daangn.exception.customException.OverSizeException;
 import kim.sihwan.daangn.repository.member.KeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberKeywordRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
@@ -70,19 +71,16 @@ public class PushService {
                 .collect(Collectors.toList());
     }
 
-    private Boolean isExistKeyword(String keyword){
-        Optional<Keyword> getKeyword = keywordRepository.findByKeyword(keyword);
-        return getKeyword.isEmpty();
-    }
-
     @Transactional
     public void addKeyword(KeywordRequestDto keywordRequestDto) throws FirebaseMessagingException {
         Member member = memberRepository.findMemberByNickname(keywordRequestDto.getNickname()).orElseThrow(NoSuchElementException::new);
 
-        if (!isExistKeyword(keywordRequestDto.getKeyword())) {
-            throw new AlreadyExistKeywordException();
+        if(memberKeywordRepository.findByMemberNicknameAndKeywordKeyword(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword()).isPresent()){
+            throw new AlreadyExistException("keyword");
         }
-
+        if(memberKeywordRepository.countAllByMemberNicknameAndKeywordKeyword(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword())>10){
+            throw new OverSizeException("keyword");
+        }
         Keyword keyword = keywordRequestDto.toEntity(keywordRequestDto);
         keywordRepository.save(keyword);
         MemberKeyword memberKeyword = new MemberKeyword();
@@ -95,8 +93,8 @@ public class PushService {
 
     @Transactional
     public void deleteKeyword(KeywordRequestDto keywordRequestDto) throws FirebaseMessagingException {
-        MemberKeyword memberKeyword = memberKeywordRepository.findByMemberNicknameAndKeywordKeyword(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword());
-        memberKeywordRepository.delete(memberKeyword);
+        Optional<MemberKeyword> memberKeyword = memberKeywordRepository.findByMemberNicknameAndKeywordKeyword(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword());
+        memberKeywordRepository.delete(memberKeyword.get());
         deleteTopic(keywordRequestDto.getNickname(), keywordRequestDto.getKeyword());
     }
 

@@ -3,6 +3,8 @@ package kim.sihwan.daangn.service.member;
 import kim.sihwan.daangn.domain.member.Follow;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
+import kim.sihwan.daangn.exception.customException.AlreadyExistException;
+import kim.sihwan.daangn.exception.customException.OverSizeException;
 import kim.sihwan.daangn.repository.member.FollowRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.service.product.ProductService;
@@ -30,6 +32,13 @@ public class FollowService {
         Member fromMember = memberRepository.findMemberByNickname(fromNickname).orElseThrow(NoSuchElementException::new);
         Member toMember = memberRepository.findMemberByNickname(toNickname).orElseThrow(NoSuchElementException::new);
 
+        if(followRepository.findByFromMemberNicknameAndToMemberNickname(fromNickname, toNickname)!=null){
+            throw new AlreadyExistException("follow");
+        }
+
+        if(followRepository.findAllByFromMemberNickname(fromNickname).size()>5){
+            throw new OverSizeException("follow");
+        }
         Follow follow = new Follow();
         follow.addFromMember(fromMember);
         follow.addToMember(toMember);
