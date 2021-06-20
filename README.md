@@ -51,5 +51,10 @@
 ---
 
 ### 이슈 
-#32 웹 소켓 JWT 인증 이슈 
+웹 소켓 JWT 인증 이슈 
 https://tjdans.tistory.com/25
+
+N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결 
+
+
+
