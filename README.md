@@ -56,5 +56,5 @@ https://tjdans.tistory.com/25
 
 N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결 
 
-
+조회 성능 최적화
 
