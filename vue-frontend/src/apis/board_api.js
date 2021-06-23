@@ -18,6 +18,15 @@ function requestGetAllBoards(data) {
         }
     })
 }
+function requestGetAllPages(data) {
+    return Send({
+        url   : '/api/board/list/'+data.page,
+        method: 'GET',
+        params: {
+            'list': encodeURI(data.category)
+        }
+    })
+}
 
 function requestGetBoard(data) {
     return Send({
@@ -56,5 +65,6 @@ export default {
     requestGetBoard,
     requestDeleteBoard,
     requestUpdateBoard,
-    requestGetMyBoard
+    requestGetMyBoard,
+    requestGetAllPages
 };

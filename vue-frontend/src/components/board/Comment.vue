@@ -1,99 +1,94 @@
 <template>
   <v-app>
-    <v-container id="commentContainer">
+    <v-container id = "commentContainer">
 
       <v-icon
-          color="blue darken-2">
+          color = "blue darken-2">
         mdi-message-text
       </v-icon>
 
-      <p v-if="commentList">
+      <p v-if = "commentList">
         {{ commentList.length }}개의 댓글이 달렸습니다
       </p>
-      <hr>
 
       <v-data-table
-          v-if="commentList"
-          id="replyDiv"
-          :headers="headers"
-          :items="commentList"
-          :items-per-page="itemsPerPage"
-          :page.sync="page"
-          class="elevation-1"
+          v-if = "commentList"
+          id = "commentDiv"
+          :items = "commentList"
+          :items-per-page = "itemsPerPage"
+          :page.sync = "page"
+          class = "elevation-1"
           hide-default-footer
           hide-default-header
-          no-data-text="첫 댓글을 작성해보세요!"
-          @page-count="pageCount= $event">
+          no-data-text = "첫 댓글을 작성해보세요!"
+          @page-count = "pageCount= $event">
 
-        <template v-slot:item="commentList">
+        <template v-slot:item = "commentList">
           <tr>
-            <td width="500">
+            <div
+                class = "rounded"
+                style = "background-color: darkseagreen; clear:both; height: 25px">
+              <p class = "float-left ml-3" style = "display: inline">{{ commentList.item.nickname }}</p>
 
-              <v-textarea
-                  class="mt-5"
-                  no-resize
-                  outlined
-                  readonly="readonly"
-                  v-bind:value="commentList.item.content">
-
-              </v-textarea>
-            </td>
-
-
-            <td width="100">{{ commentList.item.nickname }}</td>
-            <td width="100">{{ displayedAt(commentList.item.updateDate) }}</td>
-            <td width="100">
-
-              <v-icon
-                  class="mr-2"
-                  color="blue"
-                  small
-                  @click="updateCommentForm(
+              <p class = "float-right mr-3"><small>{{ displayedAt(commentList.item.updateDate) }}</small></p>
+              <div
+                  v-if = "commentList.item.nickname === nickname"
+                  class = "float-right mr-2">
+                <v-icon
+                    class = "mr-2"
+                    color = "blue"
+                    small
+                    @click = "updateCommentForm(
                       commentData={
                       id:commentList.item.id,
                       content:commentList.item.content,
                       nickname:commentList.item.nickname
                       }
                       )">
-                mdi-pencil
-              </v-icon>
+                  mdi-pencil
+                </v-icon>
 
-              <v-icon
-                  color="red"
-                  small
-                  @click="deleteComment(commentList.item.id,commentList.item.nickname)"
-              >
-                mdi-delete
-              </v-icon>
-            </td>
+                <v-icon
+                    color = "red"
+                    small
+                    @click = "deleteComment(commentList.item.id,commentList.item.nickname)">
+                  mdi-delete
+                </v-icon>
+              </div>
+
+            </div>
+            <div style = " height: 30px; clear: both; margin-top: -10px ">
+              <p class = "float-left ml-3" style = "white-space: pre-wrap; word-break: break-all">
+                {{ commentList.item.content }}</p>
+            </div>
           </tr>
         </template>
-
       </v-data-table>
+
       <v-pagination
-          v-model="page"
-          :length="pageCount">
+          v-model = "page"
+          :length = "pageCount">
 
       </v-pagination>
 
+
+      <div style = "clear:both"></div>
       <div
-          id="addCommentDiv"
-      >
+          id = "addCommentDiv">
         <v-textarea
-            v-model="requestData.content"
-            label="Content"
+            v-model = "requestData.content"
+            label = "Content"
             no-resize
             outlined
-            rows="3"
-            v-on:keyup.enter="addComment">
+            rows = "3"
+            style = "white-space: pre-wrap">
 
         </v-textarea>
 
-
         <v-btn
-            class="float-right"
-            color="primary"
-            @click="addComment">
+            class = "float-right"
+            color = "primary"
+            @click = "addComment">
           <v-icon dark>
             mdi-pencil
           </v-icon>
@@ -101,79 +96,62 @@
       </div>
 
 
-      <v-row justify="center">
-        <v-dialog v-model="dialog" max-width="450" persistent>
+      <v-row justify = "center">
+        <v-dialog v-model = "dialog" max-width = "450" persistent>
           <v-card>
-            <v-card-title class="headline"><small>댓글수정</small></v-card-title>
+            <v-card-title class = "headline"><small>댓글수정</small></v-card-title>
             <v-textarea
-                v-model="updateContent"
-                label="수정할 내용을 입력해주세요."
+                v-model = "updateContent"
+                label = "수정할 내용을 입력해주세요."
                 no-resize
                 outlined
-                rows="4"
-                style="width: 90%; margin-left: 17px"
-                v-bind:placeholder="updateForm.content"
-            >
+                rows = "4"
+                style = "width: 90%; margin-left: 17px"
+                v-bind:placeholder = "updateForm.content">
 
             </v-textarea>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn
-                  color="primary"
-                  @click="updateComment(commentId)">수정하기
+                  color = "primary"
+                  @click = "updateComment(commentId)">수정하기
               </v-btn>
               <v-btn
-                  color="error"
-                  @click="dialog = false">취소하기
+                  color = "error"
+                  @click = "dialog = false">취소하기
               </v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
       </v-row>
-
     </v-container>
   </v-app>
 </template>
 
 <script>
 export default {
-  name: "Comment",
+  name    : "Comment",
   data() {
     return {
-      requestData: {
-        boardId: '',
+      requestData  : {
+        boardId : '',
         nickname: '',
-        content: ''
+        content : ''
       },
       updateContent: '',
-      dialog: false,
-      itemsPerPage: 12,
-      pageCount: 0,
-      page: 1,
-      headers: [
-        {
-          text: '내용',
-          align: 'start',
-          sortable: false
-        },
-        {
-          text: '글쓴이'
-        },
-        {
-          text: '작성일'
-        },
-        {
-          text: '수정/삭제'
-        }
-      ],
+      dialog       : false,
+      itemsPerPage : 8,
+      pageCount    : 0,
+      page         : 1,
+
       updateForm: {
-        id: '',
+        id     : '',
         content: '',
       },
-      commentId: ''
+      commentId : ''
     }
   },
-  methods: {
+  methods : {
 
     displayedAt(createdAt) {
       createdAt = new Date(createdAt);
@@ -212,9 +190,9 @@ export default {
         );
         return false;
       }
-      let deleteData={
-        commentId : commentId,
-        boardId : this.boardDetail.id
+      let deleteData = {
+        commentId: commentId,
+        boardId  : this.boardDetail.id
       };
       this.$store.dispatch('REQUEST_DELETE_COMMENT', deleteData);
     },
@@ -230,7 +208,7 @@ export default {
     },
     updateComment(commentId) {
       this.updateForm = {
-        id: commentId,
+        id     : commentId,
         content: this.updateContent,
         boardId: this.boardDetail.id
       };

@@ -12,6 +12,7 @@
     "firebase": "^8.6.2",
     "sockjs-client": "^1.5.1",
     "vue": "^2.6.11",
+    "vue-infinite-loading": "^2.4.5",
     "vuetify": "^2.4.0",
     "webstomp-client": "^1.2.6"
   },

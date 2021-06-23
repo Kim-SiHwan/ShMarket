@@ -4,7 +4,8 @@ import router from '@/routes/index';
 const boardStore = {
     state    : {
         boardList  : [],
-        boardDetail: ''
+        boardDetail: '',
+        hasNext:false,
     },
     mutations: {
         SET_BOARD_LIST(state, payload) {
@@ -12,6 +13,9 @@ const boardStore = {
         },
         SET_BOARD_DETAIL(state, payload) {
             state.boardDetail = payload
+        },
+        SET_HAS_NEXT(state, payload){
+            state.hasNext = payload;
         }
     },
     actions  : {
@@ -21,20 +25,22 @@ const boardStore = {
                 context.commit('SET_BOARD_DETAIL', response.data);
             }
         },
-        async REQUEST_GET_ALL_BOARDS_BY_CATEGORIES(context, payload) {
-            console.log(payload);
-            let tempCategory = JSON.parse(payload);
+        async REQUEST_GET_ALL_PAGES(context, payload) {
+            let tempCategory = JSON.parse(payload.category);
             let category = [];
             for (let key in tempCategory) {
                 if (tempCategory[key]) {
                     category.push(key);
                 }
             }
-            console.log(category);
-            const response = await board_api.requestGetAllBoards(category);
+            let data = {
+                page : payload.page,
+                category : category
+            }
+            const response = await board_api.requestGetAllPages(data);
             if (response) {
                 context.commit('SET_BOARD_LIST', response.data);
-                console.log(response.data);
+                context.commit('SET_HAS_NEXT',response.data.next);
             }
         },
         async REQUEST_ADD_BOARD(context, payload) {

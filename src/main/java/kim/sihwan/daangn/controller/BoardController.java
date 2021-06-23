@@ -4,6 +4,7 @@ import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
 import kim.sihwan.daangn.dto.board.BoardResponseDto;
 import kim.sihwan.daangn.dto.board.BoardUpdateRequestDto;
+import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.service.board.BoardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -24,9 +25,10 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @GetMapping
-    public ResponseEntity<List<BoardListResponseDto>> findAllBoardsByCategory(@RequestParam(value = "list") List<String> categories) {
-        return new ResponseEntity<>(boardService.findAllBoardByCategory(categories), HttpStatus.OK);
+    @GetMapping("/list/{offset}")
+    public ResponseEntity<Result> findAllByPaging(@RequestParam(value = "list") List<String> categories,
+                                          @PathVariable(required = false) int offset) {
+        return new ResponseEntity<>(boardService.paging(offset, categories), HttpStatus.OK);
     }
 
     @GetMapping("/{boardId}")
@@ -35,7 +37,7 @@ public class BoardController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<BoardListResponseDto>> findAllBoardByNickname(@RequestParam String nickname){
+    public ResponseEntity<List<BoardListResponseDto>> findAllBoardByNickname(@RequestParam String nickname) {
         return new ResponseEntity<>(boardService.findAllBoardByNickname(nickname), HttpStatus.OK);
     }
 

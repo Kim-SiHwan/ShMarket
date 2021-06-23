@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 
@@ -34,10 +34,10 @@ public class Board {
 
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private Set<Comment> comments = new HashSet<>();
+    private Set<Comment> comments = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private Set<BoardAlbum> boardAlbums = new HashSet<>();
+    private Set<BoardAlbum> boardAlbums = new LinkedHashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
@@ -73,6 +73,7 @@ public class Board {
         this.thumbnailId = 0L;
         this.thumbnail = "http://localhost:8080/api/board/download?fileName=default.png";
         this.read = read;
+
     }
 
     public void addMember(Member member) {
