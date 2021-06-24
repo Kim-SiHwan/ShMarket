@@ -1,5 +1,5 @@
 # ShMarket
-당근마켓과 같은 서비스를 제공하는 프로젝트
+중고 거래 웹사이트 제작 프로젝트
 ---
 ### 프로젝트 목표 
 1. 견고한 어플리케이션 제작 
@@ -50,11 +50,15 @@
 
 ---
 
-### 이슈 
-웹 소켓 JWT 인증 이슈 
-https://tjdans.tistory.com/25
+### With Blog
+- 웹 소켓 JWT 인증 이슈 해결하기
+  - https://tjdans.tistory.com/25
 
-N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결 
+- N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
 
-조회 성능 최적화
+- 조회 성능 최적화하기
+
+- 무한 스크롤 도입하기
+
+- 푸시 메시지를 비 동기적으로 사용하기 
 
