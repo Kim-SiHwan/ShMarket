@@ -1,6 +1,5 @@
 package kim.sihwan.daangn.domain.board;
 
-
 import kim.sihwan.daangn.domain.member.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,11 +11,11 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "board", indexes = @Index(name = "createDate",columnList = "createDate DESC"))
 public class Board {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +30,6 @@ public class Board {
     private LocalDateTime createDate;
     private LocalDateTime updateDate;
     private int read;
-
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private Set<Comment> comments = new LinkedHashSet<>();

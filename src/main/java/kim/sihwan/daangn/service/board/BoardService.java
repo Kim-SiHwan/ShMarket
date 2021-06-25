@@ -14,6 +14,7 @@ import kim.sihwan.daangn.repository.board.BoardRepository;
 import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -25,10 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -36,7 +39,7 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final MemberRepository memberRepository;
-    private final BlockRepository blockRepository;
+     private final BlockRepository blockRepository;
     private final BoardAlbumService boardAlbumService;
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -81,7 +84,7 @@ public class BoardService {
 
         Pageable pageable = PageRequest.of(offset, 20);
 
-        Slice<Board> page = boardRepository.findBoards(pageable);
+        Slice<Board> page = boardRepository.findBoards(pageable, LocalDateTime.now());
 
         List<BoardListResponseDto> result = page.stream().parallel()
                 .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()) && !blockList.contains(board.getMember().getNickname()))
