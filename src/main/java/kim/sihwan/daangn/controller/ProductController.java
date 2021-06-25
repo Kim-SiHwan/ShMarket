@@ -1,5 +1,6 @@
 package kim.sihwan.daangn.controller;
 
+import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
@@ -30,15 +31,15 @@ public class ProductController {
         productService.addProduct(productRequestDto);
     }
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<String> setInterested(@PathVariable Long productId) {
-        return new ResponseEntity<>(interestedService.pushInterest(productId), HttpStatus.OK);
+    @GetMapping("/list/{offset}")
+    public ResponseEntity<Result> getProductByPaging(@RequestParam("list") List<String> categories,
+                                                     @PathVariable int offset) {
+        return new ResponseEntity<>(productService.paging(offset, categories), HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<List<ProductListResponseDto>> getProducts(@RequestParam(value = "list") List<String> categories) {
-        List<ProductListResponseDto> list = productService.findAllProductsByCategory(categories);
-        return new ResponseEntity<>(list, HttpStatus.OK);
+    @PostMapping("/{productId}")
+    public ResponseEntity<Boolean> setInterested(@PathVariable Long productId) {
+        return new ResponseEntity<>(interestedService.pushInterest(productId), HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/{productId}")

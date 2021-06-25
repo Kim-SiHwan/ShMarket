@@ -1,6 +1,5 @@
 package kim.sihwan.daangn.domain.product;
 
-
 import kim.sihwan.daangn.domain.member.Member;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,11 +11,11 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "product", indexes = @Index(name = "productCreateDate", columnList = "createDate DESC"))
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +46,6 @@ public class Product {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private Set<ProductInterested> productInteresteds = new HashSet<>();
-
 
     public void setStatusReservation() {
         this.status = ProductStatus.RESERVATION;

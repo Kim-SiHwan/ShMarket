@@ -1,11 +1,11 @@
 package kim.sihwan.daangn.service.product;
 
-import kim.sihwan.daangn.domain.area.SelectedArea;
 import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductInterested;
 import kim.sihwan.daangn.domain.product.ProductTag;
+import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
@@ -13,22 +13,22 @@ import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.exception.customException.OverSizeException;
-import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
-import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import kim.sihwan.daangn.service.push.RabbitService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StopWatch;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Comparator;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -43,8 +43,6 @@ public class ProductService {
     private final ProductAlbumService productAlbumService;
     private final MemberRepository memberRepository;
     private final ProductTagService tagService;
-    private final SelectedAreaRepository selectedAreaRepository;
-    private final BlockRepository blockRepository;
     private final ProductInterestedService interestedService;
     private final RedisTemplate<String, String> redisTemplate;
     private final RabbitService rabbitService;
@@ -52,7 +50,7 @@ public class ProductService {
     @Transactional
     public void addProduct(ProductRequestDto productRequestDto) {
         Product product = productRequestDto.toEntity(productRequestDto);
-        if(productRequestDto.getTags().size()>3){
+        if (productRequestDto.getTags().size() > 3) {
             throw new OverSizeException("tag");
         }
 
@@ -96,10 +94,10 @@ public class ProductService {
 
     public List<ProductListResponseDto> findAllMyProduct(String originName, String requestNickname) {
         List<ProductInterested> interestedList = interestedService.findAllByNickname(originName);
-        Member member = memberRepository.findMemberByNickname(originName).orElseThrow(NoSuchElementException::new);;
+        Member member = memberRepository.findMemberByNickname(originName).orElseThrow(NoSuchElementException::new);
         return productRepository.findAllByMemberNickname(requestNickname).stream()
                 .map(m -> {
-                    if(isInterested(interestedList, member.getId(), m.getId())) {
+                    if (isInterested(interestedList, member.getId(), m.getId())) {
                         return ProductListResponseDto.toDto(m, true);
                     }
                     return ProductListResponseDto.toDto(m, false);
@@ -115,48 +113,41 @@ public class ProductService {
                 }).collect(Collectors.toList());
     }
 
-    public List<ProductListResponseDto> findAllProductsByCategory(List<String> categories) {
+    public Result paging(int offset, List<String> categories) {
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
         Member member = findMemberByUsername();
-        SelectedArea selectedArea = selectedAreaRepository.findByMemberId(member.getId());
-        ListOperations<String, String> vo = redisTemplate.opsForList();
+        Long memberId = member.getId();
 
+        ListOperations<String, String> vo = redisTemplate.opsForList();
 
         List<String> getCategories = categories.stream()
                 .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
                 .collect(Collectors.toList());
 
-        Long memberId = member.getId();
-
-        List<String> al = vo.range(selectedArea.getArea().getAddress() + "::List", 0L, -1L);
+        List<String> al = vo.range(member.getArea() + "::List", 0L, -1L);
 
         List<ProductInterested> interestedList = interestedService.findAll();
 
-        List<String> blockList = blockRepository.findAllByMemberNickname(member.getNickname()).stream()
+        List<String> blockList = member.getBlocks().stream()
                 .map(Block::getToMember)
                 .collect(Collectors.toList());
 
-        List<ProductListResponseDto> result = productRepository.findAll()
+        Pageable pageable = PageRequest.of(offset, 20);
+        Slice<Product> page = productRepository.findProducts(pageable, LocalDateTime.now());
+
+        List<ProductListResponseDto> result = page
                 .stream()
                 .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()) && !blockList.contains(product.getNickname()))
                 .map(m -> {
                     if (isInterested(interestedList, memberId, m.getId())) {
                         return ProductListResponseDto.toDto(m, true);
                     }
-                    return ProductListResponseDto.toDto(m, false); //false
+                    return ProductListResponseDto.toDto(m, false);
 
                 })
-                .sorted(Comparator.comparing(ProductListResponseDto::getId, Comparator.reverseOrder())).collect(Collectors.toList())
-                .stream()
-                .sorted(Comparator.comparing(ProductListResponseDto::getId, Comparator.reverseOrder())).collect(Collectors.toList());
+                .collect(Collectors.toList());
 
-        stopWatch.stop();
-        System.out.println(stopWatch.prettyPrint());
-
-        return result;
-
+        return new Result(result, page.hasNext());
     }
 
     @Transactional

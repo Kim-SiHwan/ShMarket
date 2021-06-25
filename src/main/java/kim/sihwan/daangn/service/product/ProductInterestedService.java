@@ -23,19 +23,16 @@ public class ProductInterestedService {
     private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
 
-
     @Transactional
-    public String pushInterest(Long productId) {
-        String msg = "관심상품에 등록되었습니다.";
+    public boolean pushInterest(Long productId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username, productId);
         if (interested != null) {
-            msg = "관심상품에서 삭제되었습니다.";
             removeInterest(interested.getId());
-            return msg;
+            return false;
         }
         addInterest(username, productId);
-        return msg;
+        return true;
     }
 
     @Transactional
@@ -59,7 +56,7 @@ public class ProductInterestedService {
         return interestedRepository.findAll();
     }
 
-    public List<ProductInterested> findAllByNickname(String nickname){
+    public List<ProductInterested> findAllByNickname(String nickname) {
         return interestedRepository.findAllByMemberNickname(nickname);
     }
 
