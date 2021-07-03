@@ -1,5 +1,6 @@
 <template>
   <v-container>
+    <div id="top"></div>
 
     <div style="text-align: center">
       <h3 v-if="!updateFlag">{{ boardDetail.title }}</h3>
@@ -269,6 +270,7 @@ export default {
     this.$store.dispatch('REQUEST_GET_BOARD', this.$route.query.boardId);
   },
   mounted() {
+    this.$vuetify.goTo('.mainBar');
     this.updateRequestData.id = this.$route.query.boardId;
     this.updateRequestData.title = this.boardDetail.title;
     this.updateRequestData.content = this.boardDetail.content;

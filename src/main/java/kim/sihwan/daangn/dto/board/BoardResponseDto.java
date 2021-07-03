@@ -19,7 +19,6 @@ public class BoardResponseDto {
     private final String nickname;
     private final String updateDate;
     private final String category;
-    private final int readCount;
     private final boolean hasImages;
     private final List<BoardAlbumResponseDto> boardAlbums;
 
@@ -28,7 +27,7 @@ public class BoardResponseDto {
                 .builder()
                 .id(board.getId())
                 .area(board.getArea())
-                .nickname(board.getMember().getNickname())
+                .nickname(board.getNickname())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .updateDate(board.getUpdateDate().toString())

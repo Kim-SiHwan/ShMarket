@@ -3,10 +3,10 @@
 
     <v-icon color = "pink" size = "50">mdi-heart</v-icon>
     <strong>{{ nickname }}</strong>님의 관심 상품
-    <p><small v-if = "productList">{{ productList.length }}개의 관심 상품이 있습니다</small></p>
+    <p><small v-if = "myLikeProductList">{{ myLikeProductList.length }}개의 관심 상품이 있습니다</small></p>
 
     <div id = "myLikeProductListDiv" class = "row justify-center mt-15">
-      <ul v-for = "(list,index) in productList" :key = "index"
+      <ul v-for = "(list,index) in myLikeProductList" :key = "index"
           style = "list-style: none">
         <li id = "myLikeListDiv">
           <div class = "p-5 mb-5 rounded float-left"
@@ -103,7 +103,6 @@
       </ul>
     </div>
   </v-container>
-
 </template>
 
 <script>
@@ -146,13 +145,15 @@ export default {
       return `${Math.floor(years)}년 전`
     },
     async pushLike(productId) {
-      await this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
-      await this.$store.dispatch('REQUEST_GET_MY_LIKE_PRODUCT', this.nickname);
+      await this.$store.dispatch('REQUEST_PUSH_INTEREST', productId)
+          .then(() => {
+            this.$store.dispatch('REQUEST_GET_MY_LIKE_PRODUCT', this.nickname);
+          });
     },
   },
   computed: {
-    productList() {
-      return this.$store.state.productStore.productList;
+    myLikeProductList() {
+      return this.$store.state.productStore.myLikeProductList;
     },
     nickname() {
       return this.$store.state.memberStore.nickname;

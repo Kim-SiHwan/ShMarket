@@ -64,7 +64,6 @@ public class ProductServiceTest {
 
 
     private Product product = Product.builder()
-            .username("test")
             .nickname("testNn")
             .area("만수3동")
             .content("팝니다")
@@ -126,20 +125,6 @@ public class ProductServiceTest {
         //then
 
     }
-
-    @Test
-    public void 상품_조회수_테스트 (){
-
-        //given
-        given(productRepository.findById(anyLong())).willReturn(Optional.of(product));
-
-        //when
-        productResponseDto = productService.findById(anyLong());
-
-        //then
-        assertEquals(1,productResponseDto.getReadCount());
-    }
-
 
 
 }

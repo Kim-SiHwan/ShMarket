@@ -14,15 +14,17 @@ import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    @Query("SELECT count(p.id) FROM Product p")
+    int productCount();
+
+    @Query("SELECT count(p.nickname) FROM Product p WHERE p.nickname = :nickname")
+    int productCountByNickname(@Param("nickname") String nickname);
+
     @Override
     @EntityGraph(attributePaths = {"member"})
     Optional<Product> findById(Long id);
 
     @EntityGraph(attributePaths = {"member"})
     List<Product> findAllByMemberNickname(String nickname);
-
-    @Query("SELECT p FROM Product p WHERE p.createDate < :time")
-    @EntityGraph(attributePaths = {"member"})
-    Slice<Product> findProducts(Pageable pageable, @Param("time") LocalDateTime time);
 
 }

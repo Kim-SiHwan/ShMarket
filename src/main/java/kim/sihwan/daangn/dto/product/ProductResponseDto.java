@@ -6,6 +6,7 @@ import kim.sihwan.daangn.dto.tag.TagResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,16 +23,15 @@ public class ProductResponseDto {
     private final String status;
     private final boolean like;
     private final boolean hasImages;
-    private final int readCount;
     private final List<ProductAlbumResponseDto> productAlbums;
     private final List<TagResponseDto> tags;
 
-    public static ProductResponseDto toDto(Product product, boolean like){
+    public static ProductResponseDto toDto(Product product, boolean like) {
         return ProductResponseDto
                 .builder()
                 .id(product.getId())
                 .area(product.getArea())
-                .nickname(product.getMember().getNickname())
+                .nickname(product.getNickname())
                 .status(product.getStatus().getDescription())
                 .like(like)
                 .hasImages(product.getProductAlbums().isEmpty())
@@ -40,14 +40,14 @@ public class ProductResponseDto {
                 .category(product.getCategory())
                 .createDate(product.getCreateDate().toString())
                 .productAlbums(
-                        product.getProductAlbums()
-                        .stream()
-                        .map(ProductAlbumResponseDto::new)
-                        .collect(Collectors.toList())
+                        product.getProductAlbums().stream()
+                                .map(ProductAlbumResponseDto::new)
+                                .sorted(Comparator.comparing(ProductAlbumResponseDto::getId, Comparator.reverseOrder()))
+                                .collect(Collectors.toList())
                 )
-                .tags(product.getProductTags()
-                        .stream()
-                        .map(tag-> new TagResponseDto(tag.getTag()))
+                .tags(product.getProductTags().stream()
+                        .map(tag -> new TagResponseDto(tag.getTag()))
+                        .sorted(Comparator.comparing(TagResponseDto::getId, Comparator.reverseOrder()))
                         .collect(Collectors.toList()))
                 .build();
     }

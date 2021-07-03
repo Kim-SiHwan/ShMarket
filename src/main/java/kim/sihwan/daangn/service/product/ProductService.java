@@ -14,26 +14,27 @@ import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.exception.customException.OverSizeException;
 import kim.sihwan.daangn.repository.member.MemberRepository;
+import kim.sihwan.daangn.repository.product.InterestedRepository;
+import kim.sihwan.daangn.repository.product.ProductQueryRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import kim.sihwan.daangn.service.push.RabbitService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -44,8 +45,10 @@ public class ProductService {
     private final MemberRepository memberRepository;
     private final ProductTagService tagService;
     private final ProductInterestedService interestedService;
+    private final InterestedRepository interestedRepository;
     private final RedisTemplate<String, String> redisTemplate;
     private final RabbitService rabbitService;
+    private final ProductQueryRepository queryRepository;
 
     @Transactional
     public void addProduct(ProductRequestDto productRequestDto) {
@@ -83,7 +86,6 @@ public class ProductService {
 
     public ProductResponseDto findById(Long productId) {
         Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
-        addRead(productId);
         List<ProductInterested> interestedList = interestedService.findAll();
         if (isInterested(interestedList, findMemberByUsername().getId(), productId)) {
             return ProductResponseDto.toDto(product, true);
@@ -92,16 +94,22 @@ public class ProductService {
 
     }
 
-    public List<ProductListResponseDto> findAllMyProduct(String originName, String requestNickname) {
-        List<ProductInterested> interestedList = interestedService.findAllByNickname(originName);
-        Member member = memberRepository.findMemberByNickname(originName).orElseThrow(NoSuchElementException::new);
-        return productRepository.findAllByMemberNickname(requestNickname).stream()
+    public Result findAllMyProduct(String nickname, int page) {
+        Member member = findMemberByUsername();
+        Long memberId = member.getId();
+        List<ProductInterested> interestedList = interestedService.findAllByNickname(member.getNickname());
+
+        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
                 .map(m -> {
-                    if (isInterested(interestedList, member.getId(), m.getId())) {
+                    if (isInterested(interestedList, memberId, m.getId())) {
                         return ProductListResponseDto.toDto(m, true);
                     }
                     return ProductListResponseDto.toDto(m, false);
-                }).collect(Collectors.toList());
+
+                })
+                .collect(Collectors.toList());
+        int totalPage = productRepository.productCountByNickname(nickname) / 20;
+        return new Result(list, totalPage);
     }
 
     public List<ProductListResponseDto> findAllMyLikeProduct(String nickname) {
@@ -113,11 +121,11 @@ public class ProductService {
                 }).collect(Collectors.toList());
     }
 
-    public Result paging(int offset, List<String> categories) {
+
+    public Result paging(int page, List<String> categories, String nickname) {
 
         Member member = findMemberByUsername();
         Long memberId = member.getId();
-
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
         List<String> getCategories = categories.stream()
@@ -126,17 +134,13 @@ public class ProductService {
 
         List<String> al = vo.range(member.getArea() + "::List", 0L, -1L);
 
-        List<ProductInterested> interestedList = interestedService.findAll();
-
         List<String> blockList = member.getBlocks().stream()
                 .map(Block::getToMember)
                 .collect(Collectors.toList());
 
-        Pageable pageable = PageRequest.of(offset, 20);
-        Slice<Product> page = productRepository.findProducts(pageable, LocalDateTime.now());
+        List<ProductInterested> interestedList = interestedService.findAll();
 
-        List<ProductListResponseDto> result = page
-                .stream()
+        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
                 .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()) && !blockList.contains(product.getNickname()))
                 .map(m -> {
                     if (isInterested(interestedList, memberId, m.getId())) {
@@ -146,8 +150,9 @@ public class ProductService {
 
                 })
                 .collect(Collectors.toList());
+        int totalPage = productRepository.productCount() / 20;
 
-        return new Result(result, page.hasNext());
+        return new Result(list, totalPage);
     }
 
     @Transactional
@@ -178,22 +183,22 @@ public class ProductService {
         return ProductResponseDto.toDto(product, isInterested(interestedList, findMemberByUsername().getId(), product.getId()));
     }
 
-    @Transactional
-    public void addRead(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
-        product.addRead();
-    }
-
     public boolean isInterested(List<ProductInterested> interestedList, Long memberId, Long productId) {
         boolean flag = false;
 
-        //효율성 올려야함
-        //이 전의 것으로 하면 쿼리가 엄청 나가고 이렇게 하면 반복문이 너무 많이 돔 해결책 강구
         for (ProductInterested interested : interestedList) {
             if (interested.getMember().getId().equals(memberId) && interested.getProduct().getId().equals(productId)) {
                 flag = true;
                 break;
             }
+        }
+        return flag;
+    }
+
+    public boolean isLike(String username, Long productId) {
+        boolean flag = false;
+        if (interestedRepository.findByMemberUsernameAndProductId(username, productId).isPresent()) {
+            flag = true;
         }
         return flag;
     }

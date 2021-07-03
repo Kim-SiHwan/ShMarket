@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,9 +27,9 @@ public class ProductInterestedService {
     @Transactional
     public boolean pushInterest(Long productId) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        ProductInterested interested = interestedRepository.findByMemberUsernameAndProductId(username, productId);
-        if (interested != null) {
-            removeInterest(interested.getId());
+        Optional<ProductInterested> interested = interestedRepository.findByMemberUsernameAndProductId(username, productId);
+        if (interested.isPresent()) {
+            removeInterest(interested.get().getId());
             return false;
         }
         addInterest(username, productId);
@@ -50,7 +51,6 @@ public class ProductInterestedService {
     public void removeInterest(Long id) {
         interestedRepository.deleteById(id);
     }
-
 
     public List<ProductInterested> findAll() {
         return interestedRepository.findAll();

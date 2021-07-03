@@ -3,10 +3,8 @@
 
     <v-icon color = "green" size = "50">mdi-shopping</v-icon>
     <strong>{{ names.requestNickname }}</strong>님의 판매 상품
-    <p><small v-if = "productList">{{ productList.length }}개의 판매 상품이 있습니다</small></p>
-
     <div id = "myProductListDiv" class = "row justify-center mt-15">
-      <ul v-for = "(list,index) in productList" :key = "index"
+      <ul v-for = "(list,index) in myProductList" :key = "index"
           style = "list-style: none">
         <li id = "myListDiv">
           <div class = "p-5 mb-5 rounded float-left"
@@ -60,11 +58,6 @@
 
                 <div id = "myProductListIconDiv" class = "mt-8">
                   <v-row align-content = "center" justify = "center">
-                    <v-icon
-                        color = "blue darken-4">
-                      mdi-message-text
-                    </v-icon>
-                    <span class = "mt-1">{{ list.readCount }}</span>
 
                     <v-icon
                         color = "green">
@@ -101,6 +94,13 @@
         </li>
       </ul>
     </div>
+    <v-pagination
+        v-model = "page"
+        :length = "myProductTotalPage"
+        total-visible = "10"
+        @input = "showMyProductPage(page)">
+
+    </v-pagination>
   </v-container>
 
 </template>
@@ -110,13 +110,32 @@ export default {
   name    : "MyProduct",
   data() {
     return {
-      names: {
+      names        : {
         originName     : '',
-        requestNickname: ''
-      }
+        requestNickname: '',
+
+      },
+      paramNickname: '',
+      page         : 1
     }
   },
   methods : {
+    showProductByNickname() {
+      let data = {
+        page    : this.myProductCurrentPage - 1,
+        nickname: this.paramNickname
+      }
+      this.$store.dispatch('REQUEST_GET_MY_PRODUCT', data);
+    },
+    showMyProductPage(page) {
+      console.log("page : " + page);
+      this.$store.commit('SET_MY_PRODUCT_CURRENT_PAGE', page);
+      let data = {
+        page    : page - 1,
+        nickname: this.paramNickname
+      };
+      this.$store.dispatch('REQUEST_GET_MY_PRODUCT', data);
+    },
     displayedAt(createdAt) {
       createdAt = new Date(createdAt);
       const milliSeconds = new Date() - createdAt
@@ -148,26 +167,41 @@ export default {
       return `${Math.floor(years)}년 전`
     },
     async pushLike(productId) {
-      await this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
-      await this.$store.dispatch('REQUEST_GET_MY_PRODUCT', this.names);
+      await this.$store.dispatch('REQUEST_PUSH_INTEREST', productId)
+          .then(() => {
+                let data = {
+                  page    : this.myProductCurrentPage - 1,
+                  nickname: this.paramNickname
+                }
+                this.$store.dispatch('REQUEST_GET_MY_PRODUCT', data);
+              }
+          );
     },
 
   },
   computed: {
-    productList() {
-      return this.$store.state.productStore.productList;
+    myProductList() {
+      return this.$store.state.productStore.myProductList;
     },
     nickname() {
       return this.$store.state.memberStore.nickname;
+    },
+    myProductTotalPage() {
+      return this.$store.state.productStore.myProductTotalPage;
+    },
+    myProductCurrentPage() {
+      return this.$store.state.productStore.myProductCurrentPage;
     }
   },
   created() {
+    this.paramNickname = this.$route.query.nickname;
     this.names.requestNickname = this.$route.query.nickname;
     this.names.originName = this.nickname;
+    this.page = this.myProductCurrentPage;
   },
   mounted() {
     console.log(this.names);
-    this.$store.dispatch('REQUEST_GET_MY_PRODUCT', this.names);
+    this.showProductByNickname();
   }
 }
 </script>

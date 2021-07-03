@@ -3,30 +3,28 @@ package kim.sihwan.daangn.service.board;
 import kim.sihwan.daangn.domain.board.Board;
 import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
-import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
 import kim.sihwan.daangn.dto.board.BoardResponseDto;
 import kim.sihwan.daangn.dto.board.BoardUpdateRequestDto;
+import kim.sihwan.daangn.dto.board.QBoardDto;
 import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
+import kim.sihwan.daangn.repository.board.BoardQueryRepository;
 import kim.sihwan.daangn.repository.board.BoardRepository;
 import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Slice;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -42,6 +40,7 @@ public class BoardService {
      private final BlockRepository blockRepository;
     private final BoardAlbumService boardAlbumService;
     private final RedisTemplate<String, String> redisTemplate;
+    private final BoardQueryRepository queryRepository;
 
     @Transactional
     public void addBoard(BoardRequestDto boardRequestDto) {
@@ -58,17 +57,16 @@ public class BoardService {
 
     public BoardResponseDto findById(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
-        addRead(boardId);
         return BoardResponseDto.toDto(board);
     }
 
-    public List<BoardListResponseDto> findAllBoardByNickname(String nickname) {
-        return boardRepository.findAllByMemberNickname(nickname).stream()
-                .map(BoardListResponseDto::toDto)
-                .collect(Collectors.toList());
+    public Result findAllBoardByNickname(int page, String nickname) {
+        List<QBoardDto> list = queryRepository.findBoards(page,20,nickname,null);
+        int totalPage = boardRepository.boardCountByNickname(nickname)/ 20;
+        return new Result(list,totalPage);
     }
 
-    public Result paging(int offset, List<String> categories) {
+    public Result paging(int page, List<String> categories, String nickname, String title) {
         Member member = findMemberByUsername();
         ListOperations<String, String> vo = redisTemplate.opsForList();
 
@@ -82,16 +80,12 @@ public class BoardService {
                 .map(Block::getToMember)
                 .collect(Collectors.toList());
 
-        Pageable pageable = PageRequest.of(offset, 20);
-
-        Slice<Board> page = boardRepository.findBoards(pageable, LocalDateTime.now());
-
-        List<BoardListResponseDto> result = page.stream().parallel()
-                .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()) && !blockList.contains(board.getMember().getNickname()))
-                .map(BoardListResponseDto::toDto)
+        List<QBoardDto> list = queryRepository.findBoards(page,20,nickname, title).stream()
+                .filter(board -> al.contains(board.getArea()) && getCategories.contains(board.getCategory()) && !blockList.contains(board.getNickname()))
                 .collect(Collectors.toList());
+        int totalPage = boardRepository.boardCount() / 20;
 
-        return new Result(result, page.hasNext());
+        return new Result(list, totalPage);
     }
 
     @Transactional
@@ -119,12 +113,6 @@ public class BoardService {
         }
         board.update(boardUpdateRequestDto.getTitle(), boardUpdateRequestDto.getContent());
         return BoardResponseDto.toDto(board);
-    }
-
-    @Transactional
-    public void addRead(Long boardId) {
-        Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
-        board.addRead();
     }
 
     @Transactional

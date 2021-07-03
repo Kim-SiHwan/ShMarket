@@ -15,16 +15,15 @@ public class BoardListResponseDto {
     private final String updateDate;
     private final String thumbnail;
     private final String category;
-    private final int readCount;
     private final int boardAlbumCount;
     private final int commentCount;
 
-    public static BoardListResponseDto toDto(Board board){
+    public static BoardListResponseDto toDto(Board board) {
         return BoardListResponseDto
                 .builder()
                 .id(board.getId())
                 .area(board.getArea())
-                .nickname(board.getMember().getNickname())
+                .nickname(board.getNickname())
                 .title(board.getTitle())
                 .content(board.getContent())
                 .updateDate(board.getUpdateDate().toString())

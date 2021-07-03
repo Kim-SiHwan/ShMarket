@@ -1,6 +1,5 @@
 package kim.sihwan.daangn.controller;
 
-import kim.sihwan.daangn.dto.board.BoardListResponseDto;
 import kim.sihwan.daangn.dto.board.BoardRequestDto;
 import kim.sihwan.daangn.dto.board.BoardResponseDto;
 import kim.sihwan.daangn.dto.board.BoardUpdateRequestDto;
@@ -25,10 +24,12 @@ public class BoardController {
 
     private final BoardService boardService;
 
-    @GetMapping("/list/{offset}")
-    public ResponseEntity<Result> findAllByPaging(@RequestParam(value = "list") List<String> categories,
-                                          @PathVariable(required = false) int offset) {
-        return new ResponseEntity<>(boardService.paging(offset, categories), HttpStatus.OK);
+    @GetMapping("/list/{page}")
+    public ResponseEntity<Result> getBoardsByPaging(@RequestParam(value = "list") List<String> categories,
+                                                    @RequestParam(required = false) String nickname,
+                                                    @RequestParam(required = false) String title,
+                                                    @PathVariable(required = false) int page) {
+        return new ResponseEntity<>(boardService.paging(page, categories, nickname, title), HttpStatus.OK);
     }
 
     @GetMapping("/{boardId}")
@@ -36,9 +37,10 @@ public class BoardController {
         return new ResponseEntity<>(boardService.findById(boardId), HttpStatus.OK);
     }
 
-    @GetMapping("/my")
-    public ResponseEntity<List<BoardListResponseDto>> findAllBoardByNickname(@RequestParam String nickname) {
-        return new ResponseEntity<>(boardService.findAllBoardByNickname(nickname), HttpStatus.OK);
+    @GetMapping("/my/{page}")
+    public ResponseEntity<Result> findAllBoardByNickname(@RequestParam String nickname,
+                                                         @PathVariable int page) {
+        return new ResponseEntity<>(boardService.findAllBoardByNickname(page, nickname), HttpStatus.OK);
     }
 
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)

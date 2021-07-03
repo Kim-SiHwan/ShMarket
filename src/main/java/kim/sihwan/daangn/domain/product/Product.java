@@ -8,14 +8,13 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Entity
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "product", indexes = @Index(name = "productCreateDate", columnList = "createDate DESC"))
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,7 +28,6 @@ public class Product {
     private String thumbnail;
     private String category;
     private String price;
-    private int read;
     private LocalDateTime createDate;
 
     @Enumerated(EnumType.STRING)
@@ -39,13 +37,13 @@ public class Product {
     private Member member;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<ProductAlbum> productAlbums = new HashSet<>();
+    private Set<ProductAlbum> productAlbums = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<ProductTag> productTags = new HashSet<>();
+    private Set<ProductTag> productTags = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<ProductInterested> productInteresteds = new HashSet<>();
+    private Set<ProductInterested> productLikes = new LinkedHashSet<>();
 
     public void setStatusReservation() {
         this.status = ProductStatus.RESERVATION;
@@ -57,10 +55,6 @@ public class Product {
 
     public void setStatusSale() {
         this.status = ProductStatus.SALE;
-    }
-
-    public void addRead() {
-        this.read++;
     }
 
     public void update(String title, String content) {
@@ -87,7 +81,6 @@ public class Product {
         this.title = title;
         this.content = content;
         this.category = category;
-        this.read = 0;
         this.status = ProductStatus.SALE;
         this.createDate = LocalDateTime.now();
     }

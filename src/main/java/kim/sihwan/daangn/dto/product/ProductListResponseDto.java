@@ -5,6 +5,7 @@ import kim.sihwan.daangn.dto.tag.TagResponseDto;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,17 +20,16 @@ public class ProductListResponseDto {
     private final String createDate;
     private final String thumbnail;
     private final String category;
-    private final int readCount;
     private final int productAlbumCount;
     private final boolean like;
     private final List<TagResponseDto> tags;
 
-    public static ProductListResponseDto toDto(Product product, boolean like){
+    public static ProductListResponseDto toDto(Product product, boolean like) {
         return ProductListResponseDto
                 .builder()
                 .id(product.getId())
                 .area(product.getArea())
-                .nickname(product.getMember().getNickname())
+                .nickname(product.getNickname())
                 .title(product.getTitle())
                 .content(product.getContent())
                 .createDate(product.getCreateDate().toString())
@@ -38,11 +38,12 @@ public class ProductListResponseDto {
                 .productAlbumCount(product.getProductAlbums().size())
                 .like(like)
                 .tags(
-                        product.getProductTags()
-                        .stream()
-                        .map(tag-> new TagResponseDto(tag.getTag()))
-                        .collect(Collectors.toList())
+                        product.getProductTags().stream()
+                                .map(tag -> new TagResponseDto(tag.getTag()))
+                                .sorted(Comparator.comparing(TagResponseDto::getId, Comparator.reverseOrder()))
+                                .collect(Collectors.toList())
                 )
                 .build();
     }
+
 }

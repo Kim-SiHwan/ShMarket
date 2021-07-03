@@ -36,6 +36,7 @@ public class BoardRequestDto {
         return Board.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
+                .nickname(requestDto.getNickname())
                 .area(requestDto.getArea())
                 .category(requestDto.getCategory())
                 .build();

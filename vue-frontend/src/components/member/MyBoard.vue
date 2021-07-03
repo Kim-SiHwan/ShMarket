@@ -1,59 +1,57 @@
 <template>
   <v-container>
-    <v-icon color="gray" size="50">mdi-clipboard-text-multiple-outline</v-icon>
+    <v-icon color = "gray" size = "50">mdi-clipboard-text-multiple-outline</v-icon>
     <strong>{{ paramNickname }}</strong>님의 동네생활<br>
 
-    <p><small v-if = "boardList">{{ boardList.length }}개의 동네생활이 있습니다</small></p>
-
-    <div id="boardListDiv" class="row justify-center mt-15">
-      <ul v-for="(list,index) in boardList" :key="index"
-          style="list-style: none">
-        <li id="listDiv">
-          <div class="p-5 mb-5 rounded float-left"
-               style="width: 300px; height: 500px; border: 2px solid green">
-            <div class="card-body">
-              <span class="mt-3" style="margin-left: 130px"><strong>{{ list.title }}</strong></span>
+    <div id = "boardListDiv" class = "row justify-center mt-15">
+      <ul v-for = "(list,index) in myBoardList" :key = "index"
+          style = "list-style: none">
+        <li id = "listDiv">
+          <div class = "p-5 mb-5 rounded float-left"
+               style = "width: 300px; height: 500px; border: 2px solid green">
+            <div class = "card-body">
+              <span class = "mt-3" style = "margin-left: 130px"><strong>{{ list.title }}</strong></span>
               <br>
-              <span class="float-left card-subtitle">
-              <router-link :to="{path:'/profile',query:{nickname:list.nickname}}"><span
-                  class="float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
+              <span class = "float-left card-subtitle">
+              <router-link :to = "{path:'/profile',query:{nickname:list.nickname}}"><span
+                  class = "float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
-              <span class="float-left ml-3 mt-1 mr-3"> <small>작성일 : {{
+              <span class = "float-left ml-3 mt-1 mr-3"> <small>작성일 : {{
                   displayedAt(list.updateDate)
-                }}</small></span>
+                                                                }}</small></span>
               <br>
-              <span class="float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
+              <span class = "float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
               </span>
               <br>
 
-              <div id="boardListImgDiv" style="height: 100%; width: 100%">
-                <router-link :to="{path:'/boardDetail',query:{boardId:list.id}}">
+              <div id = "boardListImgDiv" style = "height: 100%; width: 100%">
+                <router-link :to = "{path:'/boardDetail',query:{boardId:list.id}}">
                   <v-img
-                      :src="list.thumbnail"
-                      class="mt-15 mr-3 ml-13 grey lighten-3"
-                      height="200"
-                      width="200">
+                      :src = "list.thumbnail"
+                      class = "mt-15 mr-3 ml-13 grey lighten-3"
+                      height = "200"
+                      width = "200">
 
                   </v-img>
                   <v-textarea
-                      background-color="white"
-                      class="ml-3 mr-3 mt-5"
+                      background-color = "white"
+                      class = "ml-3 mr-3 mt-5"
                       no-resize
                       outlined
-                      readonly="readonly"
-                      rows="2"
-                      v-bind:value="list.content.substring(0,15)">
+                      readonly = "readonly"
+                      rows = "2"
+                      v-bind:value = "list.content.substring(0,15)">
 
                   </v-textarea>
                 </router-link>
 
               </div>
-              <div class="mt-3">
-                <v-row align-content="center" justify="center">
+              <div class = "mt-3">
+                <v-row align-content = "center" justify = "center">
 
                   <v-chip
-                      class="ml-0 mr-1 pr-2 pl-2"
-                      color="info"
+                      class = "ml-0 mr-1 pr-2 pl-2"
+                      color = "info"
                       label
                       small>
                     {{ list.category }}
@@ -61,22 +59,16 @@
                 </v-row>
               </div>
 
-              <div id="boardListIconDiv" class="mt-8">
-                <v-row align-content="center" justify="center">
+              <div id = "boardListIconDiv" class = "mt-8">
+                <v-row align-content = "center" justify = "center">
                   <v-icon
-                      color="blue darken-4">
-                    mdi-message-text
-                  </v-icon>
-                  {{ list.readCount }}
-
-                  <v-icon
-                      color="green">
+                      color = "green">
                     mdi-image-multiple
                   </v-icon>
                   {{ list.boardAlbumCount }}
 
                   <v-icon
-                      color="red">
+                      color = "red">
                     mdi-message-text
                   </v-icon>
 
@@ -88,18 +80,43 @@
         </li>
       </ul>
     </div>
+    <v-pagination
+        v-model = "page"
+        :length = "myBoardTotalPage"
+        total-visible = "10"
+        @input = "showMyBoardPage(page)">
+
+    </v-pagination>
+
   </v-container>
 </template>
 
 <script>
 export default {
-  name: "MyBoard",
+  name    : "MyBoard",
   data() {
     return {
-      paramNickname: ''
+      paramNickname: '',
+      page         : 1,
     }
   },
-  methods: {
+  methods : {
+    showBoardByNickname() {
+      let data = {
+        page    : this.myBoardCurrentPage - 1,
+        nickname: this.paramNickname
+      }
+      this.$store.dispatch('REQUEST_GET_MY_BOARD', data);
+    },
+    showMyBoardPage(page) {
+      console.log("page : " + page);
+      this.$store.commit('SET_MY_BOARD_CURRENT_PAGE', page);
+      let data = {
+        page    : page - 1,
+        nickname: this.paramNickname
+      };
+      this.$store.dispatch('REQUEST_GET_MY_BOARD', data);
+    },
     displayedAt(createdAt) {
       createdAt = new Date(createdAt);
       const milliSeconds = new Date() - createdAt
@@ -132,8 +149,14 @@ export default {
     },
   },
   computed: {
-    boardList() {
-      return this.$store.state.boardStore.boardList;
+    myBoardList() {
+      return this.$store.state.boardStore.myBoardList;
+    },
+    myBoardCurrentPage() {
+      return this.$store.state.boardStore.myBoardCurrentPage;
+    },
+    myBoardTotalPage() {
+      return this.$store.state.boardStore.myBoardTotalPage;
     },
     nickname() {
       return this.$store.state.memberStore.nickname;
@@ -141,9 +164,11 @@ export default {
   },
   created() {
     this.paramNickname = this.$route.query.nickname;
+    this.page = this.myBoardCurrentPage;
+
   },
   mounted() {
-    this.$store.dispatch('REQUEST_GET_MY_BOARD', this.paramNickname);
+    this.showBoardByNickname();
   }
 }
 </script>

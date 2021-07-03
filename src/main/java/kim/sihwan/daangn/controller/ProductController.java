@@ -31,10 +31,11 @@ public class ProductController {
         productService.addProduct(productRequestDto);
     }
 
-    @GetMapping("/list/{offset}")
+    @GetMapping("/list/{page}")
     public ResponseEntity<Result> getProductByPaging(@RequestParam("list") List<String> categories,
-                                                     @PathVariable int offset) {
-        return new ResponseEntity<>(productService.paging(offset, categories), HttpStatus.OK);
+                                                     @RequestParam(required = false) String nickname,
+                                                     @PathVariable int page) {
+        return new ResponseEntity<>(productService.paging(page, categories, nickname), HttpStatus.OK);
     }
 
     @PostMapping("/{productId}")
@@ -47,10 +48,10 @@ public class ProductController {
         return new ResponseEntity(productService.findById(productId), HttpStatus.OK);
     }
 
-    @GetMapping("/my")
-    public ResponseEntity<List<ProductListResponseDto>> getMyProducts(@RequestParam String originName,
-                                                                      @RequestParam String requestNickname) {
-        return new ResponseEntity<>(productService.findAllMyProduct(originName, requestNickname), HttpStatus.OK);
+    @GetMapping("/my/{page}")
+    public ResponseEntity<Result> getMyProducts(@RequestParam String nickname,
+                                                @PathVariable int page) {
+        return new ResponseEntity<>(productService.findAllMyProduct(nickname, page), HttpStatus.OK);
     }
 
     @GetMapping("/my/like")

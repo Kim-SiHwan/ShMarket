@@ -1,12 +1,11 @@
 <template>
   <v-container>
 
-
-    <div style="text-align: center">
-      <h3 v-if="!updateFlag">{{ productDetail.title }}</h3>
+    <div style = "text-align: center">
+      <h3 v-if = "!updateFlag">{{ productDetail.title }}</h3>
       <v-text-field
           v-else
-          v-model="updateRequestData.title"></v-text-field>
+          v-model = "updateRequestData.title"></v-text-field>
     </div>
     <hr>
 
@@ -14,16 +13,16 @@
       <span><small>판매자 : {{ productDetail.nickname }}</small></span><br>
       <span><small>지역 : {{ productDetail.area }}</small></span><br>
       <span><small>작성일 : {{ displayedAt(productDetail.createDate) }}</small></span><br>
-      <span v-if="productDetail.tags">
+      <span v-if = "productDetail.tags">
         <small>관련 태그 :
-            <div v-for="(tags,index) in productDetail.tags" :key="index"
-                 style="list-style: none; display: inline">
+            <div v-for = "(tags,index) in productDetail.tags" :key = "index"
+                 style = "list-style: none; display: inline">
                <v-chip
-                   class="ml-0 mr-1 pr-2 pl-2"
-                   color="green"
+                   class = "ml-0 mr-1 pr-2 pl-2"
+                   color = "green"
                    label
                    small
-                   text-color="white">
+                   text-color = "white">
                  {{ tags.tag }}
               </v-chip>
            </div>
@@ -32,101 +31,101 @@
       <br>
       <span><small>판매 상태 : {{ productDetail.status }} </small></span>
       <v-select
-          v-if="nickname === productDetail.nickname"
-          v-model="selectedStatus"
-          :items="statusItem"
+          v-if = "nickname === productDetail.nickname"
+          v-model = "selectedStatus"
+          :items = "statusItem"
           dense
-          item-text="description"
-          label="상태변경"
+          item-text = "description"
+          label = "상태변경"
           outlined
-          style="width: 200px"
-          @change="changeStatus"
+          style = "width: 200px"
+          @change = "changeStatus"
       ></v-select>
     </div>
 
     <div
-        v-if="!productDetail.hasImages"
-        class="mt-3">
+        v-if = "!productDetail.hasImages"
+        class = "mt-3">
 
       <v-carousel
-          height="500"
+          height = "500"
           hide-delimiter-background>
 
         <v-carousel-item
-            v-for="(item,i) in productDetail.productAlbums"
-            :key="i">
-          <v-img :src="item.url" contain max-height="500"></v-img>
+            v-for = "(item,i) in productDetail.productAlbums"
+            :key = "i">
+          <v-img :src = "item.url" contain max-height = "500"></v-img>
 
         </v-carousel-item>
       </v-carousel>
       <div
-          class="mt-2"
-          style="text-align: center;">
+          class = "mt-2"
+          style = "text-align: center;">
         <v-btn
-            v-if="flag"
-            color="green"
+            v-if = "flag"
+            color = "green"
             dark
-            @click="changeShowImages">접어두기
+            @click = "changeShowImages">접어두기
         </v-btn>
         <v-btn
             v-else
-            color="green"
+            color = "green"
             dark
-            @click="changeShowImages">펼쳐보기
+            @click = "changeShowImages">펼쳐보기
         </v-btn>
       </div>
 
       <v-row
-          v-if="flag"
-          class="mt-5"
-          justify="center">
+          v-if = "flag"
+          class = "mt-5"
+          justify = "center">
         <v-col
-            v-for="(file,index) in productDetail.productAlbums" :key="index"
-            class="d-flex child-flex"
-            cols="3">
-          <div id="productFileImgDiv">
+            v-for = "(file,index) in productDetail.productAlbums" :key = "index"
+            class = "d-flex child-flex"
+            cols = "3">
+          <div id = "productFileImgDiv">
             <v-img
-                :src="file.url"
-                aspect-ratio="1.2"
+                :src = "file.url"
+                aspect-ratio = "1.2"
                 contain
-                width="500"
-                @click="selectedImg(file.id,$event)">
-              <p style="color: red; visibility: hidden">선택</p>
+                width = "500"
+                @click = "selectedImg(file.id,$event)">
+              <p style = "color: red; visibility: hidden">선택</p>
             </v-img>
           </div>
         </v-col>
       </v-row>
     </div>
 
-    <div id="likeDiv">
+    <div id = "likeDiv">
       <v-btn
-          v-if="productDetail.like"
-          class="float-right"
-          color="pink"
+          v-if = "productDetail.like"
+          class = "float-right"
+          color = "pink"
           dark
           icon
           x-large
-          @click="pushLike(productDetail.id)">
+          @click = "pushLike(productDetail.id)">
         <v-icon dark>mdi-heart</v-icon>
       </v-btn>
       <v-btn
           v-else
-          class="float-right"
-          color="grey"
+          class = "float-right"
+          color = "grey"
           dark
           icon
           x-large
-          @click="pushLike(productDetail.id)">
+          @click = "pushLike(productDetail.id)">
         <v-icon dark>mdi-heart</v-icon>
       </v-btn>
     </div>
-    <div style="clear: both"></div>
+    <div style = "clear: both"></div>
     <br>
-    <v-btn class="float-right"
-           color="info"
+    <v-btn class = "float-right"
+           color = "info"
            dark
            rounded
-           @click="chat">
+           @click = "chat">
       채팅하기
       <v-icon
           right>
@@ -134,51 +133,51 @@
       </v-icon>
     </v-btn>
     <v-textarea
-        v-if="productDetail && !updateFlag"
-        background-color="white"
-        class="mt-10"
+        v-if = "productDetail && !updateFlag"
+        background-color = "white"
+        class = "mt-10"
         no-resize
         outlined
-        readonly="readonly"
-        v-bind:value="productDetail.content"
+        readonly = "readonly"
+        v-bind:value = "productDetail.content"
     ></v-textarea>
     <v-textarea
-        v-else-if="updateFlag"
-        v-model="updateRequestData.content"
-        background-color="white"
-        class="mt-10"
-        label="수정할 내용을 입력해주세요."
+        v-else-if = "updateFlag"
+        v-model = "updateRequestData.content"
+        background-color = "white"
+        class = "mt-10"
+        label = "수정할 내용을 입력해주세요."
         outlined
-        v-bind:value="productDetail.content">
+        v-bind:value = "productDetail.content">
     </v-textarea>
 
-    <div id="productDetailBtnDiv" class="float-right mt-2 ml-3">
+    <div id = "productDetailBtnDiv" class = "float-right mt-2 ml-3">
 
       <v-btn
-          v-if="!updateFlag"
-          color="info"
-          @click="clickUpdateBtn">
+          v-if = "!updateFlag"
+          color = "info"
+          @click = "clickUpdateBtn">
         수정
       </v-btn>
 
       <v-btn
-          v-if="updateFlag"
-          color="warning"
-          @click="clickUpdateBtn">
+          v-if = "updateFlag"
+          color = "warning"
+          @click = "clickUpdateBtn">
         취소
       </v-btn>
 
       <v-btn
-          class="mr-3 ml-3"
-          color="error"
-          @click="deleteBoard">
+          class = "mr-3 ml-3"
+          color = "error"
+          @click = "deleteBoard">
         삭제
       </v-btn>
 
       <v-btn
-          v-if="updateFlag"
-          class="mr-3"
-          color="success" @click="updateBoard(fileData)">
+          v-if = "updateFlag"
+          class = "mr-3"
+          color = "success" @click = "updateBoard(fileData)">
         수정
       </v-btn>
 
@@ -186,12 +185,12 @@
 
 
     <v-file-input
-        v-if="updateFlag"
-        class="mr-3"
-        label="사진 추가"
+        v-if = "updateFlag"
+        class = "mr-3"
+        label = "사진 추가"
         multiple
         outlined
-        @change="selectedFile">
+        @change = "selectedFile">
     </v-file-input>
 
   </v-container>
@@ -204,51 +203,43 @@ export default {
   name: "ProductDetail",
   data() {
     return {
-      flag: false,
-      updateFlag: '',
-      time: '',
-      fileData: '',
-      selectedStatus: '',
-      statusItem: [
+      flag             : false,
+      updateFlag       : '',
+      time             : '',
+      fileData         : '',
+      selectedStatus   : '',
+      statusItem       : [
         {status: 'SALE', description: '판매중'},
         {status: 'RESERVATION', description: '예약중'},
         {status: 'COMPLETE', description: '판매 완료'}
       ],
       updateRequestData: {
-        id: '',
-        title: '',
+        id     : '',
+        title  : '',
         content: '',
-        ids: []
+        ids    : []
       }
 
     }
   },
 
-  methods: {
+  methods : {
     chat() {
       let data = {
-        sender: sessionStorage.getItem('nickname'),
-        receiver: this.productDetail.nickname
+        productId: this.productDetail.id,
+        sender   : sessionStorage.getItem('nickname'),
+        receiver : this.productDetail.nickname
       };
-      this.$store.dispatch('REQUEST_ADD_CHATROOM',data);
-/*      this.$store
-      axios.request({
-        url: '/api/chat',
-        method: 'POST',
-        data: dto
-      }).then(res => {
-        console.log(res.data);
-        this.$router.push({
-          path: '/chat',
-          query: {roomId: res.data}
-        });
-      })*/
+      this.$store.dispatch('REQUEST_ADD_CHATROOM', data);
     },
     changeShowImages() {
       this.flag = !this.flag;
     },
     pushLike(productId) {
-      this.$store.dispatch('REQUEST_PUSH_INTEREST', productId);
+      this.$store.dispatch('REQUEST_PUSH_INTEREST', productId)
+          .then(() => {
+            this.$store.dispatch('REQUEST_GET_PRODUCT', productId);
+          })
     },
     displayedAt(createdAt) {
       createdAt = new Date(createdAt);
@@ -344,7 +335,7 @@ export default {
     },
     changeStatus() {
       let data = {
-        status: '',
+        status   : '',
         productId: this.productDetail.id
       };
       if (this.selectedStatus === '판매중') {
@@ -354,7 +345,7 @@ export default {
       } else {
         data.status = 'COMPLETE';
       }
-      this.$store.dispatch('REQUEST_CHANGE_STATUS',data);
+      this.$store.dispatch('REQUEST_CHANGE_STATUS', data);
     }
   },
   computed: {
@@ -363,6 +354,9 @@ export default {
     },
     nickname() {
       return sessionStorage.getItem('nickname');
+    },
+    productList() {
+      return this.$store.state.productStore.productList;
     }
   },
   created() {

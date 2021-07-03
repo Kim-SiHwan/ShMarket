@@ -3,9 +3,13 @@ import router from '@/routes/index';
 
 const boardStore = {
     state    : {
-        boardList  : [],
-        boardDetail: '',
-        hasNext:false,
+        boardList         : [],
+        myBoardList       : [],
+        boardDetail       : '',
+        boardTotalPage    : 0,
+        boardCurrentPage  : 1,
+        myBoardCurrentPage: 1,
+        myBoardTotalPage  : 1
     },
     mutations: {
         SET_BOARD_LIST(state, payload) {
@@ -14,8 +18,21 @@ const boardStore = {
         SET_BOARD_DETAIL(state, payload) {
             state.boardDetail = payload
         },
-        SET_HAS_NEXT(state, payload){
-            state.hasNext = payload;
+        SET_MY_BOARD_LIST(state, payload) {
+            state.myBoardList = payload;
+        },
+        SET_BOARD_TOTAL_PAGE(state, payload) {
+            console.log(payload);
+            state.boardTotalPage = payload;
+        },
+        SET_BOARD_CURRENT_PAGE(state, payload) {
+            state.boardCurrentPage = payload;
+        },
+        SET_MY_BOARD_TOTAL_PAGE(state, payload) {
+            state.myBoardTotalPage = payload;
+        },
+        SET_MY_BOARD_CURRENT_PAGE(state, payload) {
+            state.myBoardCurrentPage = payload;
         }
     },
     actions  : {
@@ -25,7 +42,7 @@ const boardStore = {
                 context.commit('SET_BOARD_DETAIL', response.data);
             }
         },
-        async REQUEST_GET_ALL_PAGES(context, payload) {
+        async REQUEST_GET_ALL_BOARDS_PAGES(context, payload) {
             let tempCategory = JSON.parse(payload.category);
             let category = [];
             for (let key in tempCategory) {
@@ -34,13 +51,14 @@ const boardStore = {
                 }
             }
             let data = {
-                page : payload.page,
-                category : category
+                page    : payload.page - 1,
+                category: category
             }
-            const response = await board_api.requestGetAllPages(data);
+            const response = await board_api.requestGetAllBoardsPages(data);
             if (response) {
-                context.commit('SET_BOARD_LIST', response.data);
-                context.commit('SET_HAS_NEXT',response.data.next);
+                console.log(response);
+                context.commit('SET_BOARD_LIST', response.data.data);
+                context.commit('SET_BOARD_TOTAL_PAGE', response.data.totalPage);
             }
         },
         async REQUEST_ADD_BOARD(context, payload) {
@@ -72,7 +90,8 @@ const boardStore = {
         async REQUEST_GET_MY_BOARD(context, payload) {
             const response = await board_api.requestGetMyBoard(payload);
             if (response) {
-                context.commit('SET_BOARD_LIST', response.data);
+                context.commit('SET_MY_BOARD_LIST', response.data.data);
+                context.commit('SET_MY_BOARD_TOTAL_PAGE', response.data.totalPage);
             }
         }
     }

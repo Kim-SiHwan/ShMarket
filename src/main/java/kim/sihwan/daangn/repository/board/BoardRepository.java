@@ -2,6 +2,7 @@ package kim.sihwan.daangn.repository.board;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import kim.sihwan.daangn.domain.board.Board;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -15,6 +16,12 @@ import java.util.Optional;
 public interface BoardRepository extends JpaRepository<Board, Long> {
 
 
+    @Query("SELECT count(b.id) from Board b")
+    int boardCount();
+
+    @Query("SELECT count(b.nickname) FROM Board b WHERE b.nickname =:nickname")
+    int boardCountByNickname(@Param("nickname") String nickname);
+
     @Override
     @EntityGraph(attributePaths = {"member"})
     Optional<Board> findById(Long id);
@@ -24,7 +31,7 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query("SELECT b FROM Board b WHERE b.createDate < :time")
     @EntityGraph(attributePaths = {"member"})
-    Slice<Board> findBoards(Pageable pageable, @Param("time") LocalDateTime time);
+    Page<Board> findBoards(Pageable pageable, @Param("time") LocalDateTime time);
 
 
 }

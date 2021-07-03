@@ -1,10 +1,5 @@
 <template>
   <v-app id = "headerDiv">
-
-    <h1>{{ hasNext }}</h1>
-
-    <p><small v-if = "boardList">{{ boardList.length }}개의 동네생활이 있습니다</small></p>
-
     <v-switch
         class = "ml-15"
         color = "orange"
@@ -54,7 +49,7 @@
 
 
     <div id = "boardListDiv" class = "row justify-center mt-15">
-      <ul v-for = "(list,index) in boardAllList" :key = "index"
+      <ul v-for = "(list,index) in boardList" :key = "index"
           style = "list-style: none">
         <li id = "listDiv">
           <div class = "p-5 mb-5 rounded float-left"
@@ -66,9 +61,11 @@
               <router-link :to = "{path:'/profile',query:{nickname:list.nickname}}"><span
                   class = "float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
-              <span class = "float-left ml-3 mt-1 mr-3"> <small>작성일 : {{
-                  displayedAt(list.updateDate)
-                                                                }}</small></span>
+              <span class = "float-left ml-3 mt-1 mr-3">
+                <small>
+                작성일 : {{ displayedAt(list.updateDate) }}
+                </small>
+              </span>
               <br>
               <span class = "float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
               </span>
@@ -113,11 +110,6 @@
 
               <div id = "boardListIconDiv" class = "mt-8">
                 <v-row align-content = "center" justify = "center">
-                  <v-icon
-                      color = "blue darken-4">
-                    mdi-message-text
-                  </v-icon>
-                  {{ list.readCount }}
 
                   <v-icon
                       color = "green">
@@ -137,11 +129,15 @@
           </div>
         </li>
       </ul>
-
-
     </div>
-    <infinite-loading spinner = "spiral" @infinite = "infiniteHandler"></infinite-loading>
 
+    <v-pagination
+        v-model = "page"
+        @input="showBoardPage(page)"
+        total-visible="10"
+        :length = "totalPage">
+
+    </v-pagination>
 
     <v-fab-transition>
       <v-btn
@@ -174,71 +170,50 @@
 </template>
 
 <script>
-import InfiniteLoading from "vue-infinite-loading";
 
 export default {
   name      : "boardList",
   components: {
-    InfiniteLoading
   },
   data() {
     return {
-      boardAllList    : [],
       showCategoryFlag: false,
       clickTagFlag    : false,
       tagName         : '',
-      limit           : 1,
-      next            : true,
-      infiniteId      : +new Date(),
-
+      page            : 1
     }
   },
   methods   : {
-    infiniteHandler($state) {
-      if (this.hasNext) {
-        setTimeout(() => {
-          this.limit++;
-          let data = {
-            page    : this.limit,
-            category: localStorage.getItem('boardCategories')
-          }
-          this.$store.dispatch('REQUEST_GET_ALL_PAGES', data)
-              .then(() => {
-                for (let key in this.boardList.data) {
-                  this.boardAllList.push(this.boardList.data[key]);
-                }
-              })
-          $state.loaded();
-        }, 1000)
-      } else {
-        $state.complete();
-      }
-    },
     addBoard() {
       this.$router.push('/addBoard');
     },
     showBoardList() {
+        let data = {
+          page    : this.currentPage,
+          category: localStorage.getItem('boardCategories')
+        };
+        this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
+    },
+    showBoardPage(page){
+      console.log("page : "+page);
+      this.$store.commit('SET_BOARD_CURRENT_PAGE', page);
       let data = {
-        page    : this.limit,
+        page    : page,
         category: localStorage.getItem('boardCategories')
-      }
-      this.$store.dispatch('REQUEST_GET_ALL_PAGES', data)
-          .then(() => {
-            this.boardAllList = this.boardList.data;
-          });
+      };
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
+
     },
     checked(name) {
       this.categories[name] = !this.categories[name];
       localStorage.setItem('boardCategories', JSON.stringify(this.categories));
-      this.limit = 0;
+      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
+      this.page=1;
       let data = {
-        page    : this.limit,
+        page    : 1,
         category: localStorage.getItem('boardCategories')
       }
-      this.$store.dispatch('REQUEST_GET_ALL_PAGES', data)
-          .then(() => {
-            this.boardAllList = this.boardList.data;
-          });
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
     },
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
@@ -248,19 +223,19 @@ export default {
       this.clickTagFlag = true;
       let toJson = {};
       toJson[name] = true;
-      this.limit = 0;
+      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
+      this.page=1;
       let data = {
-        page    : this.limit,
+        page    : 1,
         category: JSON.stringify(toJson)
       };
-      this.$store.dispatch('REQUEST_GET_ALL_PAGES', data)
-          .then(() => {
-            this.boardAllList = this.boardList.data;
-          });
+
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
     },
     closeTag() {
       this.clickTagFlag = false;
-      this.limit = 0;
+      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
+      this.page=1;
       this.showBoardList();
     },
     displayedAt(createdAt) {
@@ -301,13 +276,15 @@ export default {
     categories() {
       return JSON.parse(localStorage.getItem('boardCategories'));
     },
-    hasNext() {
-      return this.$store.state.boardStore.hasNext;
+    totalPage() {
+      return this.$store.state.boardStore.boardTotalPage;
+    },
+    currentPage() {
+      return this.$store.state.boardStore.boardCurrentPage;
     }
   },
   created() {
-    this.limit = 0;
-    this.boardAllList = [];
+    this.page = this.currentPage;
   },
   mounted() {
     this.showBoardList();

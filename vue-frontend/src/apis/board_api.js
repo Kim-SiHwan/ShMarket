@@ -18,9 +18,10 @@ function requestGetAllBoards(data) {
         }
     })
 }
-function requestGetAllPages(data) {
+
+function requestGetAllBoardsPages(data) {
     return Send({
-        url   : '/api/board/list/'+data.page,
+        url   : '/api/board/list/' + data.page,
         method: 'GET',
         params: {
             'list': encodeURI(data.category)
@@ -53,9 +54,9 @@ function requestUpdateBoard(data) {
 
 function requestGetMyBoard(data) {
     return Send({
-        url   : '/api/board/my',
+        url   : '/api/board/my/' + data.page,
         method: 'GET',
-        params: {nickname: data}
+        params: {nickname: data.nickname}
     })
 }
 
@@ -66,5 +67,5 @@ export default {
     requestDeleteBoard,
     requestUpdateBoard,
     requestGetMyBoard,
-    requestGetAllPages
+    requestGetAllBoardsPages
 };
