@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,6 +26,9 @@ public class ChatRoom {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
+
+    @OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL)
+    private List<ChatLog> chatLogs = new ArrayList<>();
 
     public void changeDate() {
         this.updateDate = LocalDateTime.now();

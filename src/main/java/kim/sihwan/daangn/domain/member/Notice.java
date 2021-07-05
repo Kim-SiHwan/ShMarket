@@ -22,14 +22,14 @@ public class Notice {
     private Long target;
     private String type;
     private String message;
-    private boolean read;
+    private boolean checked;
     private LocalDateTime createDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    public void updateRead() {
-        this.read = true;
+    public void updateChecked() {
+        this.checked = true;
     }
 
     @Builder
@@ -37,7 +37,7 @@ public class Notice {
         this.target = target;
         this.type = type;
         this.message = message;
-        this.read = false;
+        this.checked = false;
         this.createDate = LocalDateTime.now();
     }
 

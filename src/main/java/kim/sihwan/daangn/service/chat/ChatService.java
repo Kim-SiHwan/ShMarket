@@ -3,9 +3,10 @@ package kim.sihwan.daangn.service.chat;
 import kim.sihwan.daangn.domain.chat.ChatLog;
 import kim.sihwan.daangn.domain.chat.ChatRoom;
 import kim.sihwan.daangn.domain.product.Product;
-import kim.sihwan.daangn.dto.chat.ChatLogResponseDto;
 import kim.sihwan.daangn.dto.chat.ChatRequestDto;
+import kim.sihwan.daangn.dto.chat.ChatRoomListResponseDto;
 import kim.sihwan.daangn.dto.chat.ChatRoomResponseDto;
+import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.chat.ChatLogRepository;
 import kim.sihwan.daangn.repository.chat.ChatRoomRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
@@ -30,42 +31,42 @@ public class ChatService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public List<ChatLogResponseDto> findAllChatLogByRoomId(Long roomId, String nickname) {
+    public ChatRoomResponseDto findAllChatLogByRoomId(Long roomId, String nickname) {
         changeChatLogAllRead(roomId, nickname);
-        return chatLogRepository.findAllByChatRoomId(roomId).stream()
-                .map(ChatLogResponseDto::new)
-                .collect(Collectors.toList());
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(AlreadyGoneException::new);
+        return ChatRoomResponseDto.toDto(chatRoom);
     }
 
     @Transactional
-    public int findAllChatLogByRoomIdAndNotRead(Long roomId, String nickname) {
-        return chatLogRepository.countAllByChatRoomIdAndReadAndReceiver(roomId, false, nickname);
+    public int findAllChatLogByRoomIdAndNotRead(List<ChatLog> chatLogs) {
+        int result = 0;
+        for (ChatLog chatLog : chatLogs) {
+            if (!chatLog.isChecked()) {
+                result++;
+            }
+        }
+        return result;
     }
 
     public int countAllNotReadChatLog(String nickname) {
-        return chatLogRepository.countAllByReceiverAndRead(nickname, false);
-    }
-
-    @Transactional
-    public String findLastMessage(Long roomId) {
-        ChatLog chatLog = chatLogRepository.findTop1ByChatRoomIdOrderByIdDesc(roomId);
-        return chatLog.getMessage();
+        return chatLogRepository.countAllByReceiverAndChecked(nickname, false);
     }
 
     @Transactional
     public void changeChatLogAllRead(Long roomId, String nickname) {
-        List<ChatLog> list = chatLogRepository.findAllByChatRoomIdAndReadAndReceiver(roomId, false, nickname);
-        list.forEach(ChatLog::changeReadState);
+        List<ChatLog> list = chatLogRepository.findAllByChatRoomIdAndCheckedAndReceiver(roomId, false, nickname);
+        list.forEach(ChatLog::changeCheckedState);
     }
 
-    public List<ChatRoomResponseDto> findAllChatRoomByNickname(String nickname) {
+    public List<ChatRoomListResponseDto> findAllChatRoomByNickname(String nickname) {
+
         return chatRoomRepository.findAllBySenderOrReceiver(nickname, nickname).stream()
+                .filter(room -> room.getChatLogs().size() > 0)
                 .map(m -> {
-                    int count = findAllChatLogByRoomIdAndNotRead(m.getId(), nickname);
-                    String lasMessage = findLastMessage(m.getId());
-                    return ChatRoomResponseDto.toDto(m, count, lasMessage);
-                })
-                .sorted(Comparator.comparing(ChatRoomResponseDto::getUpdateDate, Comparator.reverseOrder()))
+                    int count = findAllChatLogByRoomIdAndNotRead(m.getChatLogs());
+                    String lastMessage = m.getChatLogs().get(m.getChatLogs().size() - 1).getMessage();
+                    return ChatRoomListResponseDto.toDto(m, count, lastMessage);
+                }).sorted(Comparator.comparing(ChatRoomListResponseDto::getUpdateDate, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
@@ -98,8 +99,5 @@ public class ChatService {
 
         chatLog.addChatRoom(chatRoom);
         chatRoom.changeDate();
-        chatLogRepository.save(chatLog);
     }
-
-
 }

@@ -8,12 +8,12 @@ import lombok.Getter;
 @Builder
 public class NoticeResponseDto {
 
-    private Long id;
-    private Long target;
-    private String type;
-    private String message;
-    private String createDate;
-    private boolean isRead;
+    private final Long id;
+    private final Long target;
+    private final String type;
+    private final String message;
+    private final String createDate;
+    private final boolean isRead;
 
     public static NoticeResponseDto toDto(Notice notice){
         return NoticeResponseDto.builder()
@@ -22,7 +22,7 @@ public class NoticeResponseDto {
                 .type(notice.getType())
                 .message(notice.getMessage())
                 .createDate(notice.getCreateDate().toString())
-                .isRead(notice.isRead())
+                .isRead(notice.isChecked())
                 .build();
     }
 }

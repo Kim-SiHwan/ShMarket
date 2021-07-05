@@ -6,7 +6,6 @@ import kim.sihwan.daangn.dto.member.notice.NoticeResponseDto;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.member.NoticeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ public class NoticeService {
     private final NoticeRepository noticeRepository;
     private final MemberRepository memberRepository;
 
-    @Async
     @Transactional
     public void addNotice(Notice notice, String nickname) {
         Member member = memberRepository.findMemberByNickname(nickname)
@@ -40,19 +38,19 @@ public class NoticeService {
     }
 
     public int countAllNotReadNotice(String nickname) {
-        return noticeRepository.countAllByMemberNicknameAndRead(nickname,false);
+        return noticeRepository.countAllByMemberNicknameAndChecked(nickname, false);
     }
 
     @Transactional
     public void updateIsRead(Long noticeId) {
         Notice notice = noticeRepository.findById(noticeId).orElseThrow(NoSuchElementException::new);
-        notice.updateRead();
+        notice.updateChecked();
     }
 
     @Transactional
     public void updateAllIsRead(String nickname) {
         List<Notice> result = noticeRepository.findAllByMemberNickname(nickname);
-        result.forEach(Notice::updateRead);
+        result.forEach(Notice::updateChecked);
     }
 
 }

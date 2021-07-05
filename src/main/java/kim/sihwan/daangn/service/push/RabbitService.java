@@ -1,5 +1,6 @@
 package kim.sihwan.daangn.service.push;
 
+import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.push.NotificationResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,8 +21,11 @@ public class RabbitService {
                 .topic(topic)
                 .productId(productId)
                 .build();
-        rabbitTemplate.convertAndSend(exchange, "", sendDto);
+        rabbitTemplate.convertAndSend(exchange, "push.keyword", sendDto);
+    }
 
+    public void rabbitChatProducer(ChatRequestDto chatRequestDto) {
+        rabbitTemplate.convertAndSend(exchange, "push.chat", chatRequestDto);
     }
 
 

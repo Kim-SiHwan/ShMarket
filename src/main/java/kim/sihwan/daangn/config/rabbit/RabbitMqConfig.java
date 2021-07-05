@@ -1,9 +1,6 @@
 package kim.sihwan.daangn.config.rabbit;
 
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.FanoutExchange;
-import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
@@ -17,9 +14,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 class RabbitMqConfig {
 
-    private static final String queueName = "push-queue";
+    private static final String keywordQueueName = "keyword-queue";
+    private static final String chatQueueName = "chat-queue";
+    private static final String topicExchangeName = "push-exchange";
+    private static final String directExchangeName = "chat-exchange";
 
-    private static final String fanoutExchangeName = "push-exchange";
     @Value("${spring.rabbitmq.username}")
     private String username;
 
@@ -33,18 +32,33 @@ class RabbitMqConfig {
     private int port;
 
     @Bean
-    Queue queue() {
-        return new Queue(queueName, false);
+    Queue keywordQueue() {
+        return new Queue(keywordQueueName, false);
     }
 
     @Bean
-    FanoutExchange fanoutExchange() {
-        return new FanoutExchange(fanoutExchangeName);
+    Queue chatQueue() {
+        return new Queue(chatQueueName, false);
     }
 
     @Bean
-    Binding queueBinding(Queue queue, FanoutExchange fanoutExchange) {
-        return BindingBuilder.bind(queue).to(fanoutExchange);
+    TopicExchange topicExchange() {
+        return new TopicExchange(topicExchangeName);
+    }
+
+    @Bean
+    DirectExchange directExchange() {
+        return new DirectExchange(directExchangeName);
+    }
+
+    @Bean
+    Binding keywordQueueBinding(Queue keywordQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(keywordQueue).to(topicExchange).with("push.keyword");
+    }
+
+    @Bean
+    Binding chatQueueBinding(Queue chatQueue, TopicExchange topicExchange) {
+        return BindingBuilder.bind(chatQueue).to(topicExchange).with("push.chat");
     }
 
     @Bean

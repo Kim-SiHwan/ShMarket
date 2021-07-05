@@ -23,7 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private String password;
 
     @Override
-    public void registerStompEndpoints(StompEndpointRegistry registry){
+    public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*")
@@ -31,21 +31,17 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     }
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry){
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry
                 .setApplicationDestinationPrefixes("/app")
                 .enableStompBrokerRelay("/exchange/chat-exchange")
-                //Topic Exchange 사용
-//                .enableStompBrokerRelay("/topic")
                 .setRelayPort(61613)
                 .setClientLogin(username)
                 .setClientPasscode(password);
-//                .enableSimpleBroker("/send")
-
     }
 
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration){
+    public void configureClientInboundChannel(ChannelRegistration registration) {
         registration.interceptors(stompHandler);
     }
 
