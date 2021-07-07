@@ -27,9 +27,8 @@ public class BoardController {
     @GetMapping("/list/{page}")
     public ResponseEntity<Result> getBoardsByPaging(@RequestParam(value = "list") List<String> categories,
                                                     @RequestParam(required = false) String nickname,
-                                                    @RequestParam(required = false) String title,
                                                     @PathVariable(required = false) int page) {
-        return new ResponseEntity<>(boardService.paging(page, categories, nickname, title), HttpStatus.OK);
+        return new ResponseEntity<>(boardService.paging(page, categories, nickname), HttpStatus.OK);
     }
 
     @GetMapping("/{boardId}")

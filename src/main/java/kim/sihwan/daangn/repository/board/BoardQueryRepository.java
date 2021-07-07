@@ -25,7 +25,7 @@ public class BoardQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public List<QBoardDto> findBoards(int off, int size, String nickname, String title) {
+    public List<QBoardDto> findBoards(int off, int size, String nickname) {
 
         List<Long> ids = queryFactory
                 .select(board.id)

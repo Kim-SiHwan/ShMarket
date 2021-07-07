@@ -16,11 +16,11 @@ public class BoardRequestDto {
     @NotBlank(message = "닉네임은 필수 항목입니다.")
     private String nickname;
 
-    @Size(max = 13, message = "동네생활 제목은 13자 이하로 작성해주세요.")
-    @NotBlank(message = "동네생활 제목은 필수 항목입니다.")
+    @Size(max = 13, message = "게시글 제목은 13자 이하로 작성해주세요.")
+    @NotBlank(message = "게시글 제목은 필수 항목입니다.")
     private String title;
 
-    @NotBlank(message = "동네생활 내용은 필수 항목입니다.")
+    @NotBlank(message = "게시글 내용은 필수 항목입니다.")
     private String content;
 
     @NotBlank(message = "지역은 필수 항목입니다.")

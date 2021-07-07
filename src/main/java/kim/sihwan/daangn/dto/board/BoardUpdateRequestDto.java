@@ -13,10 +13,10 @@ public class BoardUpdateRequestDto {
 
     private Long id;
 
-    @NotBlank(message = "변경할 동네생활 제목은 필수 항목입니다.")
+    @NotBlank(message = "변경할 게시글 제목은 필수 항목입니다.")
     private String title;
 
-    @NotBlank(message = "변경할 동네생활 내용은 필수 항목입니다.")
+    @NotBlank(message = "변경할 게시글 내용은 필수 항목입니다.")
     private String content;
 
     private String hasImages;

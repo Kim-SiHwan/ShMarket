@@ -8,13 +8,11 @@ import kim.sihwan.daangn.dto.board.comment.CommentUpdateRequestDto;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.board.BoardRepository;
 import kim.sihwan.daangn.repository.board.CommentRepository;
-import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,16 +20,14 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CommentService {
 
-    private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public void addComment(CommentRequestDto commentRequestDto){
         Comment comment = commentRequestDto.toEntity(commentRequestDto);
         Board board = boardRepository.findById(commentRequestDto.getBoardId()).orElseThrow(AlreadyGoneException::new);
         comment.addBoard(board);
-        commentRepository.save(comment);
-
     }
 
     public List<CommentResponseDto> findAllCommentsByBoardId(Long boardId){
@@ -52,8 +48,4 @@ public class CommentService {
         comment.changeComment(updateRequestDto.getContent());
 
     }
-
-
-
-
 }
