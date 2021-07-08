@@ -45,12 +45,11 @@
   - https://tjdans.tistory.com/25
 
 - N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
-
+  - https://tjdans.tistory.com/28
+  
 - 조회 성능 최적화하기
-  - ~
   - 최종 결과 -> 232초 -> 0.004 ~ 0.2초로 개선 
-
-- FCM 연동하기 
-
+  - https://tjdans.tistory.com/29
+ 
 - 푸시 메시지를 비 동기적으로 사용하기 
-
+  - https://tjdans.tistory.com/31
