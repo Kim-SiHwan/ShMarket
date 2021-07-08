@@ -1,5 +1,6 @@
-# ShMarket
+### ShMarket
 중고 거래 웹사이트 제작 프로젝트
+프로젝트 소개 - https://tjdans.tistory.com/27
 ---
 ### 프로젝트 목표 
 1. 견고한 어플리케이션 제작 
