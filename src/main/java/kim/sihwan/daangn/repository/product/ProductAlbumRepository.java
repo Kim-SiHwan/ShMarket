@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface ProductAlbumRepository extends JpaRepository<ProductAlbum, Long> {
+
     @Transactional
     @Modifying
     @Query("DELETE FROM ProductAlbum p WHERE p.id IN :ids")

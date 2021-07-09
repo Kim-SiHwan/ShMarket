@@ -23,7 +23,7 @@ public class ProductQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public List<Product> findProducts(int page, int size, String nickname){
+    public List<Product> findProducts(int page, int size, String nickname) {
         List<Long> ids = queryFactory
                 .select(product.id)
                 .from(product)
@@ -49,7 +49,7 @@ public class ProductQueryRepository extends QuerydslRepositorySupport {
         if (nickname == null) {
             return null;
         }
-        return product.nickname.like(nickname+"%");
+        return product.nickname.like(nickname + "%");
     }
 
 }

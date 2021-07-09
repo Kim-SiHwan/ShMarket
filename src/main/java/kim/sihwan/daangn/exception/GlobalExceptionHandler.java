@@ -76,9 +76,7 @@ public class GlobalExceptionHandler {
             case "block":
                 description = "이미 차단한 사용자입니다.";
                 return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
-            case "follow":
-                description = "이미 모아보기의 대상입니다.";
-                return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
+
         }
 
         return new ResponseEntity<>(errorResponseDto(ErrorCode.ALREADY_EXIST.getCode(),description),HttpStatus.BAD_REQUEST);
@@ -98,9 +96,7 @@ public class GlobalExceptionHandler {
             case "tag":
                 description = "태그는 최대 3개까지 설정할 수 있습니다.";
                 return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
-            case "follow":
-                description = "모아보기는 최대 5명까지 설정할 수 있습니다.";
-                return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);
+
         }
 
         return new ResponseEntity<>(errorResponseDto(ErrorCode.OVER_SIZE.getCode(),description),HttpStatus.BAD_REQUEST);

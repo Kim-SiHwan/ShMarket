@@ -12,10 +12,10 @@ import javax.persistence.*;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductInterested {
+public class ProductLike {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "product_interested_id")
+    @Column(name = "product_like_id")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -24,12 +24,12 @@ public class ProductInterested {
     @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
 
-    public void addProduct(Product product){
-        this.product=product;
+    public void addProduct(Product product) {
+        this.product = product;
     }
 
-    public void addMember(Member member){
-        this.member=member;
+    public void addMember(Member member) {
+        this.member = member;
     }
 
 

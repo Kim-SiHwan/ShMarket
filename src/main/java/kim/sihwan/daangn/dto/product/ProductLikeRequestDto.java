@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
-public class ProductInterestedRequestDto {
+public class ProductLikeRequestDto {
 
     @NotBlank(message = "등록할 상품 아이디는 필수 항목입니다.")
     private Long productId;

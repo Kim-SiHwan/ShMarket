@@ -1,10 +1,10 @@
 package kim.sihwan.daangn.service.product;
 
-import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
-import kim.sihwan.daangn.domain.product.ProductInterested;
+import kim.sihwan.daangn.domain.product.ProductLike;
 import kim.sihwan.daangn.domain.product.ProductTag;
+import kim.sihwan.daangn.dto.common.PagingDto;
 import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
@@ -14,21 +14,21 @@ import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.exception.customException.NotMineException;
 import kim.sihwan.daangn.exception.customException.OverSizeException;
 import kim.sihwan.daangn.repository.member.MemberRepository;
-import kim.sihwan.daangn.repository.product.InterestedRepository;
+import kim.sihwan.daangn.repository.product.ProductLikeRepository;
 import kim.sihwan.daangn.repository.product.ProductQueryRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import kim.sihwan.daangn.service.push.RabbitService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StopWatch;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -40,15 +40,57 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ProductService {
 
-    private final ProductRepository productRepository;
-    private final ProductAlbumService productAlbumService;
-    private final MemberRepository memberRepository;
     private final ProductTagService tagService;
-    private final ProductInterestedService interestedService;
-    private final InterestedRepository interestedRepository;
-    private final RedisTemplate<String, String> redisTemplate;
-    private final RabbitService rabbitService;
+    private final ProductLikeService likeService;
+    private final MemberRepository memberRepository;
+    private final ProductRepository productRepository;
     private final ProductQueryRepository queryRepository;
+    private final ProductAlbumService productAlbumService;
+    private final ProductLikeRepository productLikeRepository;
+
+    private final RabbitService rabbitService;
+    private final RedisTemplate<String, String> redisTemplate;
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    static class setMemberAndLikeProductListForPaging {
+        Member member;
+        Long memberId;
+        List<ProductLike> likeList;
+    }
+
+
+    public Member findMemberByUsername() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return memberRepository.findMemberByUsername(username);
+    }
+
+    public boolean isLike(List<ProductLike> likeList, Long memberId, Long productId) {
+        boolean flag = false;
+
+        for (ProductLike like : likeList) {
+            if (like.getMember().getId().equals(memberId) && like.getProduct().getId().equals(productId)) {
+                flag = true;
+                break;
+            }
+        }
+        return flag;
+    }
+
+    public boolean isLike(String username, Long productId) {
+        boolean flag = false;
+        if (productLikeRepository.findByMemberUsernameAndProductId(username, productId).isPresent()) {
+            flag = true;
+        }
+        return flag;
+    }
+
+    public setMemberAndLikeProductListForPaging getMemberAndLikeProductListForPaging() {
+        Member member = findMemberByUsername();
+        List<ProductLike> likeList = productLikeRepository.findAllByMemberNickname(member.getNickname());
+        return new setMemberAndLikeProductListForPaging(member, member.getId(), likeList);
+    }
 
     @Transactional
     public void addProduct(ProductRequestDto productRequestDto) {
@@ -70,8 +112,56 @@ public class ProductService {
         productTags.forEach(tags -> rabbitService.rabbitProducer(tags.getTag().getTag(), tags.getProduct().getId()));
     }
 
+    public ProductResponseDto findById(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
+        return ProductResponseDto.toDto(product, isLike(findMemberByUsername().getUsername(), product.getId()));
+    }
+
+    public Result findAllProductByNickname(String nickname, int page) {
+        setMemberAndLikeProductListForPaging getData = getMemberAndLikeProductListForPaging();
+
+        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
+                .map(product -> getProductListResponseDto(getData.likeList, product, getData.memberId))
+                .collect(Collectors.toList());
+        int totalPage = productRepository.productCountByNickname(nickname) / 20;
+
+        return new Result(list, totalPage);
+    }
+
+    public ProductListResponseDto getProductListResponseDto(List<ProductLike> likeList, Product product, Long memberId) {
+        if (isLike(likeList, memberId, product.getId())) {
+            return ProductListResponseDto.toDto(product, true);
+        }
+        return ProductListResponseDto.toDto(product, false);
+    }
+
+    public List<ProductListResponseDto> findAllLikeProductByNickname(String nickname) {
+
+        List<ProductLike> likeList = likeService.findAllByNickname(nickname);
+        return likeList.stream()
+                .map(m -> ProductListResponseDto.toDto(m.getProduct(), true))
+                .collect(Collectors.toList());
+    }
+
+    public Result paging(int page, List<String> categories, String nickname) {
+
+        ListOperations<String, String> vo = redisTemplate.opsForList();
+
+        setMemberAndLikeProductListForPaging getData = getMemberAndLikeProductListForPaging();
+
+        PagingDto pagingDto = new PagingDto(getData.getMember(), vo, categories);
+
+        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
+                .filter(product -> pagingDto.getAreaList().contains(product.getArea()) && pagingDto.getCategories().contains(product.getCategory()) && !pagingDto.getBlockList().contains(product.getNickname()))
+                .map(product -> getProductListResponseDto(getData.likeList, product, getData.memberId))
+                .collect(Collectors.toList());
+        int totalPage = productRepository.productCount() / 20;
+
+        return new Result(list, totalPage);
+    }
+
     @Transactional
-    public ProductResponseDto setStatus(Long productId, String status) {
+    public void setStatus(Long productId, String status) {
         Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
 
         if (status.equals("SALE")) {
@@ -81,92 +171,10 @@ public class ProductService {
         } else {
             product.setStatusCompleted();
         }
-        return ProductResponseDto.toDto(product, false);
-    }
-
-    public ProductResponseDto findById(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
-        List<ProductInterested> interestedList = interestedService.findAll();
-        if (isInterested(interestedList, findMemberByUsername().getId(), productId)) {
-            return ProductResponseDto.toDto(product, true);
-        }
-        return ProductResponseDto.toDto(product, false);
-
-    }
-
-    public Result findAllMyProduct(String nickname, int page) {
-        Member member = findMemberByUsername();
-        Long memberId = member.getId();
-        List<ProductInterested> interestedList = interestedService.findAllByNickname(member.getNickname());
-
-        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
-                .map(m -> {
-                    if (isInterested(interestedList, memberId, m.getId())) {
-                        return ProductListResponseDto.toDto(m, true);
-                    }
-                    return ProductListResponseDto.toDto(m, false);
-
-                })
-                .collect(Collectors.toList());
-        int totalPage = productRepository.productCountByNickname(nickname) / 20;
-        return new Result(list, totalPage);
-    }
-
-    public List<ProductListResponseDto> findAllMyLikeProduct(String nickname) {
-
-        List<ProductInterested> interestedList = interestedService.findAllByNickname(nickname);
-        return interestedList.stream()
-                .map(m -> {
-                    return ProductListResponseDto.toDto(m.getProduct(), true);
-                }).collect(Collectors.toList());
-    }
-
-
-    public Result paging(int page, List<String> categories, String nickname) {
-
-        Member member = findMemberByUsername();
-        Long memberId = member.getId();
-        ListOperations<String, String> vo = redisTemplate.opsForList();
-
-        List<String> getCategories = categories.stream()
-                .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
-                .collect(Collectors.toList());
-
-        List<String> al = vo.range(member.getArea() + "::List", 0L, -1L);
-
-        List<String> blockList = member.getBlocks().stream()
-                .map(Block::getToMember)
-                .collect(Collectors.toList());
-
-        List<ProductInterested> interestedList = interestedService.findAll();
-
-        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
-                .filter(product -> al.contains(product.getArea()) && getCategories.contains(product.getCategory()) && !blockList.contains(product.getNickname()))
-                .map(m -> {
-                    if (isInterested(interestedList, memberId, m.getId())) {
-                        return ProductListResponseDto.toDto(m, true);
-                    }
-                    return ProductListResponseDto.toDto(m, false);
-
-                })
-                .collect(Collectors.toList());
-        int totalPage = productRepository.productCount() / 20;
-
-        return new Result(list, totalPage);
     }
 
     @Transactional
-    public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
-        String nickname = findMemberByUsername().getNickname();
-        if (!product.getNickname().equals(nickname)) {
-            throw new NotMineException();
-        }
-        productRepository.deleteById(productId);
-    }
-
-    @Transactional
-    public ProductResponseDto updateProduct(ProductUpdateRequestDto updateRequestDto) {
+    public void updateProduct(ProductUpdateRequestDto updateRequestDto) {
         Product product = productRepository.findById(updateRequestDto.getId()).orElseThrow(AlreadyGoneException::new);
         String nickname = findMemberByUsername().getNickname();
         if (!product.getNickname().equals(nickname)) {
@@ -179,34 +187,16 @@ public class ProductService {
             productAlbumService.appendImages(product, updateRequestDto.getFiles());
         }
         product.update(updateRequestDto.getTitle(), updateRequestDto.getContent());
-        List<ProductInterested> interestedList = interestedService.findAll();
-        return ProductResponseDto.toDto(product, isInterested(interestedList, findMemberByUsername().getId(), product.getId()));
-    }
-
-    public boolean isInterested(List<ProductInterested> interestedList, Long memberId, Long productId) {
-        boolean flag = false;
-
-        for (ProductInterested interested : interestedList) {
-            if (interested.getMember().getId().equals(memberId) && interested.getProduct().getId().equals(productId)) {
-                flag = true;
-                break;
-            }
-        }
-        return flag;
-    }
-
-    public boolean isLike(String username, Long productId) {
-        boolean flag = false;
-        if (interestedRepository.findByMemberUsernameAndProductId(username, productId).isPresent()) {
-            flag = true;
-        }
-        return flag;
     }
 
     @Transactional
-    public Member findMemberByUsername() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return memberRepository.findMemberByUsername(username);
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(AlreadyGoneException::new);
+        String nickname = findMemberByUsername().getNickname();
+        if (!product.getNickname().equals(nickname)) {
+            throw new NotMineException();
+        }
+        productRepository.deleteById(productId);
     }
 
 }

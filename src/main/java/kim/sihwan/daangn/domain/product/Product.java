@@ -43,7 +43,7 @@ public class Product {
     private Set<ProductTag> productTags = new LinkedHashSet<>();
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private Set<ProductInterested> productLikes = new LinkedHashSet<>();
+    private Set<ProductLike> productLikes = new LinkedHashSet<>();
 
     public void setStatusReservation() {
         this.status = ProductStatus.RESERVATION;

@@ -5,7 +5,7 @@ import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
 import kim.sihwan.daangn.dto.product.ProductResponseDto;
 import kim.sihwan.daangn.dto.product.ProductUpdateRequestDto;
-import kim.sihwan.daangn.service.product.ProductInterestedService;
+import kim.sihwan.daangn.service.product.ProductLikeService;
 import kim.sihwan.daangn.service.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.FileSystemResource;
@@ -24,12 +24,7 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-    private final ProductInterestedService interestedService;
-
-    @PostMapping
-    public void addProduct(@Valid @ModelAttribute ProductRequestDto productRequestDto) {
-        productService.addProduct(productRequestDto);
-    }
+    private final ProductLikeService likeService;
 
     @GetMapping("/list/{page}")
     public ResponseEntity<Result> getProductByPaging(@RequestParam("list") List<String> categories,
@@ -38,25 +33,20 @@ public class ProductController {
         return new ResponseEntity<>(productService.paging(page, categories, nickname), HttpStatus.OK);
     }
 
-    @PostMapping("/{productId}")
-    public ResponseEntity<Boolean> setInterested(@PathVariable Long productId) {
-        return new ResponseEntity<>(interestedService.pushInterest(productId), HttpStatus.ACCEPTED);
-    }
-
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
         return new ResponseEntity(productService.findById(productId), HttpStatus.OK);
     }
 
     @GetMapping("/my/{page}")
-    public ResponseEntity<Result> getMyProducts(@RequestParam String nickname,
-                                                @PathVariable int page) {
-        return new ResponseEntity<>(productService.findAllMyProduct(nickname, page), HttpStatus.OK);
+    public ResponseEntity<Result> getAllProductsByNickname(@RequestParam String nickname,
+                                                           @PathVariable int page) {
+        return new ResponseEntity<>(productService.findAllProductByNickname(nickname, page), HttpStatus.OK);
     }
 
     @GetMapping("/my/like")
-    public ResponseEntity<List<ProductListResponseDto>> getMyLikeProducts(@RequestParam String nickname) {
-        return new ResponseEntity<>(productService.findAllMyLikeProduct(nickname), HttpStatus.OK);
+    public ResponseEntity<List<ProductListResponseDto>> getAllLikeProductsByNickname(@RequestParam String nickname) {
+        return new ResponseEntity<>(productService.findAllLikeProductByNickname(nickname), HttpStatus.OK);
     }
 
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)
@@ -66,20 +56,30 @@ public class ProductController {
         return new ResponseEntity(resource, HttpStatus.OK);
     }
 
-    @PutMapping("/status/{productId}")
-    public ResponseEntity<ProductResponseDto> setStatus(@PathVariable Long productId,
-                                                        @RequestParam("status") String status) {
-        return new ResponseEntity<>(productService.setStatus(productId, status), HttpStatus.OK);
+    @PostMapping
+    public void addProduct(@Valid @ModelAttribute ProductRequestDto productRequestDto) {
+        productService.addProduct(productRequestDto);
+    }
+
+    @PostMapping("/{productId}")
+    public ResponseEntity<Boolean> setLike(@PathVariable Long productId) {
+        return new ResponseEntity<>(likeService.pushInterest(productId), HttpStatus.ACCEPTED);
+    }
+
+    @PatchMapping("/status/{productId}")
+    public void setStatus(@PathVariable Long productId,
+                          @RequestParam("status") String status) {
+        productService.setStatus(productId, status);
+    }
+
+    @PatchMapping
+    public void updateProduct(@Valid @ModelAttribute ProductUpdateRequestDto updateRequestDto) {
+        productService.updateProduct(updateRequestDto);
     }
 
     @DeleteMapping("/{productId}")
     public void deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
-    }
-
-    @PutMapping
-    public ResponseEntity<ProductResponseDto> updateProduct(@Valid @ModelAttribute ProductUpdateRequestDto updateRequestDto) {
-        return new ResponseEntity<>(productService.updateProduct(updateRequestDto), HttpStatus.OK);
     }
 
 }
