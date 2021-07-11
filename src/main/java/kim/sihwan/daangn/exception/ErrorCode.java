@@ -13,7 +13,7 @@ public enum ErrorCode {
     EXPIRED_TOKEN(7, "만료된 토큰입니다. 다시 로그인을 진행해주세요."),
     NON_LOGIN(8, "로그인이 필요합니다."),
     NOT_ADMIN(9,"관리자만 가능한 서비스입니다."),
-    NOT_MINE(10,"작성자만 수정/삭제가 가능합니다."),
+    NOT_MINE(10,"권한이 없습니다."),
     ALREADY_EXIST(11,""),
     OVER_SIZE(12,""),
     OVER_SIZE_TAG(13,"태그는 최대 3개만 설정할 수 있습니다.");

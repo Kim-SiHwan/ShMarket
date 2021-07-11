@@ -12,6 +12,8 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class MannerDto {
 
+    private Long id;
+
     @NotBlank(message = "닉네임은 필수 항목입니다.")
     private String nickname;
 
@@ -30,6 +32,7 @@ public class MannerDto {
 
     public static MannerDto toDto(Manner manner) {
         return MannerDto.builder()
+                .id(manner.getId())
                 .nickname(manner.getMember().getNickname())
                 .type(manner.getType())
                 .content(manner.getContent())

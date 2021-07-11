@@ -3,21 +3,16 @@ package kim.sihwan.daangn.service.member;
 
 import kim.sihwan.daangn.config.jwt.JwtTokenProvider;
 import kim.sihwan.daangn.domain.area.Area;
-import kim.sihwan.daangn.domain.area.SelectedArea;
 import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.Review;
-import kim.sihwan.daangn.dto.member.JoinRequestDto;
-import kim.sihwan.daangn.dto.member.LoginRequestDto;
-import kim.sihwan.daangn.dto.member.LoginResponseDto;
-import kim.sihwan.daangn.dto.member.MemberResponseDto;
+import kim.sihwan.daangn.dto.member.*;
 import kim.sihwan.daangn.dto.member.block.BlockDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.exception.customException.*;
 import kim.sihwan.daangn.repository.area.AreaRepository;
-import kim.sihwan.daangn.repository.area.SelectedAreaRepository;
 import kim.sihwan.daangn.repository.member.BlockRepository;
 import kim.sihwan.daangn.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -45,15 +41,19 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class MemberService implements UserDetailsService {
 
-    private final JwtTokenProvider tokenProvider;
-    private final AuthenticationManagerBuilder managerBuilder;
-    private final PasswordEncoder passwordEncoder;
-    private final RedisTemplate<String, String> redisTemplate;
-
-    private final MemberRepository memberRepository;
     private final AreaRepository areaRepository;
     private final BlockRepository blockRepository;
-    private final SelectedAreaRepository selectedAreaRepository;
+    private final MemberRepository memberRepository;
+
+    private final JwtTokenProvider tokenProvider;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManagerBuilder managerBuilder;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final RedisTemplate<String, User> userRedisTemplate;
+
+    public MemberResponseDto findById(Long memberId) {
+        return new MemberResponseDto(memberRepository.findById(memberId).orElseThrow(NoSuchElementException::new));
+    }
 
     @Transactional
     public void addManner(MannerDto mannerRequestDto) {
@@ -75,6 +75,7 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByNickname(nickname).orElseThrow(NoSuchElementException::new);
         return member.getManners().stream()
                 .map(MannerDto::toDto)
+                .sorted(Comparator.comparing(MannerDto::getId, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
@@ -82,19 +83,20 @@ public class MemberService implements UserDetailsService {
         Member member = memberRepository.findMemberByNickname(nickname).orElseThrow(NoSuchElementException::new);
         return member.getReviews().stream()
                 .map(ReviewDto::toDto)
+                .sorted(Comparator.comparing(ReviewDto::getId, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public void addBlock(BlockDto blockDto){
+    public void addBlock(BlockDto blockDto) {
         Member fromMember = memberRepository.findMemberByNickname(blockDto.getFromNickname()).orElseThrow(NoSuchElementException::new);
         Optional<Block> getBlock = blockRepository.findByMemberNicknameAndToMember(blockDto.getFromNickname(), blockDto.getToNickname());
 
-        if(getBlock.isPresent()){
+        if (getBlock.isPresent()) {
             throw new AlreadyExistException("block");
         }
 
-        if(fromMember.getBlocks().size()>=2){
+        if (fromMember.getBlocks().size() >= 2) {
             throw new OverSizeException("block");
         }
 
@@ -102,7 +104,7 @@ public class MemberService implements UserDetailsService {
         block.addMember(fromMember);
     }
 
-    public List<BlockDto> getBlocksByNickname(String nickname){
+    public List<BlockDto> getBlocksByNickname(String nickname) {
         Member member = memberRepository.findMemberByNickname(nickname).orElseThrow(NoSuchElementException::new);
         return member.getBlocks().stream()
                 .map(BlockDto::toDto)
@@ -110,8 +112,40 @@ public class MemberService implements UserDetailsService {
     }
 
     @Transactional
-    public void deleteBlock(Long blockId){
+    public void deleteBlock(Long blockId) {
         blockRepository.deleteById(blockId);
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String username) {
+        ValueOperations<String, User> vo = userRedisTemplate.opsForValue();
+
+        User getUser = vo.get(username + "::MEMBER");
+        if (vo.get(username + "::MEMBER") == null) {
+            Member member = memberRepository.findMemberByUsername(username);
+            if (member == null)
+                throw new UserNotFoundException();
+            vo.set(username + "::MEMBER", new User(member.getUsername(), member.getPassword(), Collections.singleton(new SimpleGrantedAuthority(member.getRole()))), 30L, TimeUnit.MINUTES);
+            return new User(member.getUsername(), member.getPassword(), Collections.singleton(new SimpleGrantedAuthority(member.getRole())));
+        }
+        return getUser;
+    }
+
+    @Transactional
+    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword());
+        Authentication auth = managerBuilder.getObject().authenticate(token);
+
+        Member member = memberRepository.findMemberByUsername(auth.getName());
+
+        String jwt = tokenProvider.createToken(auth);
+        if (loginRequestDto.getFcmToken() != null) {
+            ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+            valueOperations.set(member.getId() + "::FCM", loginRequestDto.getFcmToken());
+        }
+
+        return new LoginResponseDto(member.getId(), jwt, member.getUsername(), member.getNickname(), member.getArea().split(" ")[2]);
     }
 
     private Boolean isValidateDuplicateUsername(Member member) {
@@ -125,22 +159,6 @@ public class MemberService implements UserDetailsService {
     }
 
     @Transactional
-    public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword());
-
-        Authentication auth = managerBuilder.getObject().authenticate(token);
-
-        Member member = memberRepository.findMemberByUsername(auth.getName());
-
-        String jwt = tokenProvider.createToken(auth);
-
-        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(member.getId() + "::FCM", loginRequestDto.getFcmToken());
-
-        return new LoginResponseDto(member.getId(), jwt, member.getUsername(), member.getNickname(), member.getArea().split(" ")[2]);
-    }
-
-    @Transactional
     public Long join(JoinRequestDto joinRequestDto) {
         Member member = joinRequestDto.toEntity(joinRequestDto, passwordEncoder);
         if (!isValidateDuplicateUsername(member)) {
@@ -150,12 +168,6 @@ public class MemberService implements UserDetailsService {
             throw new NicknameDuplicatedException();
         }
         memberRepository.save(member);
-
-        Area area = areaRepository.findByAddress(joinRequestDto.getArea());
-        SelectedArea selectedArea = new SelectedArea();
-        selectedArea.addMember(member);
-        selectedArea.addArea(area);
-        selectedAreaRepository.save(selectedArea);
 
         String[] splitStr = joinRequestDto.getArea().split(" ");
         String city = splitStr[0];
@@ -176,19 +188,6 @@ public class MemberService implements UserDetailsService {
             vo.leftPushAll(getArea.getAddress() + "::List", nearArea);
         }
         return member.getId();
-    }
-
-    public MemberResponseDto findById(Long memberId) {
-        return new MemberResponseDto(memberRepository.findById(memberId).orElseThrow(NoSuchElementException::new));
-
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) {
-        Member member = memberRepository.findMemberByUsername(username);
-        if(member == null)
-            throw new UserNotFoundException();
-        return new User(member.getUsername(), member.getPassword(), Collections.singleton(new SimpleGrantedAuthority(member.getRole())));
     }
 
     private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {

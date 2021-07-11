@@ -12,6 +12,8 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class ReviewDto {
 
+    private Long id;
+
     @NotBlank(message = "판매자의 닉네임은 필수 항목입니다.")
     private String nickname;
 
@@ -30,6 +32,7 @@ public class ReviewDto {
 
     public static ReviewDto toDto(Review review){
         return ReviewDto.builder()
+                .id(review.getId())
                 .nickname(review.getMember().getNickname())
                 .buyer(review.getBuyer())
                 .content(review.getContent())

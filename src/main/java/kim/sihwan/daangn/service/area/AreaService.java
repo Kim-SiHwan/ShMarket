@@ -16,7 +16,6 @@ public class AreaService {
     private final AreaRepository areaRepository;
 
     public List<AreaResponseDto> getAreasByDong(String dong){
-        System.out.println(dong+"검색");
         return areaRepository.findAllByDongLike("%"+dong+"%")
                 .stream()
                 .map(AreaResponseDto::toDto)

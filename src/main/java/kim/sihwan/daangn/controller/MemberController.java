@@ -23,6 +23,21 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @GetMapping("/manner")
+    public ResponseEntity<List<MannerDto>> getMannersByNickname(@RequestParam String nickname) {
+        return new ResponseEntity<>(memberService.getMannersByNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/review")
+    public ResponseEntity<List<ReviewDto>> getReviewsByNickname(@RequestParam String nickname) {
+        return new ResponseEntity<>(memberService.getReviewsByNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/block")
+    public ResponseEntity<List<BlockDto>> getBlocksByNickname(@RequestParam String nickname){
+        return new ResponseEntity<>(memberService.getBlocksByNickname(nickname), HttpStatus.OK);
+    }
+
     @PostMapping("/join")
     public Long join(@Valid @RequestBody JoinRequestDto joinRequestDto) {
         return memberService.join(joinRequestDto);
@@ -43,21 +58,6 @@ public class MemberController {
         memberService.addReview(reviewDto);
     }
 
-    @GetMapping("/manner")
-    public ResponseEntity<List<MannerDto>> getMannersByNickname(@RequestParam String nickname) {
-        return new ResponseEntity<>(memberService.getMannersByNickname(nickname), HttpStatus.OK);
-    }
-
-    @GetMapping("/review")
-    public ResponseEntity<List<ReviewDto>> getReviewsByNickname(@RequestParam String nickname) {
-        return new ResponseEntity<>(memberService.getReviewsByNickname(nickname), HttpStatus.OK);
-    }
-
-    @GetMapping("/block")
-    public ResponseEntity<List<BlockDto>> getBlocksByNickname(@RequestParam String nickname){
-        return new ResponseEntity<>(memberService.getBlocksByNickname(nickname), HttpStatus.OK);
-    }
-
     @PostMapping("/block")
     public void addBlock(@RequestBody BlockDto blockDto){
         memberService.addBlock(blockDto);
@@ -67,6 +67,5 @@ public class MemberController {
     public void deleteBlock(@PathVariable Long blockId){
         memberService.deleteBlock(blockId);
     }
-
 
 }

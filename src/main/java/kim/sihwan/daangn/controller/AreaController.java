@@ -21,7 +21,6 @@ public class AreaController {
 
     @GetMapping("/{dong}")
     public ResponseEntity<List<AreaResponseDto>> getAreasByDong(@PathVariable String dong){
-        System.out.println(dong);
         return new ResponseEntity<>(areaService.getAreasByDong(dong), HttpStatus.OK);
     }
 
