@@ -2,6 +2,7 @@ package kim.sihwan.daangn.service.chat;
 
 import kim.sihwan.daangn.domain.chat.ChatLog;
 import kim.sihwan.daangn.domain.chat.ChatRoom;
+import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.dto.chat.ChatRequestDto;
 import kim.sihwan.daangn.dto.chat.ChatRoomListResponseDto;
@@ -9,9 +10,11 @@ import kim.sihwan.daangn.dto.chat.ChatRoomResponseDto;
 import kim.sihwan.daangn.exception.customException.AlreadyGoneException;
 import kim.sihwan.daangn.repository.chat.ChatLogRepository;
 import kim.sihwan.daangn.repository.chat.ChatRoomRepository;
+import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +32,7 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatLogRepository chatLogRepository;
     private final ProductRepository productRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public ChatRoomResponseDto findAllChatLogByRoomId(Long roomId, String nickname) {
@@ -39,9 +43,12 @@ public class ChatService {
 
     @Transactional
     public int findAllChatLogByRoomIdAndNotRead(List<ChatLog> chatLogs) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findMemberByUsername(username);
+        String currentNickname= member.getNickname();
         int result = 0;
         for (ChatLog chatLog : chatLogs) {
-            if (!chatLog.isChecked()) {
+            if (!chatLog.isChecked() && currentNickname.equals(chatLog.getReceiver())) {
                 result++;
             }
         }
@@ -66,7 +73,8 @@ public class ChatService {
                     int count = findAllChatLogByRoomIdAndNotRead(m.getChatLogs());
                     String lastMessage = m.getChatLogs().get(m.getChatLogs().size() - 1).getMessage();
                     return ChatRoomListResponseDto.toDto(m, count, lastMessage);
-                }).sorted(Comparator.comparing(ChatRoomListResponseDto::getUpdateDate, Comparator.reverseOrder()))
+                })
+                .sorted(Comparator.comparing(ChatRoomListResponseDto::getUpdateDate, Comparator.reverseOrder()))
                 .collect(Collectors.toList());
     }
 
