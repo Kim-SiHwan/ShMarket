@@ -33,8 +33,22 @@
 `AWS EC2` `AWS S3` 
 
 ---
+*** ERD
+
+---
+### 구현 기능
+
+---
+### API DOCS
+
+---
+
+### 
 
 ### With Blog
+- 프로젝트 개요
+  - https://tjdans.tistory.com/27
+
 - 웹 소켓 JWT 인증 이슈 해결하기
   - https://tjdans.tistory.com/25
 
