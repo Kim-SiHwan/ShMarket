@@ -50,6 +50,24 @@ instance.interceptors.response.use(
             store.commit('SET_SNACK_BAR', {
                 msg: msg, color: 'error'
             })
+        } else if (code === 11) {
+            store.commit('SET_SNACK_BAR', {
+                msg: msg, color: 'error'
+            })
+        } else if (code === 12) {
+            store.commit('SET_SNACK_BAR', {
+                msg: msg, color: 'error'
+            })
+        } else if (code === 13) {
+            store.commit('SET_SNACK_BAR', {
+                msg: msg, color: 'error'
+            })
+        }
+
+        if (status === 401) {
+            store.commit('SET_SNACK_BAR', {
+                msg: '로그인이 필요합니다.', color: 'error'
+            })
         }
     }
 )

@@ -18,7 +18,6 @@ import MyProduct from "@/components/member/MyProduct";
 import MyLikeProduct from "@/components/member/MyLikeProduct";
 import Manner from "@/components/member/Manner";
 import Review from "@/components/member/Review";
-import Follow from "@/components/member/Follow";
 import MyBoard from "@/components/member/MyBoard";
 import Qna from "@/components/qna/Qna";
 import QnaDetail from "@/components/qna/QnaDetail";
@@ -106,10 +105,6 @@ export default new Router({ //라우터 연결
                 {
                     path     : '/profile/myBoard',
                     component: MyBoard
-                },
-                {
-                    path     : '/profile/follow',
-                    component: Follow
                 },
                 {
                     path     : '/profile/qna',

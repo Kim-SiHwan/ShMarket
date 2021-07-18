@@ -1,33 +1,33 @@
 import Send from "@/apis/common_api";
 
-function requestAddComment(data){
+function requestAddComment(data) {
     return Send({
-        url:'/api/comment',
-        method:'POST',
-        data:data
+        url   : '/api/comment',
+        method: 'POST',
+        data  : data
     })
 }
 
-function requestGetCommentsByBoardId(data){
+function requestGetCommentsByBoardId(data) {
     return Send({
-        url:'/api/comment/'+data,
-        method:'GET'
+        url   : '/api/comment/' + data,
+        method: 'GET'
     })
 }
 
-function requestDeleteCommentByCommentId(data){
+function requestDeleteCommentByCommentId(data) {
     return Send({
-        url:'/api/comment/'+data,
-        method:'DELETE'
+        url   : '/api/comment/' + data,
+        method: 'DELETE'
     })
 }
 
-function requestUpdateComment(data){
+function requestUpdateComment(data) {
     return Send({
-        url:'/api/comment',
-        method:'PUT',
-        data:data
+        url   : '/api/comment',
+        method: 'PUT',
+        data  : data
     })
 }
 
-export default {requestAddComment,requestDeleteCommentByCommentId,requestGetCommentsByBoardId,requestUpdateComment};
+export default {requestAddComment, requestDeleteCommentByCommentId, requestGetCommentsByBoardId, requestUpdateComment};

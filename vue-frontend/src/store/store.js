@@ -9,7 +9,6 @@ import commentStore from "@/store/commentStore";
 import pushStore from "@/store/pushStore";
 import chatStore from "@/store/chatStore";
 import noticeStore from "@/store/noticeStore";
-import followStore from "@/store/followStore";
 import qnaStore from "@/store/qnaStore";
 
 Vue.use(Vuex);
@@ -26,7 +25,6 @@ export const store = new Vuex.Store({
         pushStore,
         chatStore,
         noticeStore,
-        followStore,
         qnaStore
     }
 

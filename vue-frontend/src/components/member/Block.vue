@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-icon color = "black" size = "50">mdi-bookmark-multiple-outline</v-icon>
+    <v-icon color = "red" size = "50">mdi-block-helper</v-icon>
     <strong>{{ nickname }}</strong>님의 차단목록
     <p style = "display: inline">사용자 차단은 최대 5명까지 가능합니다.</p>
     <p class = "ml-3" style = "display: inline">{{ blocks.length }} / 5</p>
@@ -12,7 +12,7 @@
           close
           color = "info"
           label
-          @click = "goProfile(list)"
+          @click = "goProfile(list.toNickname)"
           @click:close = "deleteBlock(list.toNickname,list.id)">
         {{ list.toNickname }}
       </v-chip>
@@ -40,7 +40,9 @@ export default {
         toNickname: toNickname,
         blockId   : blockId
       }
-      this.$store.dispatch('REQUEST_DELETE_BLOCK', data);
+      this.$store.dispatch('REQUEST_DELETE_BLOCK', data).then(() => {
+        this.$store.dispatch('REQUEST_GET_BLOCKS', this.nickname);
+      });
     }
   },
   computed: {

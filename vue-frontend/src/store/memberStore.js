@@ -105,8 +105,6 @@ const memberStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: loginResponse.data.username + '님 반갑습니다.', color: 'info'
                 });
-                await context.dispatch('REQUEST_GET_CHAT_COUNT', loginResponse.data.nickname);
-                await context.dispatch('REQUEST_GET_NOTICES', loginResponse.data.nickname);
             }
         },
         async REQUEST_LOGOUT(context) {
@@ -121,7 +119,6 @@ const memberStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: payload.nickname + '님에 대한 매너 평가가 완료되었습니다.', color: 'info'
                 });
-                await context.dispatch('REQUEST_GET_MANNERS', payload.nickname);
             }
         },
         async REQUEST_GET_MANNERS(context, payload) {
@@ -136,7 +133,6 @@ const memberStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: payload.nickname + '님과의 거래 후기가 작성되었습니다.', color: 'info'
                 });
-                await context.dispatch('REQUEST_GET_REVIEWS', payload.nickname);
             }
         },
         async REQUEST_GET_REVIEWS(context, payload) {
@@ -149,7 +145,7 @@ const memberStore = {
             const response = await member_api.requestAddBlock(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
-                    msg: payload.toNickname + '님을 차단했습니다.\n 더이상 사용자가 올린 글이 보이지 않습니다.', color: 'info'
+                    msg: payload.toNickname + '님을 차단했습니다. 더이상 사용자가 올린 글이 보이지 않습니다.', color: 'info'
                 })
             }
         },

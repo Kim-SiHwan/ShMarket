@@ -1,6 +1,5 @@
 <template>
-  <v-container>
-
+  <v-container class = "mt-7">
     <v-icon color = "red" size = "50">mdi-clipboard-multiple-outline</v-icon>
     <strong>{{ paramNickname }}</strong>님의 거래 후기
     <v-data-table
@@ -103,7 +102,9 @@ export default {
         content : this.content
       };
 
-      this.$store.dispatch('REQUEST_ADD_REVIEW', requestData);
+      this.$store.dispatch('REQUEST_ADD_REVIEW', requestData).then(()=>{
+        this.$store.dispatch('REQUEST_GET_REVIEWS', this.nickname);
+      });
       this.content = '';
       this.dialog = false;
     }
@@ -121,7 +122,6 @@ export default {
   },
   mounted() {
     this.$store.dispatch('REQUEST_GET_REVIEWS', this.paramNickname);
-    console.log(this.nickname);
   }
 }
 </script>

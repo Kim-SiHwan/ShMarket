@@ -56,7 +56,6 @@ const boardStore = {
             }
             const response = await board_api.requestGetAllBoardsPages(data);
             if (response) {
-                console.log(response);
                 context.commit('SET_BOARD_LIST', response.data.data);
                 context.commit('SET_BOARD_TOTAL_PAGE', response.data.totalPage);
             }

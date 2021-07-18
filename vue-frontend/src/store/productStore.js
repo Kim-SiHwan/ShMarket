@@ -86,7 +86,6 @@ const productStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: '정상적으로 수정되었습니다.', color: 'info'
                 });
-                context.commit('SET_PRODUCT_DETAIL', response.data);
             }
         },
         async REQUEST_CHANGE_STATUS(context, payload) {
@@ -95,11 +94,9 @@ const productStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: '상태가 변경되었습니다.', color: 'info'
                 });
-                context.commit('SET_PRODUCT_DETAIL', response.data);
             }
         },
         async REQUEST_GET_MY_PRODUCT(context, payload) {
-            console.log(payload);
             const response = await product_api.requestGetMyProduct(payload);
             if (response) {
                 context.commit('SET_MY_PRODUCT_LIST', response.data.data);

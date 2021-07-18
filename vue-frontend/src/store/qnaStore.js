@@ -17,7 +17,6 @@ const qnaStore = {
         async REQUEST_GET_ALL_QNA(context) {
             const response = await qna_api.requestGetAllQna();
             if (response) {
-                console.log(response.data);
                 context.commit('SET_QNA_LIST', response.data);
             }
         },
@@ -34,7 +33,6 @@ const qnaStore = {
             }
         },
         async REQUEST_ADD_QNA(context, payload) {
-            console.log(payload.title + " " + payload.nickname + " " + payload.content);
             const response = await qna_api.requestAddQna(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {

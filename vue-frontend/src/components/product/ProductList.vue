@@ -40,11 +40,14 @@
           style = "list-style: none">
         <li id = "listDiv">
           <div class = "p-5 mb-5 rounded float-left"
-               style = "width: 300px; height: 400px; border: 2px solid green">
+               style = "width: 300px; height: 375px; border: 2px solid green">
             <div class = "card-body">
-              <span class = "mt-3" style = "margin-left: 130px"><strong>{{ list.title }}</strong></span>
-              <br>
+              <v-row justify = "center">
+                <span class = "mt-3"><strong>{{ list.title }}</strong></span>
+              </v-row>
+
               <span class = "float-left card-subtitle">
+
               <router-link :to = "{path:'/profile',query:{nickname:list.nickname}}"><span
                   class = "float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
               <br>
@@ -61,12 +64,24 @@
                     path:'/productDetail',
                     query:{productId:list.id}}">
                   <v-img
+                      v-if="list.status !== 'COMPLETED'"
                       :src = "list.thumbnail"
                       class = "mt-15 mr-3 ml-13 grey lighten-3"
                       height = "200"
                       width = "200">
 
                   </v-img>
+                  <div v-else class="fill-height repeating-gradient">
+                  <v-img
+                      :src = "list.thumbnail"
+                      class = "mt-15 mr-3 ml-13 grey lighten-3"
+                      style="filter: brightness(50%)"
+                      height = "200"
+                      width = "200">
+                    <h2 class="ml-15 mt-15" style="text-decoration: none; color:blue">판매완료</h2>
+
+                  </v-img>
+                  </div>
                 </router-link>
                 <div
                     v-if = "list.tags.length ===0 "
@@ -87,7 +102,7 @@
                   </v-row>
                 </div>
 
-                <div id = "productListIconDiv" class = "mt-8">
+                <div id = "productListIconDiv" class = "mt-5">
                   <v-row align-content = "center" justify = "center">
                     <v-icon
                         color = "green">
@@ -166,9 +181,12 @@
 
 <script>
 
+import {mixinData} from "@/mixin/mixins";
+
 export default {
   name      : "productList",
   components: {},
+  mixins    : [mixinData],
   data() {
     return {
       showCategoryFlag: false,
@@ -209,6 +227,9 @@ export default {
     },
     checked(name) {
       this.categories[name] = !this.categories[name];
+      this.page = 1;
+      this.changeCategories('product', this.categories);
+      /*
       localStorage.setItem('productCategories', JSON.stringify(this.categories));
       this.$store.commit('SET_PRODUCT_CURRENT_PAGE', 1);
       this.page = 1;
@@ -216,44 +237,11 @@ export default {
         page    : 1,
         category: localStorage.getItem('productCategories')
       }
-      this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_PAGES', data);
+      this.$store.dispatch('REQUEST_GET_ALL_PRODUCTS_PAGES', data);*/
     },
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
     },
-    displayedAt(createdAt) {
-      createdAt = new Date(createdAt);
-      const milliSeconds = new Date() - createdAt
-      const seconds = milliSeconds / 1000
-      if (seconds < 60) {
-        return `방금 전`
-      }
-      const minutes = seconds / 60
-      if (minutes < 60) {
-        return `${Math.floor(minutes)}분 전`
-      }
-      const hours = minutes / 60
-      if (hours < 24) {
-        return `${Math.floor(hours)}시간 전`
-      }
-      const days = hours / 24
-      if (days < 7) {
-        return `${Math.floor(days)}일 전`
-      }
-      const weeks = days / 7
-      if (weeks < 5) {
-        return `${Math.floor(weeks)}주 전`
-      }
-      const months = days / 30
-      if (months < 12) {
-        return `${Math.floor(months)}개월 전`
-      }
-      const years = days / 365
-      return `${Math.floor(years)}년 전`
-    },
-  },
-  created() {
-    this.page = this.currentPage;
   },
   computed  : {
     productList() {
@@ -273,13 +261,24 @@ export default {
     }
 
   },
+  created() {
+    this.page = this.currentPage;
+  },
   mounted() {
     this.showProductList();
   }
 }
 </script>
 <style scoped>
+.repeating-gradient{
+  background-image: repeating-linear-gradient(-45deg,
+  rgba(255,0,0,.25),
+  rgba(255,0,0,.25) 5px,
+  rgba(0,0,255,.25) 5px,
+  rgba(0,0,255,.25) 10px
 
+  );
+}
 small {
   color: black;
 }

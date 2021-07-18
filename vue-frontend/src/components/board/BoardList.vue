@@ -2,7 +2,7 @@
   <v-app id = "headerDiv">
     <v-switch
         class = "ml-15"
-        color = "orange"
+        color = "green"
         hide-details
         label = "카테고리 필터"
         v-on:change = "changeCategoryFlag">
@@ -16,7 +16,7 @@
             v-if = "flag"
             :label = "name"
             class = "ml-15"
-            color = "orange"
+            color = "green"
             hide-details
             input-value = "true"
             v-on:change = "checked(name)">
@@ -27,7 +27,7 @@
             v-else
             :label = "name"
             class = "ml-15"
-            color = "orange"
+            color = "green"
             hide-details
             v-on:change = "checked(name)">
 
@@ -52,78 +52,91 @@
       <ul v-for = "(list,index) in boardList" :key = "index"
           style = "list-style: none">
         <li id = "listDiv">
-          <div class = "p-5 mb-5 rounded float-left"
-               style = "width: 300px; height: 500px; border: 2px solid green">
+          <div
+              class = "p-5 mb-5 rounded float-left"
+              style = "width: 400px; height: 210px; border: 2px solid green">
             <div class = "card-body">
-              <span class = "mt-3" style = "margin-left: 130px"><strong>{{ list.title }}</strong></span>
-              <br>
-              <span class = "float-left card-subtitle">
-              <router-link :to = "{path:'/profile',query:{nickname:list.nickname}}"><span
-                  class = "float-left ml-3 mt-1 mr-3"><small>작성자 : {{ list.nickname }}</small></span></router-link>
-              <br>
-              <span class = "float-left ml-3 mt-1 mr-3">
-                <small>
-                작성일 : {{ displayedAt(list.updateDate) }}
-                </small>
-              </span>
-              <br>
-              <span class = "float-left ml-3 mt-1 mr-3"><small>지역 : {{ list.area }}</small></span>
-              </span>
-              <br>
 
-              <div id = "boardListImgDiv" style = "height: 100%; width: 100%">
+              <v-row justify = "center">
+                <span class = "mt-3"><strong>{{ list.title }}</strong></span>
+              </v-row>
+
+              <span class = "float-left card-subtitle">
+                <span class = "float-left ml-1 mt-1 ">
+                  <small>
+                    <v-chip
+                        dark
+                        color = "grey"
+                        label
+                        small
+                        @click = "clickTag(list.category)">
+                      {{ list.category }}
+                    </v-chip>
+                  </small>
+                </span>
+                <br>
+              </span>
+
+              <div style = "clear: both"></div>
+
+              <div id = "boardListImgDiv" class = "mt-2 ml-1">
                 <router-link :to = "{path:'/boardDetail',query:{boardId:list.id}}">
                   <v-img
                       :src = "list.thumbnail"
-                      class = "mt-15 mr-3 ml-13 grey lighten-3"
-                      height = "200"
-                      width = "200">
-
+                      class = "grey lighten-3 float-left"
+                      height = "94"
+                      width = "100">
                   </v-img>
                   <v-textarea
-
-                      background-color = "white"
-                      class = "ml-3 mr-3 mt-5"
+                      class = "ml-2 float-left"
                       no-resize
                       outlined
                       readonly = "readonly"
-                      rows = "2"
+                      rows = "3"
+                      style = "width: 280px; height: 100px"
                       v-bind:value = "list.content">
-
                   </v-textarea>
                 </router-link>
-
-              </div>
-              <div class = "mt-3">
-                <v-row align-content = "center" justify = "center">
-
-                  <v-chip
-                      class = "ml-0 mr-1 pr-2 pl-2"
-                      color = "info"
-                      label
-                      small
-                      @click = "clickTag(list.category)">
-                    {{ list.category }}
-                  </v-chip>
-                </v-row>
               </div>
 
-              <div id = "boardListIconDiv" class = "mt-8">
-                <v-row align-content = "center" justify = "center">
+              <div id = "boardInfoDiv" style = "margin-top: -20px">
+                <router-link :to = "{path:'/profile',query:{nickname:list.nickname}}">
+                  <span class = "float-left ml-3 mr-3" style="color: darkgreen">
+                      {{ list.nickname }}
+                  </span>
+                </router-link>
 
-                  <v-icon
-                      color = "green">
-                    mdi-image-multiple
-                  </v-icon>
-                  {{ list.boardAlbumCount }}
+                <span class = "float-left ml-3 mr-3">
+                  <small>
+                    {{ list.area }}
+                  </small>
+                </span>
 
-                  <v-icon
-                      color = "red">
-                    mdi-message-text
-                  </v-icon>
+                <span class = "float-right ml-3 mr-3">
+                  <small>
+                   {{ displayedAt(list.updateDate) }}
+                  </small>
+                </span>
 
-                  {{ list.commentCount }}
-                </v-row>
+              </div>
+
+              <div style = "clear: both"></div>
+
+              <hr>
+              <div id = "boardListIconDiv" class = "mt-1 ml-2">
+                <v-icon
+                    color = "orange">
+                  mdi-message-text
+                </v-icon>
+                {{ list.commentCount }}
+
+                <v-icon
+                    class = "ml-4"
+                    color = "green">
+                  mdi-image-multiple
+                </v-icon>
+                {{ list.boardAlbumCount }}
+
               </div>
             </div>
           </div>
@@ -133,9 +146,9 @@
 
     <v-pagination
         v-model = "page"
-        @input="showBoardPage(page)"
-        total-visible="10"
-        :length = "totalPage">
+        :length = "totalPage"
+        total-visible = "10"
+        @input = "showBoardPage(page)">
 
     </v-pagination>
 
@@ -170,11 +183,11 @@
 </template>
 
 <script>
+import {mixinData} from "@/mixin/mixins";
 
 export default {
   name      : "boardList",
-  components: {
-  },
+  mixins:[mixinData],
   data() {
     return {
       showCategoryFlag: false,
@@ -188,14 +201,14 @@ export default {
       this.$router.push('/addBoard');
     },
     showBoardList() {
-        let data = {
-          page    : this.currentPage,
-          category: localStorage.getItem('boardCategories')
-        };
-        this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
+      let data = {
+        page    : this.currentPage,
+        category: localStorage.getItem('boardCategories')
+      };
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
     },
-    showBoardPage(page){
-      console.log("page : "+page);
+    showBoardPage(page) {
+      console.log("page : " + page);
       this.$store.commit('SET_BOARD_CURRENT_PAGE', page);
       let data = {
         page    : page,
@@ -206,14 +219,15 @@ export default {
     },
     checked(name) {
       this.categories[name] = !this.categories[name];
-      localStorage.setItem('boardCategories', JSON.stringify(this.categories));
-      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
-      this.page=1;
+      this.page = 1;
+      this.changeCategories('board', this.categories);
+   /*   localStorage.setItem('boardCategories', JSON.stringify(this.categories));
+      this.$store.commit('SET_BOARD_CURRENT_PAGE', 1);
       let data = {
         page    : 1,
         category: localStorage.getItem('boardCategories')
       }
-      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);
+      this.$store.dispatch('REQUEST_GET_ALL_BOARDS_PAGES', data);*/
     },
     changeCategoryFlag() {
       this.showCategoryFlag = !this.showCategoryFlag;
@@ -223,8 +237,8 @@ export default {
       this.clickTagFlag = true;
       let toJson = {};
       toJson[name] = true;
-      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
-      this.page=1;
+      this.$store.commit('SET_BOARD_CURRENT_PAGE', 1);
+      this.page = 1;
       let data = {
         page    : 1,
         category: JSON.stringify(toJson)
@@ -234,39 +248,9 @@ export default {
     },
     closeTag() {
       this.clickTagFlag = false;
-      this.$store.commit('SET_BOARD_CURRENT_PAGE',1);
-      this.page=1;
+      this.$store.commit('SET_BOARD_CURRENT_PAGE', 1);
+      this.page = 1;
       this.showBoardList();
-    },
-    displayedAt(createdAt) {
-      createdAt = new Date(createdAt);
-      const milliSeconds = new Date() - createdAt
-      const seconds = milliSeconds / 1000
-      if (seconds < 60) {
-        return `방금 전`
-      }
-      const minutes = seconds / 60
-      if (minutes < 60) {
-        return `${Math.floor(minutes)}분 전`
-      }
-      const hours = minutes / 60
-      if (hours < 24) {
-        return `${Math.floor(hours)}시간 전`
-      }
-      const days = hours / 24
-      if (days < 7) {
-        return `${Math.floor(days)}일 전`
-      }
-      const weeks = days / 7
-      if (weeks < 5) {
-        return `${Math.floor(weeks)}주 전`
-      }
-      const months = days / 30
-      if (months < 12) {
-        return `${Math.floor(months)}개월 전`
-      }
-      const years = days / 365
-      return `${Math.floor(years)}년 전`
     },
   },
   computed  : {

@@ -2,26 +2,26 @@ import Send from "@/apis/common_api";
 
 function requestAddKeyword(data) {
     return Send({
-        url: '/api/push/topic',
+        url   : '/api/push/topic',
         method: 'POST',
-        data: data
+        data  : data
     })
 
 }
 
 function requestGetKeywords(data) {
     return Send({
-        url: '/api/push/keywords',
+        url   : '/api/push/keywords',
         method: 'GET',
-        params:{nickname : data}
+        params: {nickname: data}
     })
 }
 
-function requestDeleteKeyword(data){
+function requestDeleteKeyword(data) {
     return Send({
-        url:'/api/push/keyword',
-        method:'DELETE',
-        data:data
+        url   : '/api/push/keyword',
+        method: 'DELETE',
+        data  : data
     })
 }
 

@@ -16,28 +16,24 @@
       <div class = "mt-5">
         <p v-if = "paramNickname === nickname"> 아이디 : {{ username }}</p>
         <p> 닉네임 : {{ paramNickname }}</p>
-        <v-btn
-            v-if = "paramNickname === nickname"
-            color = "green"
-            dark
-            rounded>
-          프로필 수정
-        </v-btn>
-        <router-link
-            v-else
-            :to = " {path:'/profile',query:{nickname:nickname}}"
-            style = "text-decoration: none">
-          <v-btn
-              color = "green"
-              dark
-              rounded>
-            내 프로필 가기
-          </v-btn>
-        </router-link>
-
+        <br>
+        <v-row justify = "center">
+          <router-link
+              v-if = "paramNickname !== nickname"
+              :to = " {path:'/profile',query:{nickname:nickname}}"
+              style = "text-decoration: none">
+            <v-btn
+                color = "green"
+                dark
+                rounded>
+              내 프로필 가기
+            </v-btn>
+          </router-link>
+        </v-row>
       </div>
     </v-row>
 
+    <br>
     <br>
     <hr>
     <div class = "mt-7">
@@ -65,24 +61,6 @@
             style = "text-decoration: none; color:black">
           <v-icon color = "gray" size = "60">mdi-clipboard-text-multiple-outline</v-icon>
           <br>동네생활
-        </router-link>
-
-        <router-link
-            v-if = "paramNickname === nickname"
-            :to = "{path:'/profile/follow',query:{nickname:nickname}}"
-            class = "profileLink"
-            style = "text-decoration: none; color:black">
-          <v-icon color = "black" size = "60">mdi-bookmark-multiple-outline</v-icon>
-          <br>모아보기
-        </router-link>
-        <router-link
-            v-else
-            :to = "{path:'/profile',query:{nickname:paramNickname}}"
-            class = "profileLink"
-            style = "text-decoration: none; color:black"
-            @click.native = "addFollow">
-          <v-icon color = "black" size = "60">mdi-plus</v-icon>
-          <br>추가하기
         </router-link>
 
         <router-link
@@ -154,13 +132,6 @@ export default {
     }
   },
   methods : {
-    addFollow() {
-      let data = {
-        fromMember: this.nickname,
-        toMember  : this.paramNickname
-      };
-      this.$store.dispatch('REQUEST_ADD_FOLLOW', data);
-    },
     addBlock() {
       let data = {
         fromNickname: this.nickname,
@@ -180,7 +151,8 @@ export default {
   created() {
     this.paramNickname = this.$route.query.nickname;
     this.originNickname = this.$store.state.memberStore.nickname;
-  }
+  },
+  mounted() {}
 }
 </script>
 

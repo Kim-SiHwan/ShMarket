@@ -43,7 +43,7 @@ function requestDeleteProduct(data) {
 function requestUpdateProduct(data) {
     return Send({
         url    : '/api/product',
-        method : 'PUT',
+        method : 'PATCH',
         headers: {'Content-Type': 'multipart/form-data'},
         data   : data
     })
@@ -52,7 +52,7 @@ function requestUpdateProduct(data) {
 function requestUpdateStatus(data) {
     return Send({
         url   : '/api/product/status/' + data.productId,
-        method: 'PUT',
+        method: 'PATCH',
         params: {status: data.status}
     })
 }

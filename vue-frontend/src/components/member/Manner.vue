@@ -1,5 +1,5 @@
 <template>
-  <v-container>
+  <v-container class = "mt-7">
     <v-icon color = "orange" size = "50">mdi-emoticon-happy-outline</v-icon>
     <strong>{{ paramNickname }}</strong>님의 매너평가
     <v-data-table
@@ -133,7 +133,9 @@ export default {
         type    : this.selectedType,
         content : this.selectedManner
       }
-      this.$store.dispatch('REQUEST_ADD_MANNER', data);
+      this.$store.dispatch('REQUEST_ADD_MANNER', data).then(()=>{
+        this.$store.dispatch('REQUEST_GET_MANNERS', this.nickname);
+      });
       this.selectedType = '';
       this.dialog = false;
     }
@@ -151,7 +153,6 @@ export default {
   },
   mounted() {
     this.$store.dispatch('REQUEST_GET_MANNERS', this.paramNickname);
-    console.log(this.nickname);
   }
 }
 </script>

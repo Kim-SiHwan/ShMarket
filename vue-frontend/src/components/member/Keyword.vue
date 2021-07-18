@@ -46,8 +46,12 @@ export default {
   },
   methods : {
     addKeyword() {
+      console.log(this.nickname);
       this.keywordRequestDto.nickname = this.nickname;
-      this.$store.dispatch('REQUEST_ADD_KEYWORD', this.keywordRequestDto);
+      this.$store.dispatch('REQUEST_ADD_KEYWORD', this.keywordRequestDto).then(() => {
+        this.$store.dispatch('REQUEST_GET_KEYWORDS', this.nickname);
+      });
+
       this.keywordRequestDto.keyword = '';
     },
     getKeywords() {
@@ -56,7 +60,9 @@ export default {
     deleteKeyword(keyword) {
       this.keywordRequestDto.nickname = this.nickname;
       this.keywordRequestDto.keyword = keyword;
-      this.$store.dispatch('REQUEST_DELETE_KEYWORD', this.keywordRequestDto);
+      this.$store.dispatch('REQUEST_DELETE_KEYWORD', this.keywordRequestDto).then(() => {
+        this.$store.dispatch('REQUEST_GET_KEYWORDS', this.nickname);
+      });
       this.keywordRequestDto.keyword = '';
     }
   },
@@ -68,6 +74,7 @@ export default {
       return this.$store.state.memberStore.nickname;
     }
   },
+  created() {},
   mounted() {
     this.getKeywords();
   }

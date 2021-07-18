@@ -1,9 +1,9 @@
 import Send from "@/apis/common_api";
 
-function findAreaByDong(dong){
+function findAreaByDong(dong) {
     return Send({
-        url:'/api/area/'+dong,
-        method:'GET'
+        url   : '/api/area/' + dong,
+        method: 'GET'
     })
 }
 

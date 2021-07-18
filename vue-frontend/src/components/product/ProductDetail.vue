@@ -10,7 +10,15 @@
     <hr>
 
     <div>
-      <span><small>판매자 : {{ productDetail.nickname }}</small></span><br>
+      <router-link
+          :to = "{path:'/profile',query:{nickname:productDetail.nickname}}"
+          style = "text-decoration: none">
+        <span><small style = "color: black"> 판매자 : </small></span>
+        <span style = "color: darkgreen">
+          {{ productDetail.nickname }}
+        </span>
+      </router-link>
+      <br>
       <span><small>지역 : {{ productDetail.area }}</small></span><br>
       <span><small>작성일 : {{ displayedAt(productDetail.createDate) }}</small></span><br>
       <span v-if = "productDetail.tags">
@@ -151,7 +159,10 @@
         v-bind:value = "productDetail.content">
     </v-textarea>
 
-    <div id = "productDetailBtnDiv" class = "float-right mt-2 ml-3">
+    <div
+        v-if = "productDetail.nickname === nickname"
+        id = "productDetailBtnDiv"
+        class = "float-right mt-2 ml-3">
 
       <v-btn
           v-if = "!updateFlag"
@@ -198,9 +209,11 @@
 </template>
 
 <script>
+import {mixinData} from '@/mixin/mixins';
 
 export default {
-  name: "ProductDetail",
+  name  : "ProductDetail",
+  mixins: [mixinData],
   data() {
     return {
       flag             : false,
@@ -241,36 +254,7 @@ export default {
             this.$store.dispatch('REQUEST_GET_PRODUCT', productId);
           })
     },
-    displayedAt(createdAt) {
-      createdAt = new Date(createdAt);
-      const milliSeconds = new Date() - createdAt
-      const seconds = milliSeconds / 1000
-      if (seconds < 60) {
-        return `방금 전`
-      }
-      const minutes = seconds / 60
-      if (minutes < 60) {
-        return `${Math.floor(minutes)}분 전`
-      }
-      const hours = minutes / 60
-      if (hours < 24) {
-        return `${Math.floor(hours)}시간 전`
-      }
-      const days = hours / 24
-      if (days < 7) {
-        return `${Math.floor(days)}일 전`
-      }
-      const weeks = days / 7
-      if (weeks < 5) {
-        return `${Math.floor(weeks)}주 전`
-      }
-      const months = days / 30
-      if (months < 12) {
-        return `${Math.floor(months)}개월 전`
-      }
-      const years = days / 365
-      return `${Math.floor(years)}년 전`
-    },
+
     deleteBoard() {
       if (this.checkAuthority()) {
         this.$store.dispatch('REQUEST_DELETE_PRODUCT', this.productDetail.id);
@@ -302,7 +286,6 @@ export default {
         current.style.visibility = 'visible';
         this.updateRequestData.ids.push(fileId);
       }
-      console.log(this.updateRequestData.ids);
     },
     selectedFile(event) {
       const files = event;
@@ -328,7 +311,9 @@ export default {
       formData.set('content', this.updateRequestData.content);
       formData.set('ids', this.updateRequestData.ids);
 
-      this.$store.dispatch('REQUEST_UPDATE_PRODUCT', formData);
+      this.$store.dispatch('REQUEST_UPDATE_PRODUCT', formData).then(() => {
+        this.$store.dispatch('REQUEST_GET_PRODUCT', this.productDetail.id);
+      });
       this.updateFlag = false;
       this.fileData = '';
       this.updateRequestData.ids = [];
@@ -345,7 +330,9 @@ export default {
       } else {
         data.status = 'COMPLETE';
       }
-      this.$store.dispatch('REQUEST_CHANGE_STATUS', data);
+      this.$store.dispatch('REQUEST_CHANGE_STATUS', data).then(() => {
+        this.$store.dispatch('REQUEST_GET_PRODUCT', this.productDetail.id);
+      });
     }
   },
   computed: {
@@ -353,7 +340,7 @@ export default {
       return this.$store.state.productStore.productDetail;
     },
     nickname() {
-      return sessionStorage.getItem('nickname');
+      return this.$store.state.memberStore.nickname;
     },
     productList() {
       return this.$store.state.productStore.productList;
@@ -361,7 +348,6 @@ export default {
   },
   created() {
     this.$store.dispatch('REQUEST_GET_PRODUCT', this.$route.query.productId);
-    this.time = this.displayedAt(this.productDetail.createDate);
   },
   mounted() {
     this.updateRequestData.id = this.$route.query.productId;

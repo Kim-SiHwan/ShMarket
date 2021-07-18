@@ -9,11 +9,11 @@
 
           <v-form class="pa-15 text-center" ref="form">
 
-            <v-text-field class=" pl-3 pr-3" label="Name" prepend-icon="mdi-account"
+            <v-text-field class=" pl-3 pr-3" label="아이디를 입력해주세요." prepend-icon="mdi-account"
                           required type="text" v-model="username">
             </v-text-field>
 
-            <v-text-field  class="pt-10 pl-3 pr-3" label="Password" prepend-icon="mdi-lock"
+            <v-text-field  class="pt-10 pl-3 pr-3" label="비밀번호를 입력해주세요." prepend-icon="mdi-lock"
                            required type="password" v-model="password"
                            v-on:keyup.enter="login">
             </v-text-field>
@@ -47,16 +47,28 @@ export default {
     login() {
       this.loginDto = {
         username: this.username,
-        password: this.password
-      }
-      this.$store.dispatch('REQUEST_LOGIN',this.loginDto);
-
+        password: this.password,
+        fcmToken: localStorage.getItem('fcmToken')
+      };
+      this.$store.dispatch('REQUEST_LOGIN', this.loginDto)
+          .then(() => {
+            this.$store.dispatch('REQUEST_GET_CHAT_COUNT', this.nickname);
+            this.$store.dispatch('REQUEST_GET_NOTICES', this.nickname);
+            this.$store.dispatch('REQUEST_GET_NOTICE_COUNT', this.nickname);
+          });
     },
     logout() {
       this.$store.dispatch('REQUEST_LOGOUT');
       this.$store.commit('setSnackBar', {msg: '로그아웃 완료', color: 'success'});
     }
-  }
+  },
+  computed:{
+    nickname(){
+      return this.$store.state.memberStore.nickname;
+    }
+  },
+  created() {},
+  mounted() {}
 }
 </script>
 
