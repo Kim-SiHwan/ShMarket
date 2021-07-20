@@ -5,7 +5,7 @@ function requestJoin(member) {
         url   : '/api/member/join',
         method: 'POST',
         data  : member
-    })
+    });
 }
 
 function requestLogin(member) {
@@ -13,14 +13,14 @@ function requestLogin(member) {
         url   : '/api/member/login',
         method: 'POST',
         data  : member
-    })
+    });
 }
 
 function requestLogout() {
     return Send({
         url   : '/api/member/logout',
         method: 'POST',
-    })
+    });
 }
 
 function requestAddManner(data) {
@@ -28,7 +28,7 @@ function requestAddManner(data) {
         url   : '/api/member/manner',
         method: 'POST',
         data  : data
-    })
+    });
 }
 
 function requestGetManners(data) {
@@ -36,7 +36,7 @@ function requestGetManners(data) {
         url   : '/api/member/manner',
         method: 'GET',
         params: {nickname: data}
-    })
+    });
 }
 
 function requestAddReview(data) {
@@ -44,7 +44,7 @@ function requestAddReview(data) {
         url   : '/api/member/review',
         method: 'POST',
         data  : data
-    })
+    });
 }
 
 function requestGetReviews(data) {
@@ -52,7 +52,7 @@ function requestGetReviews(data) {
         url   : '/api/member/review',
         method: 'GET',
         params: {nickname: data}
-    })
+    });
 }
 
 function requestGetNotices(data) {
@@ -60,7 +60,7 @@ function requestGetNotices(data) {
         url   : '/api/notice',
         method: 'GET',
         params: {nickname: data}
-    })
+    });
 }
 
 function requestAddBlock(data) {
@@ -68,7 +68,7 @@ function requestAddBlock(data) {
         url   : '/api/member/block',
         method: 'POST',
         data  : data
-    })
+    });
 }
 
 function requestGetBlocks(data) {
@@ -76,14 +76,22 @@ function requestGetBlocks(data) {
         url   : '/api/member/block',
         method: 'GET',
         params: {nickname: data}
-    })
+    });
 }
 
 function requestDeleteBlock(data) {
     return Send({
         url   : '/api/member/block/' + data,
         method: 'DELETE',
-    })
+    });
+}
+
+function requestSendEmail(data) {
+    return Send({
+        url   : '/api/member/email',
+        method: 'GET',
+        params: {email: data}
+    });
 }
 
 export default {
@@ -97,5 +105,6 @@ export default {
     requestGetNotices,
     requestAddBlock,
     requestGetBlocks,
-    requestDeleteBlock
+    requestDeleteBlock,
+    requestSendEmail
 };

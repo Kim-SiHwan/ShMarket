@@ -68,6 +68,7 @@ instance.interceptors.response.use(
             store.commit('SET_SNACK_BAR', {
                 msg: '로그인이 필요합니다.', color: 'error'
             })
+            await router.push('/login');
         }
     }
 )

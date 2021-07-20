@@ -9,6 +9,7 @@ const memberStore = {
         username         : '',
         nickname         : '',
         area             : '',
+        emailCode        : '',
         fcmToken         : localStorage.getItem('fcmToken'),
         manners          : [],
         reviews          : [],
@@ -84,6 +85,9 @@ const memberStore = {
         },
         SET_BLOCKS(state, payload) {
             state.blocks = payload;
+        },
+        SET_EMAIL_CODE(state, payload) {
+            state.emailCode = payload;
         }
 
     },
@@ -95,7 +99,7 @@ const memberStore = {
                     msg: payload.username + '으로 정상 가입되었습니다.', color: 'info'
                 });
                 context.commit('INIT_CATEGORIES');
-                router.push('/login');
+                await router.push('/login');
             }
         },
         async REQUEST_LOGIN(context, payload) {
@@ -105,6 +109,11 @@ const memberStore = {
                 context.commit('SET_SNACK_BAR', {
                     msg: loginResponse.data.username + '님 반갑습니다.', color: 'info'
                 });
+
+                await context.dispatch('REQUEST_GET_CHAT_COUNT', context.state.nickname);
+                await context.dispatch('REQUEST_GET_NOTICES', context.state.nickname);
+                await context.dispatch('REQUEST_GET_NOTICE_COUNT', context.state.nickname);
+                await router.push('/productList');
             }
         },
         async REQUEST_LOGOUT(context) {
@@ -145,7 +154,7 @@ const memberStore = {
             const response = await member_api.requestAddBlock(payload);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
-                    msg: payload.toNickname + '님을 차단했습니다. 더이상 사용자가 올린 글이 보이지 않습니다.', color: 'info'
+                    msg: payload.toNickname + '님을 차단했습니다 더이상 사용자가 올린 글이 보이지 않습니다.', color: 'info'
                 })
             }
         },
@@ -159,10 +168,16 @@ const memberStore = {
             const response = await member_api.requestDeleteBlock(payload.blockId);
             if (response) {
                 context.commit('SET_SNACK_BAR', {
-                    msg: payload.toNickname + '님 차단을 해제했습니다.\n 다시 사용자가 올린 글이 표시됩니다.', color: 'info'
+                    msg: payload.toNickname + '님 차단을 해제했습니다 다시 사용자가 올린 글이 표시됩니다.', color: 'info'
                 })
             }
         },
+        async REQUEST_SEND_EMAIL(context, payload) {
+            const response = await member_api.requestSendEmail(payload);
+            if (response) {
+                context.commit('SET_EMAIL_CODE', response.data);
+            }
+        }
 
     }
 

@@ -8,12 +8,18 @@ import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
 import kim.sihwan.daangn.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.web.bind.annotation.*;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.MimeMessage;
 import javax.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 
 
 @RestController
@@ -22,6 +28,10 @@ import java.util.List;
 public class MemberController {
 
     private final MemberService memberService;
+    private final JavaMailSender javaMailSender;
+
+    @Value("${spring.mail.username}")
+    private String from;
 
     @GetMapping("/manner")
     public ResponseEntity<List<MannerDto>> getMannersByNickname(@RequestParam String nickname) {
@@ -34,8 +44,21 @@ public class MemberController {
     }
 
     @GetMapping("/block")
-    public ResponseEntity<List<BlockDto>> getBlocksByNickname(@RequestParam String nickname){
+    public ResponseEntity<List<BlockDto>> getBlocksByNickname(@RequestParam String nickname) {
         return new ResponseEntity<>(memberService.getBlocksByNickname(nickname), HttpStatus.OK);
+    }
+
+    @GetMapping("/email")
+    public ResponseEntity<String> sendMailToEmail(@RequestParam String email) throws MessagingException {
+        UUID emailCode = UUID.randomUUID();
+        MimeMessage mail = javaMailSender.createMimeMessage();
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mail, "UTF-8");
+        messageHelper.setFrom(from);
+        messageHelper.setTo(email);
+        messageHelper.setSubject("Sh Market 회원가입 인증 메일입니다.");
+        messageHelper.setText("우측 코드를 입력해주세요 -> " + emailCode);
+        javaMailSender.send(mail);
+        return new ResponseEntity(emailCode, HttpStatus.OK);
     }
 
     @PostMapping("/join")
@@ -59,12 +82,12 @@ public class MemberController {
     }
 
     @PostMapping("/block")
-    public void addBlock(@RequestBody BlockDto blockDto){
+    public void addBlock(@RequestBody BlockDto blockDto) {
         memberService.addBlock(blockDto);
     }
 
     @DeleteMapping("/block/{blockId}")
-    public void deleteBlock(@PathVariable Long blockId){
+    public void deleteBlock(@PathVariable Long blockId) {
         memberService.deleteBlock(blockId);
     }
 
