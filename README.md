@@ -61,3 +61,5 @@
  
 - 푸시 메시지를 비 동기적으로 사용하기 
   - https://tjdans.tistory.com/31
+
+- Docker-Compose를 사용해 배포 
