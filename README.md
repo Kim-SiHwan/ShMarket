@@ -63,3 +63,5 @@
   - https://tjdans.tistory.com/31
 
 - Docker-Compose를 사용해 배포 
+
+- Redis 캐싱 전략
