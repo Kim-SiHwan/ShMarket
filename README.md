@@ -64,4 +64,6 @@
 
 - Docker-Compose를 사용해 배포 
 
-- Redis 캐싱 전략
+- Redis 캐싱 전략과 장애 대비
+  - https://tjdans.tistory.com/32
+  
