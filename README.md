@@ -1,6 +1,5 @@
 ### ShMarket
 중고 거래 웹사이트 제작 프로젝트
-프로젝트 소개 - https://tjdans.tistory.com/27
 ---
 ### 프로젝트 목표 
 1. 견고한 어플리케이션 제작 
@@ -61,3 +60,9 @@
  
 - 푸시 메시지를 비 동기적으로 사용하기 
   - https://tjdans.tistory.com/31
+
+- Docker-Compose를 사용해 배포 
+
+- Redis 캐싱 전략과 장애 대비
+  - https://tjdans.tistory.com/32
+  
