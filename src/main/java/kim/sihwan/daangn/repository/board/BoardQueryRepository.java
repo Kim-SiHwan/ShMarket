@@ -25,12 +25,15 @@ public class BoardQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public List<QBoardDto> findBoards(int off, int size, String nickname) {
+    public List<QBoardDto> findBoards(int off, int size, String nickname, List<String> blockList,List<String> areaList, List<String> categoryList) {
 
         List<Long> ids = queryFactory
                 .select(board.id)
                 .from(board)
-                .where(eqNickname(nickname))
+                .where(eqNickname(nickname),
+                        inBlockList(blockList),
+                        inAreaList(areaList),
+                        inCategoryList(categoryList))
                 .orderBy(board.id.desc())
                 .limit(size)
                 .offset(off * size)
@@ -58,7 +61,6 @@ public class BoardQueryRepository extends QuerydslRepositorySupport {
                         board.id.in(ids)
                 )
                 .orderBy(board.id.desc())
-                .limit(size)
                 .fetch();
 
     }
@@ -68,6 +70,27 @@ public class BoardQueryRepository extends QuerydslRepositorySupport {
             return null;
         }
         return board.nickname.like(nickname+"%");
+    }
+
+    BooleanExpression inBlockList(List<String> blockList){
+        if(blockList == null){
+            return null;
+        }
+        return board.nickname.notIn(blockList);
+    }
+
+    BooleanExpression inAreaList(List<String> areaList){
+        if(areaList== null){
+            return null;
+        }
+        return board.area.in(areaList);
+    }
+
+    BooleanExpression inCategoryList(List<String> categoryList){
+        if(categoryList==null){
+            return null;
+        }
+        return board.category.in(categoryList);
     }
 
 }

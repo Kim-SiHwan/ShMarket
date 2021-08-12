@@ -1,10 +1,10 @@
 package kim.sihwan.daangn.service.product;
 
+import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.product.Product;
 import kim.sihwan.daangn.domain.product.ProductLike;
 import kim.sihwan.daangn.domain.product.ProductTag;
-import kim.sihwan.daangn.dto.common.PagingDto;
 import kim.sihwan.daangn.dto.common.Result;
 import kim.sihwan.daangn.dto.product.ProductListResponseDto;
 import kim.sihwan.daangn.dto.product.ProductRequestDto;
@@ -17,6 +17,7 @@ import kim.sihwan.daangn.repository.member.MemberRepository;
 import kim.sihwan.daangn.repository.product.ProductLikeRepository;
 import kim.sihwan.daangn.repository.product.ProductQueryRepository;
 import kim.sihwan.daangn.repository.product.ProductRepository;
+import kim.sihwan.daangn.service.member.MemberService;
 import kim.sihwan.daangn.service.push.RabbitService;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,6 +30,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -49,6 +53,7 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
 
     private final RabbitService rabbitService;
+    private final MemberService memberService;
     private final RedisTemplate<String, String> redisTemplate;
 
     @Getter
@@ -120,7 +125,7 @@ public class ProductService {
     public Result findAllProductByNickname(String nickname, int page) {
         setMemberAndLikeProductListForPaging getData = getMemberAndLikeProductListForPaging();
 
-        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
+        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname,null,null,null).stream()
                 .map(product -> getProductListResponseDto(getData.likeList, product, getData.memberId))
                 .collect(Collectors.toList());
         int totalPage = productRepository.productCountByNickname(nickname) / 20;
@@ -146,15 +151,43 @@ public class ProductService {
     public Result paging(int page, List<String> categories, String nickname) {
 
         ListOperations<String, String> vo = redisTemplate.opsForList();
+        Member member = findMemberByUsername();
+        String getMembersArea = member.getArea();
 
-        setMemberAndLikeProductListForPaging getData = getMemberAndLikeProductListForPaging();
+        //좋아요 리스트
+        List<ProductLike> likeList = productLikeRepository.findAllByMemberNickname(member.getNickname());
 
-        PagingDto pagingDto = new PagingDto(getData.getMember(), vo, categories);
-
-        List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname).stream()
-                .filter(product -> pagingDto.getAreaList().contains(product.getArea()) && pagingDto.getCategories().contains(product.getCategory()) && !pagingDto.getBlockList().contains(product.getNickname()))
-                .map(product -> getProductListResponseDto(getData.likeList, product, getData.memberId))
+        //카테고리 리스트
+        List<String> categoryList = categories.stream()
+                .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
                 .collect(Collectors.toList());
+
+        //주변 동네 리스트
+        List<String> areaList = vo.range(getMembersArea + "::List", 0L, -1L);
+
+        //없을 경우 DB에서 조회 후 Redis에 다시 저장
+        if (areaList.isEmpty()) {
+            areaList = memberService.setNearArea(getMembersArea);
+            vo.leftPushAll(getMembersArea + "::List", areaList);
+        }
+
+        //차단 사용자 리스트
+        List<String> blockList = member.getBlocks().stream()
+                .map(Block::getToMember)
+                .collect(Collectors.toList());
+
+        //필터링 후 상품 리스트 조회
+        List<Product> productList = queryRepository.findProducts(page, 20, nickname, blockList, areaList, categoryList);
+
+        //응답 리스트
+        List<ProductListResponseDto> list = new ArrayList<>();
+
+        for (Product product : productList) {
+            if (areaList.contains(product.getArea()) && categoryList.contains(product.getCategory()) && !blockList.contains(product.getNickname())) {
+                list.add(getProductListResponseDto(likeList,product, member.getId()));
+            }
+        }
+
         int totalPage = productRepository.productCount() / 20;
 
         return new Result(list, totalPage);
