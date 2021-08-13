@@ -124,11 +124,14 @@ public class ProductService {
 
     public Result findAllProductByNickname(String nickname, int page) {
         setMemberAndLikeProductListForPaging getData = getMemberAndLikeProductListForPaging();
-
         List<ProductListResponseDto> list = queryRepository.findProducts(page, 20, nickname,null,null,null).stream()
                 .map(product -> getProductListResponseDto(getData.likeList, product, getData.memberId))
                 .collect(Collectors.toList());
-        int totalPage = productRepository.productCountByNickname(nickname) / 20;
+        long totalDataSize = queryRepository.getPages(nickname,null,null,null);
+        long totalPage = totalDataSize/20;
+        if(totalDataSize%20 !=0){
+            totalPage+=1;
+        }
 
         return new Result(list, totalPage);
     }
@@ -182,14 +185,19 @@ public class ProductService {
         //응답 리스트
         List<ProductListResponseDto> list = new ArrayList<>();
 
+        //좋아요 여부 확인 -> dto로 변환
         for (Product product : productList) {
             if (areaList.contains(product.getArea()) && categoryList.contains(product.getCategory()) && !blockList.contains(product.getNickname())) {
                 list.add(getProductListResponseDto(likeList,product, member.getId()));
             }
         }
 
-        int totalPage = productRepository.productCount() / 20;
-
+        //전체 페이지 수 조회 ( 어떻게 개선해야할까 ? )
+        long totalDataSize = queryRepository.getPages(nickname,blockList,areaList,categoryList);
+        long totalPage = totalDataSize/20;
+        if(totalDataSize%20 !=0){
+            totalPage+=1;
+        }
         return new Result(list, totalPage);
     }
 

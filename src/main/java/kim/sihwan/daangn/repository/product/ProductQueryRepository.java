@@ -11,7 +11,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-import static kim.sihwan.daangn.domain.board.QBoard.board;
 import static kim.sihwan.daangn.domain.product.QProduct.product;
 
 @Slf4j
@@ -22,6 +21,16 @@ public class ProductQueryRepository extends QuerydslRepositorySupport {
     public ProductQueryRepository(JPAQueryFactory queryFactory) {
         super(Product.class);
         this.queryFactory = queryFactory;
+    }
+
+    public long getPages(String nickname, List<String> blockList,List<String> areaList, List<String> categoryList){
+        return queryFactory
+                .selectFrom(product)
+                .where(eqNickname(nickname),
+                        inBlockList(blockList),
+                        inAreaList(areaList),
+                        inCategoryList(categoryList))
+                .fetchCount();
     }
 
     public List<Product> findProducts(int page, int size, String nickname, List<String> blockList, List<String> areaList, List<String> categoryList) {
@@ -60,21 +69,21 @@ public class ProductQueryRepository extends QuerydslRepositorySupport {
         if(blockList == null){
             return null;
         }
-        return board.nickname.notIn(blockList);
+        return product.nickname.notIn(blockList);
     }
 
     BooleanExpression inAreaList(List<String> areaList){
         if(areaList== null){
             return null;
         }
-        return board.area.in(areaList);
+        return product.area.in(areaList);
     }
 
     BooleanExpression inCategoryList(List<String> categoryList){
         if(categoryList==null){
             return null;
         }
-        return board.category.in(categoryList);
+        return product.category.in(categoryList);
     }
 
 }

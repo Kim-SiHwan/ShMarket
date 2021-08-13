@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Result<T> {
     private T data;
-    private int totalPage;
+    private long totalPage;
 }

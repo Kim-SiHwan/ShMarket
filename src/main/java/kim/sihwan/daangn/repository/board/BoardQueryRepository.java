@@ -25,8 +25,17 @@ public class BoardQueryRepository extends QuerydslRepositorySupport {
         this.queryFactory = queryFactory;
     }
 
-    public List<QBoardDto> findBoards(int off, int size, String nickname, List<String> blockList,List<String> areaList, List<String> categoryList) {
+    public long getPages(String nickname, List<String> blockList,List<String> areaList, List<String> categoryList){
+        return queryFactory
+                .selectFrom(board)
+                .where(eqNickname(nickname),
+                        inBlockList(blockList),
+                        inAreaList(areaList),
+                        inCategoryList(categoryList))
+                .fetchCount();
+    }
 
+    public List<QBoardDto> findBoards(int off, int size, String nickname, List<String> blockList,List<String> areaList, List<String> categoryList) {
         List<Long> ids = queryFactory
                 .select(board.id)
                 .from(board)

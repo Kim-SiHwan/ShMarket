@@ -52,7 +52,7 @@ public class ProductController {
     @GetMapping(value = "/download", produces = MediaType.IMAGE_PNG_VALUE)
     @ResponseBody
     public ResponseEntity<Resource> downloadFile(@RequestParam("fileName") String fileName) {
-        Resource resource = new FileSystemResource("C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\static\\images\\" + fileName);
+        Resource resource = new FileSystemResource("C:\\Users\\김시환\\Desktop\\Git\\DaangnMarket-Clone\\src\\main\\resources\\images\\" + fileName);
         return new ResponseEntity(resource, HttpStatus.OK);
     }
 

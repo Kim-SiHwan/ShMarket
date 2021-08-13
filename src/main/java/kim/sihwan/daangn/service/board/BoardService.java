@@ -18,6 +18,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StopWatch;
 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +40,7 @@ public class BoardService {
     private final BoardAlbumService boardAlbumService;
     private final RedisTemplate<String, String> redisTemplate;
 
-    
+
     @Transactional
     public void addBoard(BoardRequestDto boardRequestDto) {
 
@@ -60,43 +61,63 @@ public class BoardService {
     }
 
     public Result findAllBoardByNickname(int page, String nickname) {
-        List<QBoardDto> list = queryRepository.findBoards(page,20,nickname,null,null,null);
-        int totalPage = boardRepository.boardCountByNickname(nickname)/ 20;
-        return new Result(list,totalPage);
+        List<QBoardDto> list = queryRepository.findBoards(page, 20, nickname, null, null, null);
+        long totalDataSize = queryRepository.getPages(nickname,null,null,null);
+        long totalPage = totalDataSize/20;
+        if(totalDataSize%20 !=0){
+            totalPage+=1;
+        }
+
+        return new Result(list, totalPage);
     }
 
-  public Result paging(int page, List<String> categories, String nickname) {
-      Member member = findMemberByUsername();
-      String getMembersArea = member.getArea();
+    public Result paging(int page, List<String> categories, String nickname) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start("paging 시작");
+        Member member = findMemberByUsername();
+        String getMembersArea = member.getArea();
 
-      ListOperations<String, String> vo = redisTemplate.opsForList();
+        ListOperations<String, String> vo = redisTemplate.opsForList();
 
-      //카테고리 리스트
-      List<String> categoryList = categories.stream()
-              .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
-              .collect(Collectors.toList());
+        //카테고리 리스트
+        List<String> categoryList = categories.stream()
+                .map(m -> URLDecoder.decode(m, StandardCharsets.UTF_8))
+                .collect(Collectors.toList());
 
-      //주변 동네 리스트
-      List<String> areaList = vo.range(getMembersArea + "::List", 0L, -1L);
+        //주변 동네 리스트
+        List<String> areaList = vo.range(getMembersArea + "::List", 0L, -1L);
 
-      //없을 경우 DB에서 조회 후 Redis에 저장
-      if (areaList.isEmpty()) {
-          areaList = memberService.setNearArea(getMembersArea);
-          vo.leftPushAll(getMembersArea + "::List", areaList);
-      }
+        //없을 경우 DB에서 조회 후 Redis에 저장
+        if (areaList.isEmpty()) {
+            areaList = memberService.setNearArea(getMembersArea);
+            vo.leftPushAll(getMembersArea + "::List", areaList);
+        }
 
-      //차단 사용자 리스트
-      List<String> blockList = member.getBlocks().stream()
-              .map(Block::getToMember)
-              .collect(Collectors.toList());
+        //차단 사용자 리스트
+        List<String> blockList = member.getBlocks().stream()
+                .map(Block::getToMember)
+                .collect(Collectors.toList());
 
-      //필터링 후 데이터 조회
-      List<QBoardDto> QBoardList = queryRepository.findBoards(page,20,nickname,blockList,areaList,categoryList);
 
-      int totalPage = boardRepository.boardCount() / 20;
+        //필터링 후 데이터 조회
+        List<QBoardDto> QBoardList = queryRepository.findBoards(page, 20, nickname, blockList, areaList, categoryList);
 
-      return new Result(QBoardList, totalPage);
-  }
+//        int totalDataSize = boardRepository.boardCount(blockList,areaList,categoryList);
+        long totalDataSize = queryRepository.getPages(nickname,blockList,areaList,categoryList);
+        long totalPage = totalDataSize/20;
+        System.out.println("total : "+ totalPage);
+        System.out.println(totalDataSize%20);
+        if(totalDataSize%20 !=0){
+            System.out.println("?? ");
+            totalPage+=1;
+        }
+        stopWatch.stop();
+        log.info(""+ stopWatch.prettyPrint());
+
+        return new Result(QBoardList, totalPage);
+    }
+
+
     @Transactional
     public void deleteBoard(Long boardId) {
         Board board = boardRepository.findById(boardId).orElseThrow(AlreadyGoneException::new);
