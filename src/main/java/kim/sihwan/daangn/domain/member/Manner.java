@@ -25,7 +25,8 @@ public class Manner {
     private Member member;
 
     @Builder
-    public Manner(String content, String type) {
+    public Manner(Long id, String content, String type) {
+        this.id = id;
         this.content = content;
         this.type = type;
     }

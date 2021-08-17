@@ -1,6 +1,7 @@
 package kim.sihwan.daangn.dto.board;
 
 import kim.sihwan.daangn.domain.board.Board;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
+@Builder
 public class BoardRequestDto {
 
     @NotBlank(message = "닉네임은 필수 항목입니다.")

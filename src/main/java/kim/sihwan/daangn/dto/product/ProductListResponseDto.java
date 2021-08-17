@@ -20,6 +20,7 @@ public class ProductListResponseDto {
     private final String createDate;
     private final String thumbnail;
     private final String category;
+    private final String status;
     private final int productAlbumCount;
     private final boolean like;
     private final List<TagResponseDto> tags;
@@ -35,6 +36,7 @@ public class ProductListResponseDto {
                 .createDate(product.getCreateDate().toString())
                 .category(product.getCategory())
                 .thumbnail(product.getThumbnail())
+                .status(product.getStatus().toString())
                 .productAlbumCount(product.getProductAlbums().size())
                 .like(like)
                 .tags(

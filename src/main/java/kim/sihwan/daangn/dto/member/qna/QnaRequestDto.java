@@ -1,6 +1,7 @@
 package kim.sihwan.daangn.dto.member.qna;
 
 import kim.sihwan.daangn.domain.member.Qna;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 @Setter
+@Builder
 public class QnaRequestDto {
 
     @NotBlank(message = "닉네임은 필수 항목입니다.")
@@ -27,3 +29,4 @@ public class QnaRequestDto {
 
     }
 }
+

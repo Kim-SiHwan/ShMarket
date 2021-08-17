@@ -27,7 +27,8 @@ public class Review {
     private Member member;
 
     @Builder
-    public Review(String content, String buyer) {
+    public Review(Long id, String content, String buyer) {
+        this.id = id;
         this.content = content;
         this.buyer = buyer;
         this.createDate = LocalDateTime.now();

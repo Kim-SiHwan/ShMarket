@@ -35,7 +35,8 @@ public class Qna {
 
 
     @Builder
-    public Qna(String title, String content) {
+    public Qna(Long id, String title, String content) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.answer = "";

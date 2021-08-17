@@ -73,7 +73,8 @@ public class Product {
     }
 
     @Builder
-    public Product(String area, String price, String nickname, String title, String content, String category) {
+    public Product(Long id, String area, String price, String nickname, String title, String content, String category) {
+        this.id = id;
         this.area = area;
         this.nickname = nickname;
         this.price = price;

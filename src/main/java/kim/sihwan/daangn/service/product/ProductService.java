@@ -195,6 +195,11 @@ public class ProductService {
         //전체 페이지 수 조회 ( 어떻게 개선해야할까 ? )
         long totalDataSize = queryRepository.getPages(nickname,blockList,areaList,categoryList);
         long totalPage = totalDataSize/20;
+
+        if(totalDataSize < 20){
+            totalPage=1;
+        }
+
         if(totalDataSize%20 !=0){
             totalPage+=1;
         }

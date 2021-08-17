@@ -2,11 +2,9 @@ package kim.sihwan.daangn.controller;
 
 import kim.sihwan.daangn.dto.member.MemberResponseDto;
 import kim.sihwan.daangn.service.admin.AdminService;
-import kim.sihwan.daangn.service.member.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +15,6 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
-    private final MemberService memberService;
 
     @GetMapping("/members")
     public ResponseEntity<List<MemberResponseDto>> findAllMembers(){
@@ -27,7 +24,6 @@ public class AdminController {
     @PostMapping("/qna/{qnaId}")
     public void addAnswerToQna(@PathVariable Long qnaId,
                                @RequestParam String answer){
-        System.out.println(SecurityContextHolder.getContext().getAuthentication().getAuthorities());
         adminService.addAnswer(qnaId, answer);
     }
 
