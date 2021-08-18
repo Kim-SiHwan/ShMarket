@@ -13,6 +13,29 @@
 ![image](https://user-images.githubusercontent.com/66605925/129331256-ff1fde73-a669-4ce1-b270-9a26e0e40e66.png)
 
 ---
+### With Blog
+- 프로젝트 개요
+  - https://tjdans.tistory.com/27
+
+- 웹 소켓 JWT 인증 이슈 해결하기
+  - https://tjdans.tistory.com/25
+
+- N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
+  - https://tjdans.tistory.com/28
+  
+- 조회 성능 최적화하기
+  - 최종 결과 -> 232초 -> 0.004 ~ 0.2초로 개선 
+  - https://tjdans.tistory.com/29
+ 
+- 푸시 메시지를 비 동기적으로 사용하기 
+  - https://tjdans.tistory.com/31
+
+- Docker-Compose를 사용해 배포 
+
+- Redis 캐싱 전략과 장애 대비
+  - https://tjdans.tistory.com/32
+--- 
+
 ### 개발 환경
 ![image](https://user-images.githubusercontent.com/66605925/129332681-19fb1ffb-b82c-48c3-b24c-07ef4db55d33.png)
 
@@ -189,25 +212,5 @@
 
 ---
 
-### With Blog
-- 프로젝트 개요
-  - https://tjdans.tistory.com/27
 
-- 웹 소켓 JWT 인증 이슈 해결하기
-  - https://tjdans.tistory.com/25
-
-- N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
-  - https://tjdans.tistory.com/28
-  
-- 조회 성능 최적화하기
-  - 최종 결과 -> 232초 -> 0.004 ~ 0.2초로 개선 
-  - https://tjdans.tistory.com/29
- 
-- 푸시 메시지를 비 동기적으로 사용하기 
-  - https://tjdans.tistory.com/31
-
-- Docker-Compose를 사용해 배포 
-
-- Redis 캐싱 전략과 장애 대비
-  - https://tjdans.tistory.com/32
   
