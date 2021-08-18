@@ -13,6 +13,29 @@
 ![image](https://user-images.githubusercontent.com/66605925/129331256-ff1fde73-a669-4ce1-b270-9a26e0e40e66.png)
 
 ---
+### With Blog
+- 프로젝트 개요
+  - https://tjdans.tistory.com/27
+
+- 웹 소켓 JWT 인증 이슈 해결하기
+  - https://tjdans.tistory.com/25
+
+- N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
+  - https://tjdans.tistory.com/28
+  
+- 조회 성능 최적화하기
+  - 최종 결과 -> 232초 -> 0.004 ~ 0.2초로 개선 
+  - https://tjdans.tistory.com/29
+ 
+- 푸시 메시지를 비 동기적으로 사용하기 
+  - https://tjdans.tistory.com/31
+
+- Docker-Compose를 사용해 배포 
+
+- Redis 캐싱 전략과 장애 대비
+  - https://tjdans.tistory.com/32
+--- 
+
 ### 개발 환경
 ![image](https://user-images.githubusercontent.com/66605925/129332681-19fb1ffb-b82c-48c3-b24c-07ef4db55d33.png)
 
@@ -36,7 +59,7 @@
 `AWS EC2` `AWS S3` 
 
 ---
-*** ERD
+### ERD
 ![image](https://user-images.githubusercontent.com/66605925/129332942-f89752c3-236b-4507-889c-af5feb6bd822.png)
 
 ---
@@ -55,9 +78,17 @@
 
 6. 매너 평가 C, R
 
+![매너평가](https://user-images.githubusercontent.com/66605925/129896273-78efdb06-989b-4a5b-8123-f56e52f5f034.gif)
+
+
 7. 거래 후기 C, R
 
+![거래후기](https://user-images.githubusercontent.com/66605925/129896283-178b6860-80d5-49f2-8592-9b0d0a3cb676.gif)
+
 8. 회원 차단 C, R, D ( 차단 유저의 게시글 조회하지 않음 )
+
+![차단](https://user-images.githubusercontent.com/66605925/129896303-ee0aaaad-a203-4cba-96b0-950c95ce55d6.gif)
+
 
 **`지역`**
 
@@ -115,6 +146,9 @@
 
 5. 댓글 C, R, U, D
 
+![댓글](https://user-images.githubusercontent.com/66605925/129896385-b509d8d4-2b33-47dd-a5c9-fff7b7d767f4.gif)
+
+
 6. 작성자로 게시글 조회
 
 **`키워드 푸시 알림 ( Redis, Rabbit MQ 사용 )`**
@@ -139,6 +173,9 @@
 
 6. 키워드 알림 상태 변경 ( 안읽음 -> 읽음 )
 
+![키워드](https://user-images.githubusercontent.com/66605925/129896185-010352bb-f02f-4111-8e06-bb65e5d8eddc.gif)
+
+
 **`채팅 ( Web Socket, Rabbit MQ 사용 )`**
 
 1. 채팅방 생성
@@ -150,6 +187,9 @@
 3.1 채팅 내역 조회
 
 3.2 채팅 전송
+
+![채팅](https://user-images.githubusercontent.com/66605925/129896129-08f0aed0-6a0b-4e14-9c3a-586d29c73f59.gif)
+
 
 **`Qna`**
 
@@ -189,25 +229,5 @@
 
 ---
 
-### With Blog
-- 프로젝트 개요
-  - https://tjdans.tistory.com/27
 
-- 웹 소켓 JWT 인증 이슈 해결하기
-  - https://tjdans.tistory.com/25
-
-- N+1 문제와 파생되는 MultipleBagFetch, Carstesian Product 문제 해결하기
-  - https://tjdans.tistory.com/28
-  
-- 조회 성능 최적화하기
-  - 최종 결과 -> 232초 -> 0.004 ~ 0.2초로 개선 
-  - https://tjdans.tistory.com/29
- 
-- 푸시 메시지를 비 동기적으로 사용하기 
-  - https://tjdans.tistory.com/31
-
-- Docker-Compose를 사용해 배포 
-
-- Redis 캐싱 전략과 장애 대비
-  - https://tjdans.tistory.com/32
   
