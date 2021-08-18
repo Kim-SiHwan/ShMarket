@@ -7,7 +7,10 @@ import kim.sihwan.daangn.domain.member.Block;
 import kim.sihwan.daangn.domain.member.Manner;
 import kim.sihwan.daangn.domain.member.Member;
 import kim.sihwan.daangn.domain.member.Review;
-import kim.sihwan.daangn.dto.member.*;
+import kim.sihwan.daangn.dto.member.JoinRequestDto;
+import kim.sihwan.daangn.dto.member.LoginRequestDto;
+import kim.sihwan.daangn.dto.member.LoginResponseDto;
+import kim.sihwan.daangn.dto.member.MemberResponseDto;
 import kim.sihwan.daangn.dto.member.block.BlockDto;
 import kim.sihwan.daangn.dto.member.manner.MannerDto;
 import kim.sihwan.daangn.dto.member.review.ReviewDto;
@@ -20,9 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ListOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -47,7 +48,6 @@ public class MemberService implements UserDetailsService {
 
     private final JwtTokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManagerBuilder managerBuilder;
     private final RedisTemplate<String, String> redisTemplate;
     private final RedisTemplate<String, User> userRedisTemplate;
 
@@ -96,7 +96,7 @@ public class MemberService implements UserDetailsService {
             throw new AlreadyExistException("block");
         }
 
-        if (fromMember.getBlocks().size() >= 2) {
+        if (fromMember.getBlocks().size() >= 5) {
             throw new OverSizeException("block");
         }
 
@@ -134,12 +134,17 @@ public class MemberService implements UserDetailsService {
 
     @Transactional
     public LoginResponseDto login(LoginRequestDto loginRequestDto) {
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(loginRequestDto.getUsername(), loginRequestDto.getPassword());
-        Authentication auth = managerBuilder.getObject().authenticate(token);
 
-        Member member = memberRepository.findMemberByUsername(auth.getName());
+        Member member = memberRepository.findMemberByUsername(loginRequestDto.getUsername());
+        if (member == null) {
+            throw new UserNotFoundException();
+        }
 
-        String jwt = tokenProvider.createToken(auth);
+        if (!passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())) {
+            throw new BadCredentialsException("잘못된 비밀번호입니다.");
+        }
+
+        String jwt = tokenProvider.createToken(member.getUsername());
         if (loginRequestDto.getFcmToken() != null) {
             ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
             valueOperations.set(member.getId() + "::FCM", loginRequestDto.getFcmToken());
@@ -168,14 +173,19 @@ public class MemberService implements UserDetailsService {
             throw new NicknameDuplicatedException();
         }
         memberRepository.save(member);
+        setNearArea(joinRequestDto.getArea());
+        return member.getId();
+    }
 
-        String[] splitStr = joinRequestDto.getArea().split(" ");
+    public ArrayList<String> setNearArea(String area) {
+
+        String[] splitStr = area.split(" ");
         String city = splitStr[0];
         List<Area> list = areaRepository.findAllByCityLike("%" + city + "%");
 
-        Area getArea = areaRepository.findByAddress(joinRequestDto.getArea());
+        Area getArea = areaRepository.findByAddress(area);
 
-        List<String> nearArea = new ArrayList<>();
+        ArrayList<String> nearArea = new ArrayList<>();
         list.forEach(l -> {
             double distanceMeter =
                     distance(Double.parseDouble(getArea.getLat()), Double.parseDouble(getArea.getLng()), Double.parseDouble(l.getLat()), Double.parseDouble(l.getLng()), "meter");
@@ -184,13 +194,14 @@ public class MemberService implements UserDetailsService {
             }
         });
         ListOperations<String, String> vo = redisTemplate.opsForList();
-        if (!vo.getOperations().hasKey(getArea.getAddress() + "::List")) {
+        if (vo.range(getArea.getAddress() + "::List", 0L, -1L).isEmpty()) {
             vo.leftPushAll(getArea.getAddress() + "::List", nearArea);
         }
-        return member.getId();
+
+        return nearArea;
     }
 
-    private static double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
+    public double distance(double lat1, double lon1, double lat2, double lon2, String unit) {
 
         double theta = lon1 - lon2;
         double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
@@ -209,11 +220,11 @@ public class MemberService implements UserDetailsService {
     }
 
 
-    private static double deg2rad(double deg) {
+    public double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
 
-    private static double rad2deg(double rad) {
+    public double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
     }
 

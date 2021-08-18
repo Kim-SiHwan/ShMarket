@@ -26,15 +26,14 @@ public class JwtTokenProvider {
     @Value("${jwt.token-validity-in-seconds}")
     long tokenValidityInSeconds;
 
-
-    public String createToken(Authentication authentication){
+    public String createToken(String username){
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + this.tokenValidityInSeconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim("auth", authentication.getAuthorities())
+                .setSubject(username)
+                .claim("auth", "ROLE_USER")
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .setExpiration(validity)
                 .setIssuedAt(new Date(now))
@@ -42,7 +41,6 @@ public class JwtTokenProvider {
 
 
     }
-
     public Authentication getAuthentication(String token){
         Claims claims = Jwts
                 .parserBuilder()
