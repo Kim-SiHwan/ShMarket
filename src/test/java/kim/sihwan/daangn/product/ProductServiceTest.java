@@ -63,9 +63,6 @@ public class ProductServiceTest {
     MemberService memberService;
 
     @Mock
-    ProductRequestDto productRequestDto;
-
-    @Mock
     RedisTemplate<String, String> redisTemplate;
 
     @Mock
@@ -110,7 +107,6 @@ public class ProductServiceTest {
     public void 상품_등록테스트() throws Exception {
 
         //given
-        given(productRequestDto.toEntity(any(ProductRequestDto.class))).willReturn(product);
         given(memberRepository.findMemberByNickname(anyString())).willReturn(Optional.ofNullable(member));
 
         //when

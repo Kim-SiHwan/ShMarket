@@ -87,7 +87,9 @@ public class ChatService {
 
         Product product = productRepository.findById(chatRequestDto.getProductId()).orElseThrow(NoSuchElementException::new);
         chatRoom.addProduct(product);
-        return chatRoomRepository.save(chatRoom).getId();
+
+        chatRoomRepository.save(chatRoom);
+        return chatRoom.getId();
     }
 
     @Transactional
