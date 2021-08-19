@@ -226,6 +226,35 @@
 3. 사용자에게 적절한 HTTP Status와 Message를 전달
 ---
 ### API DOCS
+## Member
+![member](https://user-images.githubusercontent.com/66605925/130019285-18c80cf5-1170-4853-8ef1-7584219bff51.PNG)
+
+## Admin
+![adm](https://user-images.githubusercontent.com/66605925/130019335-015612de-5da4-4976-833f-9577214669e1.PNG)
+
+## Area
+![area](https://user-images.githubusercontent.com/66605925/130019313-3a39013a-b3e4-40f6-a2a0-29380afa0195.PNG)
+
+## Board
+![board](https://user-images.githubusercontent.com/66605925/130019321-598f3910-0a90-4a88-82ca-0c9a18e7038e.PNG)
+
+## Comment
+![co,m,m](https://user-images.githubusercontent.com/66605925/130019276-4f1179a6-d1fb-490d-b368-e133cceaaefa.PNG)
+
+## Product
+![prodd](https://user-images.githubusercontent.com/66605925/130019255-e7103098-2712-4bd5-b375-77f986cc15e6.PNG)
+
+## Chat
+![chat](https://user-images.githubusercontent.com/66605925/130019268-716ca73e-8205-4a00-9678-bc2afec1d0e8.PNG)
+
+## Push
+![push](https://user-images.githubusercontent.com/66605925/130019240-ca1c9a00-d392-4d27-a4cb-9e60a59ef8c6.PNG)
+
+## Notice
+![norttuii](https://user-images.githubusercontent.com/66605925/130019349-d3c8598b-4bd4-4c19-93d5-6c37dee8767a.PNG)
+
+## Qna
+![Qna](https://user-images.githubusercontent.com/66605925/130019224-1f899507-bcac-4d40-aa41-b3f6046f0a8d.PNG)
 
 ---
 
